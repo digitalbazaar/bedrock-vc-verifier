@@ -1,0 +1,30 @@
+{
+  "name": "bedrock-vc-verifier-test",
+  "version": "0.0.1-0",
+  "description": "Bedrock VC Verifier Test",
+  "main": "test",
+  "private": true,
+  "scripts": {
+    "test": "node --preserve-symlinks test.js test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/digitalbazaar/bedrock-key-http"
+  },
+  "author": {
+    "name": "Digital Bazaar, Inc.",
+    "email": "support@digitalbazaar.com",
+    "url": "http://digitalbazaar.com"
+  },
+  "bugs": {
+    "url": "https://github.com/digitalbazaar/bedrock-key-http/issues"
+  },
+  "homepage": "https://github.com/digitalbazaar/bedrock-key-http",
+  "dependencies": {
+    "bedrock": "^1.0.6",
+    "bedrock-express": "^2.1.0",
+    "bedrock-server": "^2.3.2",
+    "bedrock-test": "^2.1.0",
+    "bedrock-vc-verifier": "file:.."
+  }
+}

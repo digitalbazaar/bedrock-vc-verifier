@@ -1,0 +1,26 @@
+{
+  "name": "bedrock-vc-verifier",
+  "version": "0.0.1-0",
+  "description": "Bedrock VC Verifier",
+  "main": "lib",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/digitalbazaar/bedrock-vc-verifier.git"
+  },
+  "author": {
+    "name": "Digital Bazaar, Inc.",
+    "email": "support@digitalbazaar.com",
+    "url": "http://digitalbazaar.com"
+  },
+  "bugs": {
+    "url": "https://github.com/digitalbazaar/bedrock-vc-verifier/issues"
+  },
+  "homepage": "https://github.com/digitalbazaar/bedrock-vc-verifier",
+  "dependencies": {
+    "did-veres-one": "github:veres-one/did-veres-one#targetNode",
+    "vc-js": "github:digitalbazaar/vc-js#poc"
+  },
+  "peerDependencies": {
+    "bedrock": "^1.12.0"
+  }
+}
