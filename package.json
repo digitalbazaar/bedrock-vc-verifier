@@ -17,10 +17,12 @@
   },
   "homepage": "https://github.com/digitalbazaar/bedrock-vc-verifier",
   "dependencies": {
-    "did-veres-one": "github:veres-one/did-veres-one#targetNode",
+    "did-veres-one": "github:veres-one/did-veres-one#targetNodePlus",
     "vc-js": "github:digitalbazaar/vc-js#poc"
   },
   "peerDependencies": {
-    "bedrock": "^1.12.0"
+    "bedrock": "^1.14.0",
+    "bedrock-express": "^2.1.0",
+    "bedrock-rest": "^2.1.2"
   }
 }
