@@ -6,10 +6,14 @@
 const bedrock = require('bedrock');
 const {config} = bedrock;
 const axios = require('axios');
+const {loader} = require('bedrock-vc-verifier');
 const https = require('https');
 const jsigs = require('jsonld-signatures');
 const mockData = require('./mock.data');
-const v1 = new (require('did-veres-one')).VeresOne({env: 'dev'});
+const v1 = new (require('did-veres-one')).VeresOne();
+// FIXME: temporary, did-veres-one will be returning a keypair that can be
+// used for signing operations
+const {Ed25519KeyPair} = require('crypto-ld');
 
 const strictSSL = false;
 const url = `${config.server.baseUri}/vc/verify`;
@@ -18,7 +22,8 @@ describe('verify API', () => {
   it('', async () => {
     let error;
     let result;
-    const {credential} = await _generate();
+    const {v1DidDoc, credential} = await _generate();
+    loader.documents.set(v1DidDoc.id, v1DidDoc.doc);
     try {
       result = await axios({
         httpsAgent: new https.Agent({rejectUnauthorized: strictSSL}),
@@ -32,49 +37,30 @@ describe('verify API', () => {
     should.not.exist(error);
     should.exist(result.data);
     const {data} = result;
-    console.log('RRRRRRR', data);
+    should.exist(data);
+    data.should.be.an('object');
+    should.exist(data.verified);
+    data.verified.should.be.a('boolean');
+    data.verified.should.be.true;
   });
 });
-
-function _createDocumentLoader() {
-  return async url => {
-    console.log('1111111111111', url);
-    let document;
-    try {
-      ({document} = await bedrock.jsonld.documentLoader(url));
-    } catch(e) {
-      console.log('UUUUUU', url);
-    }
-    if(!document) {
-      throw new Error('NotFoundError');
-    }
-    return {
-      contextUrl: null,
-      document,
-      documentUrl: url
-    };
-  };
-}
 
 async function _generate() {
   const v1DidDoc = await v1.generate();
   const aKey = v1DidDoc.suiteKeyNode({suiteId: 'authentication'});
   const authenticationKey = v1DidDoc.keys[aKey.id];
   const key = await authenticationKey.export();
-  console.log('ppppppppp', key);
-  // console.log('DDDDDDD', aKey.export());
-  // console.log('DDDDDDD', v1);
   const mockCredential = bedrock.util.clone(mockData.credentials.alpha);
   const {Ed25519Signature2018} = jsigs.suites;
   const {AuthenticationProofPurpose} = jsigs.purposes;
   const credential = await jsigs.sign(mockCredential, {
     // FIXME: `sec` terms are not in the vc-v1 context, should they be?
     compactProof: true,
-    documentLoader: _createDocumentLoader(),
-    suite: new Ed25519Signature2018({key}),
+    documentLoader: bedrock.jsonld.documentLoader,
+    suite: new Ed25519Signature2018({key: new Ed25519KeyPair(key)}),
     purpose: new AuthenticationProofPurpose({
-      challenge: 'foo'
+      challenge: 'challengeString'
     })
   });
-  return {credential};
+  return {credential, v1DidDoc};
 }
