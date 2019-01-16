@@ -6,11 +6,13 @@
 const bedrock = require('bedrock');
 const {config} = bedrock;
 const axios = require('axios');
-const {loader} = require('bedrock-vc-verifier');
 const https = require('https');
 const jsigs = require('jsonld-signatures');
 const mockData = require('./mock.data');
-const v1 = new (require('did-veres-one')).VeresOne();
+const v1 = new (require('did-veres-one')).VeresOne({
+  hostname: config['vc-verifier'].ledgerHostname,
+  mode: 'dev'
+});
 // FIXME: temporary, did-veres-one will be returning a keypair that can be
 // used for signing operations
 const {Ed25519KeyPair} = require('crypto-ld');
@@ -18,12 +20,14 @@ const {Ed25519KeyPair} = require('crypto-ld');
 const strictSSL = false;
 const url = `${config.server.baseUri}/vc/verify`;
 
-describe('verify API', () => {
-  it('', async () => {
+describe('verify API using local dev ledger', () => {
+  it('verifies a valid credential', async () => {
     let error;
-    let result;
     const {v1DidDoc, credential} = await _generate();
-    loader.documents.set(v1DidDoc.id, v1DidDoc.doc);
+    // register DID on the ledger
+    await v1.register({didDocument: v1DidDoc});
+    await _waitForConsensus({did: v1DidDoc.id});
+    let result;
     try {
       result = await axios({
         httpsAgent: new https.Agent({rejectUnauthorized: strictSSL}),
@@ -63,4 +67,25 @@ async function _generate() {
     })
   });
   return {credential, v1DidDoc};
+}
+
+async function _waitForConsensus({did}) {
+  let found = false;
+  let didRecord;
+  while(!found) {
+    try {
+      // using v1.client.get here because v1.get will pull locally created
+      // did from local storage as a pairwise did
+      didRecord = await v1.client.get({did});
+      found = true;
+    } catch(e) {
+      if(e.response.status !== 404) {
+        throw e;
+      }
+      console.log('Waiting for consensus...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      continue;
+    }
+  }
+  return didRecord;
 }

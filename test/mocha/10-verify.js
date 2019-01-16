@@ -18,8 +18,8 @@ const {Ed25519KeyPair} = require('crypto-ld');
 const strictSSL = false;
 const url = `${config.server.baseUri}/vc/verify`;
 
-describe('verify API', () => {
-  it('', async () => {
+describe.skip('verify API', () => {
+  it('verifies a valid credential', async () => {
     let error;
     let result;
     const {v1DidDoc, credential} = await _generate();
