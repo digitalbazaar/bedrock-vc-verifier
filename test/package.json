@@ -32,7 +32,7 @@
     "bedrock-vc-verifier": "file:..",
     "bedrock-veres-one-context": "^6.0.0",
     "bedrock-views": "^6.0.0",
-    "crypto-ld": "github:digitalbazaar/crypto-ld#signer",
+    "crypto-ld": "^2.0.0",
     "jsonld-signatures": "github:digitalbazaar/jsonld-signatures#use-crypto-ld"
   }
 }
