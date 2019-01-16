@@ -9,6 +9,7 @@ const axios = require('axios');
 const https = require('https');
 const jsigs = require('jsonld-signatures');
 const mockData = require('./mock.data');
+const uuid = require('uuid/v4');
 const v1 = new (require('did-veres-one')).VeresOne({
   hostname: config['vc-verifier'].ledgerHostname,
   mode: 'dev'
@@ -21,17 +22,21 @@ const strictSSL = false;
 const url = `${config.server.baseUri}/vc/verify`;
 
 describe('verify API using local dev ledger', () => {
-  it('verifies a valid credential', async () => {
+  it('verifies a valid presentation', async () => {
     let error;
-    const {v1DidDoc, credential} = await _generate();
+    const challenge = uuid();
+    const domain = uuid();
+    const {signingKey: credentialSigningKey} = await _registerDid();
+    const {signingKey: presentationSigningKey} = await _registerDid();
+    const {presentation} = await _generatePresentation(
+      {challenge, domain, credentialSigningKey, presentationSigningKey});
     // register DID on the ledger
-    await v1.register({didDocument: v1DidDoc});
-    await _waitForConsensus({did: v1DidDoc.id});
+
     let result;
     try {
       result = await axios({
         httpsAgent: new https.Agent({rejectUnauthorized: strictSSL}),
-        data: {credential},
+        data: {challenge, domain, presentation},
         method: 'POST',
         url,
       });
@@ -49,24 +54,47 @@ describe('verify API using local dev ledger', () => {
   });
 });
 
-async function _generate() {
+async function _registerDid() {
   const v1DidDoc = await v1.generate();
   const aKey = v1DidDoc.suiteKeyNode({suiteId: 'authentication'});
   const authenticationKey = v1DidDoc.keys[aKey.id];
   const key = await authenticationKey.export();
+  const signingKey = new Ed25519KeyPair(key);
+  await v1.register({didDocument: v1DidDoc});
+  await _waitForConsensus({did: v1DidDoc.id});
+  return {v1DidDoc, signingKey};
+}
+
+async function _generateCredential({signingKey}) {
   const mockCredential = bedrock.util.clone(mockData.credentials.alpha);
   const {Ed25519Signature2018} = jsigs.suites;
   const {AuthenticationProofPurpose} = jsigs.purposes;
   const credential = await jsigs.sign(mockCredential, {
-    // FIXME: `sec` terms are not in the vc-v1 context, should they be?
-    compactProof: true,
+    compactProof: false,
     documentLoader: bedrock.jsonld.documentLoader,
-    suite: new Ed25519Signature2018({key: new Ed25519KeyPair(key)}),
+    suite: new Ed25519Signature2018({key: signingKey}),
     purpose: new AuthenticationProofPurpose({
       challenge: 'challengeString'
     })
   });
-  return {credential, v1DidDoc};
+  return {credential};
+}
+
+async function _generatePresentation(
+  {challenge, domain, credentialSigningKey, presentationSigningKey}) {
+  const mockPresentation = bedrock.util.clone(mockData.presentations.alpha);
+  const {Ed25519Signature2018} = jsigs.suites;
+  const {AuthenticationProofPurpose} = jsigs.purposes;
+  const {credential} = await _generateCredential(
+    {signingKey: credentialSigningKey});
+  mockPresentation.verifiableCredential.push(credential);
+  const presentation = await jsigs.sign(mockPresentation, {
+    compactProof: false,
+    documentLoader: bedrock.jsonld.documentLoader,
+    suite: new Ed25519Signature2018({key: presentationSigningKey}),
+    purpose: new AuthenticationProofPurpose({challenge, domain})
+  });
+  return {presentation};
 }
 
 async function _waitForConsensus({did}) {
