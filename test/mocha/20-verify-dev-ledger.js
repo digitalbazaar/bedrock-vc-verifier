@@ -13,7 +13,8 @@ const uuid = require('uuid/v4');
 const strictSSL = false;
 const url = `${config.server.baseUri}/vc/verify`;
 
-describe('verify API using local dev ledger', () => {
+// this test can only be run if there is a dev veres-one ledger on localhost
+describe.skip('verify API using local dev ledger', () => {
   it('verifies a valid presentation', async () => {
     let error;
     const challenge = uuid();

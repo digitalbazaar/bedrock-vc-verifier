@@ -17,23 +17,13 @@ const v1 = new (require('did-veres-one')).VeresOne({
 const {Ed25519KeyPair} = require('crypto-ld');
 
 const api = {
-  registerDid,
   generateCredential,
+  generateDid,
   generatePresentation,
+  registerDid,
   waitForConsensus,
 };
 module.exports = api;
-
-async function registerDid() {
-  const v1DidDoc = await v1.generate();
-  const aKey = v1DidDoc.suiteKeyNode({suiteId: 'authentication'});
-  const authenticationKey = v1DidDoc.keys[aKey.id];
-  const key = await authenticationKey.export();
-  const signingKey = new Ed25519KeyPair(key);
-  await v1.register({didDocument: v1DidDoc});
-  await waitForConsensus({did: v1DidDoc.id});
-  return {v1DidDoc, signingKey};
-}
 
 async function generateCredential({signingKey}) {
   const mockCredential = bedrock.util.clone(mockData.credentials.alpha);
@@ -48,6 +38,15 @@ async function generateCredential({signingKey}) {
     })
   });
   return {credential};
+}
+
+async function generateDid() {
+  const v1DidDoc = await v1.generate();
+  const aKey = v1DidDoc.suiteKeyNode({suiteId: 'authentication'});
+  const authenticationKey = v1DidDoc.keys[aKey.id];
+  const key = await authenticationKey.export();
+  const signingKey = new Ed25519KeyPair(key);
+  return {v1DidDoc, signingKey};
 }
 
 async function generatePresentation(
@@ -65,6 +64,13 @@ async function generatePresentation(
     purpose: new AuthenticationProofPurpose({challenge, domain})
   });
   return {presentation};
+}
+
+async function registerDid() {
+  const {v1DidDoc, signingKey} = await generateDid();
+  await v1.register({didDocument: v1DidDoc});
+  await waitForConsensus({did: v1DidDoc.id});
+  return {v1DidDoc, signingKey};
 }
 
 async function waitForConsensus({did}) {
