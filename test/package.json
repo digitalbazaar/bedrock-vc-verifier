@@ -33,7 +33,7 @@
     "bedrock-vc-verifier": "file:..",
     "bedrock-veres-one-context": "digitalbazaar/bedrock-veres-one-context#upgrade-context",
     "bedrock-views": "^6.0.0",
-    "crypto-ld": "^2.0.0",
-    "jsonld-signatures": "^3.0.0"
+    "crypto-ld": "^3.0.0",
+    "jsonld-signatures": "^4.0.0"
   }
 }

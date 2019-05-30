@@ -19,7 +19,7 @@
   "dependencies": {
     "did-veres-one": "^3.0.0",
     "serialize-error": "^3.0.0",
-    "vc-js": "github:digitalbazaar/vc-js#dev"
+    "vc-js": "github:digitalbazaar/vc-js#master"
   },
   "peerDependencies": {
     "bedrock": "^1.17.0",
