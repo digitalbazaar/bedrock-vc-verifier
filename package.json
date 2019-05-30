@@ -22,7 +22,7 @@
     "vc-js": "github:digitalbazaar/vc-js#dev"
   },
   "peerDependencies": {
-    "bedrock": "^1.14.0",
+    "bedrock": "^1.17.0",
     "bedrock-credentials-context": "github:digitalbazaar/bedrock-credentials-context#dev",
     "bedrock-express": "^2.1.0",
     "bedrock-rest": "^2.1.2",

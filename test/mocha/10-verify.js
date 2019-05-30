@@ -4,12 +4,11 @@
 'use strict';
 
 const bedrock = require('bedrock');
-const {config} = bedrock;
+const {config, util: {uuid}} = bedrock;
 const axios = require('axios');
 const {loader} = require('bedrock-vc-verifier');
 const helpers = require('./helpers');
 const https = require('https');
-const uuid = require('uuid');
 
 const strictSSL = false;
 const url = `${config.server.baseUri}/vc/verify`;
