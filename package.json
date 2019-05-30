@@ -27,5 +27,9 @@
     "bedrock-express": "^2.1.0",
     "bedrock-rest": "^2.1.2",
     "bedrock-veres-one-context": "^7.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-digitalbazaar": "^2.0.0"
   }
 }
