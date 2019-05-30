@@ -5,7 +5,7 @@ module.exports = mock;
 
 const didContexts = [
   constants.DID_CONTEXT_URL,
-  constants.VERES_ONE_CONTEXT_URL
+  constants.VERES_ONE_CONTEXT_V1_URL
 ];
 
 const credentials = mock.credentials = {};

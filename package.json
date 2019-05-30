@@ -25,6 +25,7 @@
     "bedrock": "^1.14.0",
     "bedrock-credentials-context": "github:digitalbazaar/bedrock-credentials-context#dev",
     "bedrock-express": "^2.1.0",
-    "bedrock-rest": "^2.1.2"
+    "bedrock-rest": "^2.1.2",
+    "bedrock-veres-one-context": "^7.0.0"
   }
 }
