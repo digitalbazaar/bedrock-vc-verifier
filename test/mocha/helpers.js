@@ -7,6 +7,7 @@ const bedrock = require('bedrock');
 const {config} = bedrock;
 const jsigs = require('jsonld-signatures');
 const mockData = require('./mock.data');
+const {loader: {documentLoader}} = require('bedrock-vc-verifier');
 const v1 = new (require('did-veres-one')).VeresOne({
   hostname: config['vc-verifier'].ledgerHostname,
   mode: 'dev'
@@ -31,7 +32,7 @@ async function generateCredential({signingKey}) {
   const {AuthenticationProofPurpose} = jsigs.purposes;
   const credential = await jsigs.sign(mockCredential, {
     compactProof: false,
-    documentLoader: bedrock.jsonld.documentLoader,
+    documentLoader,
     suite: new Ed25519Signature2018({key: signingKey}),
     purpose: new AuthenticationProofPurpose({
       challenge: 'challengeString'
@@ -42,7 +43,7 @@ async function generateCredential({signingKey}) {
 
 async function generateDid() {
   const v1DidDoc = await v1.generate();
-  const aKey = v1DidDoc.suiteKeyNode({suiteId: 'authentication'});
+  const [aKey] = v1DidDoc.doc.authentication;
   const authenticationKey = v1DidDoc.keys[aKey.id];
   const key = await authenticationKey.export();
   const signingKey = new Ed25519KeyPair(key);
@@ -59,7 +60,7 @@ async function generatePresentation(
   mockPresentation.verifiableCredential.push(credential);
   const presentation = await jsigs.sign(mockPresentation, {
     compactProof: false,
-    documentLoader: bedrock.jsonld.documentLoader,
+    documentLoader,
     suite: new Ed25519Signature2018({key: presentationSigningKey}),
     purpose: new AuthenticationProofPurpose({challenge, domain})
   });
