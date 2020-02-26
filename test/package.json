@@ -22,18 +22,20 @@
   "homepage": "https://github.com/digitalbazaar/bedrock-key-http",
   "dependencies": {
     "axios": "^0.18.0",
-    "bedrock": "^1.17.0",
-    "bedrock-credentials-context": "github:digitalbazaar/bedrock-credentials-context#dev",
-    "bedrock-express": "^2.1.0",
-    "bedrock-ledger-context": "^12.0.0",
-    "bedrock-rest": "^2.1.2",
-    "bedrock-server": "^2.3.2",
-    "bedrock-test": "^2.1.0",
-    "bedrock-validation": "^4.0.1",
+    "bedrock": "^3.1.0",
+    "bedrock-credentials-context": "^1.0.0",
+    "bedrock-express": "^3.1.0",
+    "bedrock-jsonld-document-loader": "^1.0.1",
+    "bedrock-ledger-context": "^15.0.0",
+    "bedrock-rest": "^3.0.0",
+    "bedrock-security-context": "^3.0.0",
+    "bedrock-server": "^2.4.1",
+    "bedrock-test": "^5.2.0",
+    "bedrock-validation": "^4.2.0",
     "bedrock-vc-verifier": "file:..",
-    "bedrock-veres-one-context": "digitalbazaar/bedrock-veres-one-context#upgrade-context",
-    "bedrock-views": "^6.0.0",
-    "crypto-ld": "^3.0.0",
-    "jsonld-signatures": "^4.0.0"
+    "bedrock-veres-one-context": "^10.0.0",
+    "bedrock-views": "^7.1.0",
+    "crypto-ld": "^3.7.0",
+    "jsonld-signatures": "^5.0.0"
   }
 }
