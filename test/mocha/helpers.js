@@ -17,12 +17,17 @@ const v1 = new (require('did-veres-one')).VeresOne({
 // used for signing operations
 const {Ed25519KeyPair} = require('crypto-ld');
 
+const challenge = 'challengeString';
+const domain = 'example.org';
+
 const api = {
   generateCredential,
   generateDid,
   generatePresentation,
   registerDid,
   waitForConsensus,
+  challenge,
+  domain
 };
 module.exports = api;
 
@@ -35,7 +40,8 @@ async function generateCredential({signingKey}) {
     documentLoader,
     suite: new Ed25519Signature2018({key: signingKey}),
     purpose: new AuthenticationProofPurpose({
-      challenge: 'challengeString'
+      challenge,
+      domain
     })
   });
   return {credential};
