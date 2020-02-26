@@ -16,8 +16,7 @@ const url = `${config.server.baseUri}/vc/verify`;
 // FIXME: update to latest vc-js APIs
 describe('verify API using local DID document loader', () => {
   it('verifies a valid credential', async () => {
-    const challenge = uuid();
-    const domain = uuid();
+    const {challenge, domain} = helpers;
     let error;
     let result;
     const {v1DidDoc: credentialSignerDid, signingKey: credentialSigningKey} =
