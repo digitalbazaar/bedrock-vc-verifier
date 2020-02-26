@@ -4,6 +4,6 @@
 const bedrock = require('bedrock');
 require('bedrock-vc-verifier');
 require('bedrock-veres-one-context');
-
+require('bedrock-credentials-context');
 require('bedrock-test');
 bedrock.start();
