@@ -19,6 +19,8 @@ credentials.alpha = {
   ],
   "id": "http://example.edu/credentials/58473",
   "type": ["VerifiableCredential", "AlumniCredential"],
+  "issuer": "did:test:issuer:foo",
+  "issuanceDate": new Date().toISOString(),
   "credentialSubject": {
     "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
     "alumniOf": "Example University"

@@ -4,7 +4,7 @@
 'use strict';
 
 const bedrock = require('bedrock');
-const {config, util: {uuid}} = bedrock;
+const {config} = bedrock;
 const axios = require('axios');
 const helpers = require('./helpers');
 const https = require('https');
@@ -16,8 +16,7 @@ const url = `${config.server.baseUri}/vc/verify`;
 describe.skip('verify API using local dev ledger', () => {
   it('verifies a valid presentation', async () => {
     let error;
-    const challenge = uuid();
-    const domain = uuid();
+    const {challenge, domain} = helpers;
     const {signingKey: credentialSigningKey} = await helpers.registerDid();
     const {signingKey: presentationSigningKey} = await helpers.registerDid();
     const {presentation} = await helpers.generatePresentation(
