@@ -7,19 +7,11 @@
   "scripts": {
     "test": "node --preserve-symlinks test.js test"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/digitalbazaar/bedrock-key-http"
-  },
   "author": {
     "name": "Digital Bazaar, Inc.",
     "email": "support@digitalbazaar.com",
     "url": "http://digitalbazaar.com"
   },
-  "bugs": {
-    "url": "https://github.com/digitalbazaar/bedrock-key-http/issues"
-  },
-  "homepage": "https://github.com/digitalbazaar/bedrock-key-http",
   "dependencies": {
     "axios": "^0.18.0",
     "bedrock": "^3.1.0",
