@@ -26,17 +26,23 @@ describe('verify API using local DID document loader', () => {
     const {challenge, domain} = helpers;
     let error;
     let result;
-    const {v1DidDoc: credentialSignerDid, signingKey: credentialSigningKey} =
-      await helpers.generateDid();
     const {
-      v1DidDoc: presentationSignerDid,
-      signingKey: presentationSigningKey
+      v1DidDoc: credentialSignerDoc,
+      assertionMethodKey: credentialSigningKey
     } = await helpers.generateDid();
-    loader.documents.set(credentialSignerDid.id, credentialSignerDid.doc);
-    loader.documents.set(presentationSignerDid.id, presentationSignerDid.doc);
-    const {presentation} = await helpers.generatePresentation(
-      {challenge, domain, credentialSigningKey, presentationSigningKey});
-
+    const {
+      v1DidDoc: presentationSignerDoc,
+      authenticationKey: presentationSigningKey
+    } = await helpers.generateDid();
+    loader.documents.set(credentialSignerDoc.id, credentialSignerDoc.doc);
+    loader.documents.set(presentationSignerDoc.id, presentationSignerDoc.doc);
+    const {presentation} = await helpers.generatePresentation({
+      challenge,
+      domain,
+      credentialSigningKey,
+      presentationSigningKey,
+      issuer: credentialSignerDoc.id
+    });
     try {
       result = await axios({
         httpsAgent: new https.Agent({rejectUnauthorized: strictSSL}),
@@ -60,11 +66,13 @@ describe('verify API using local DID document loader', () => {
     const {challenge, domain} = helpers;
     let error;
     let result;
-    const {v1DidDoc: credentialSignerDid, signingKey: credentialSigningKey} =
-      await helpers.generateDid();
+    const {
+      v1DidDoc: credentialSignerDid,
+      assertionMethodKey: credentialSigningKey
+    } = await helpers.generateDid();
     const {
       v1DidDoc: presentationSignerDid,
-      signingKey: presentationSigningKey
+      authenticationKey: presentationSigningKey
     } = await helpers.generateDid();
     loader.documents.set(credentialSignerDid.id, credentialSignerDid.doc);
     loader.documents.set(presentationSignerDid.id, presentationSignerDid.doc);

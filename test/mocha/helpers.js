@@ -31,18 +31,16 @@ const api = {
 };
 module.exports = api;
 
-async function generateCredential({signingKey}) {
+async function generateCredential({signingKey, issuer}) {
   const mockCredential = bedrock.util.clone(mockData.credentials.alpha);
+  mockCredential.issuer = issuer;
   const {Ed25519Signature2018} = jsigs.suites;
-  const {AuthenticationProofPurpose} = jsigs.purposes;
+  const {AssertionProofPurpose} = jsigs.purposes;
   const credential = await jsigs.sign(mockCredential, {
     compactProof: false,
     documentLoader,
     suite: new Ed25519Signature2018({key: signingKey}),
-    purpose: new AuthenticationProofPurpose({
-      challenge,
-      domain
-    })
+    purpose: new AssertionProofPurpose()
   });
   return {credential};
 }
@@ -50,19 +48,22 @@ async function generateCredential({signingKey}) {
 async function generateDid() {
   const v1DidDoc = await v1.generate();
   const [aKey] = v1DidDoc.doc.authentication;
-  const authenticationKey = v1DidDoc.keys[aKey.id];
-  const key = await authenticationKey.export();
-  const signingKey = new Ed25519KeyPair(key);
-  return {v1DidDoc, signingKey};
+  const _authenticationKey = v1DidDoc.keys[aKey.id];
+  const akey = await _authenticationKey.export();
+  const authenticationKey = new Ed25519KeyPair(akey);
+  const [amKey] = v1DidDoc.doc.assertionMethod;
+  const _amKey = await v1DidDoc.keys[amKey.id].export();
+  const assertionMethodKey = new Ed25519KeyPair(_amKey);
+  return {v1DidDoc, authenticationKey, assertionMethodKey};
 }
 
 async function generatePresentation(
-  {challenge, domain, credentialSigningKey, presentationSigningKey}) {
+  {challenge, domain, credentialSigningKey, presentationSigningKey, issuer}) {
   const mockPresentation = bedrock.util.clone(mockData.presentations.alpha);
   const {Ed25519Signature2018} = jsigs.suites;
   const {AuthenticationProofPurpose} = jsigs.purposes;
   const {credential} = await generateCredential(
-    {signingKey: credentialSigningKey});
+    {signingKey: credentialSigningKey, issuer});
   mockPresentation.verifiableCredential.push(credential);
   const presentation = await jsigs.sign(mockPresentation, {
     compactProof: false,
