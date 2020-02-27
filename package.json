@@ -3,6 +3,9 @@
   "version": "0.0.1-0",
   "description": "Bedrock VC Verifier",
   "main": "lib",
+  "scripts": {
+    "test": "cd test && npm test"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/digitalbazaar/bedrock-vc-verifier.git"
