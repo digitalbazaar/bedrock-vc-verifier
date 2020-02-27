@@ -4,7 +4,7 @@
 'use strict';
 
 const bedrock = require('bedrock');
-const {config, util: {uuid}} = bedrock;
+const {config} = bedrock;
 const axios = require('axios');
 const {loader} = require('bedrock-vc-verifier');
 const helpers = require('./helpers');
