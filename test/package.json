@@ -18,6 +18,7 @@
     "bedrock": "^3.1.0",
     "bedrock-credentials-context": "^1.0.0",
     "bedrock-express": "^3.1.0",
+    "bedrock-https-agent": "^1.0.1",
     "bedrock-jsonld-document-loader": "^1.0.1",
     "bedrock-ledger-context": "^15.0.0",
     "bedrock-rest": "^3.0.0",
