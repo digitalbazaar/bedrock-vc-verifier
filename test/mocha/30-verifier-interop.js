@@ -32,9 +32,13 @@ describe('Interop Verifier API', () => {
       should.not.exist(error);
       // apisauce API does not throw it puts errors in `result.problem`
       should.not.exist(result.problem);
-      should.exist(result.data.verified);
-      result.data.verified.should.be.a('boolean');
-      result.data.verified.should.be.true;
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      const [check] = checks;
+      check.verified.should.be.a('boolean');
+      check.verified.should.be.true;
     });
     it('does not verify an invalid credential', async () => {
       let error;
@@ -56,11 +60,15 @@ describe('Interop Verifier API', () => {
       should.not.exist(error);
       // apisauce API does not throw it puts errors in `result.problem`
       should.not.exist(result.problem);
-      should.exist(result.data.verified);
-      result.data.verified.should.be.a('boolean');
-      result.data.verified.should.be.false;
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      const [check] = checks;
+      check.verified.should.be.a('boolean');
+      check.verified.should.be.false;
       // the signature is no longer valid because the data was changed
-      result.data.results[0].error.message.should.equal('Invalid signature.');
+      check.error.message.should.equal('Invalid signature.');
     });
   });
 });
