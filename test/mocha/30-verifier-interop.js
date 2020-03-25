@@ -43,13 +43,21 @@ describe('Interop Verifier API', () => {
       should.not.exist(error);
       // apisauce API does not throw it puts errors in `result.problem`
       should.not.exist(result.problem);
-      should.exist(result.data.checks);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.be.true;
       const {checks} = result.data;
       checks.should.be.an('array');
       checks.should.have.length(1);
       const [check] = checks;
-      check.verified.should.be.a('boolean');
-      check.verified.should.be.true;
+      check.should.be.a('string');
+      check.should.equal('proof');
+      should.exist(result.data.results);
+      result.data.results.should.be.an('array');
+      result.data.results.should.have.length(1);
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.be.true;
     });
     it('does not verify an invalid credential', async () => {
       let error;
@@ -71,15 +79,24 @@ describe('Interop Verifier API', () => {
       should.not.exist(error);
       // apisauce API does not throw it puts errors in `result.problem`
       should.not.exist(result.problem);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.be.false;
       should.exist(result.data.checks);
       const {checks} = result.data;
       checks.should.be.an('array');
       checks.should.have.length(1);
       const [check] = checks;
-      check.verified.should.be.a('boolean');
-      check.verified.should.be.false;
+      check.should.be.a('string');
+      check.should.equal('proof');
+      should.exist(result.data.results);
+      result.data.results.should.be.an('array');
+      result.data.results.should.have.length(1);
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.be.false;
       // the signature is no longer valid because the data was changed
-      check.error.message.should.equal('Invalid signature.');
+      r.error.message.should.equal('Invalid signature.');
     });
   });
 
@@ -110,7 +127,10 @@ describe('Interop Verifier API', () => {
       let result;
       try {
         result = await api.post('/presentations', {
-          presentation
+          options: {
+            challenge
+          },
+          presentation,
         });
       } catch(e) {
         error = e;
@@ -128,6 +148,45 @@ describe('Interop Verifier API', () => {
       check1.verified.should.be.true;
       // check2.verified.should.be.a('boolean');
       // check2.verified.should.be.true;
+    });
+    it('returns an error if challenge is not specified', async () => {
+      const verifiableCredential = clone(mockCredential);
+      const presentation = vc.createPresentation({
+        // FIXME: is a holder required?
+        // holder: 'foo',
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential
+      });
+
+      const presentationSigningKey = new Ed25519KeyPair(
+        mockPresentationSigningKey);
+      const fingerprint = presentationSigningKey.fingerprint();
+      const verificationMethod = `did:key:${fingerprint}#${fingerprint}`;
+
+      const suite = new Ed25519Signature2018({
+        verificationMethod,
+        signer: presentationSigningKey.signer(),
+      });
+
+      const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
+      await vc.signPresentation({presentation, suite, challenge});
+
+      let error;
+      let result;
+      try {
+        result = await api.post('/presentations', {
+          presentation,
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.not.exist(error);
+      // apisauce API does not throw it puts errors in `result.problem`
+      should.exist(result.problem);
+      should.exist(result.data);
+      result.data.should.be.an('object');
+      result.data.message.should.equal('"options.challenge" is required.');
+      result.data.type.should.equal('TypeError');
     });
     it.skip('does not verify an invalid presentation', async () => {
 
