@@ -31,6 +31,7 @@
     "bedrock-views": "^7.1.0",
     "crypto-ld": "^3.7.0",
     "jsonld": "^2.0.2",
-    "jsonld-signatures": "^5.0.0"
+    "jsonld-signatures": "^5.0.0",
+    "vc-js": "digitalbazaar/vc-js#master"
   }
 }
