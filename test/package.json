@@ -13,7 +13,8 @@
     "url": "http://digitalbazaar.com"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "apisauce": "^1.1.1",
+    "axios": "^0.19.0",
     "bedrock": "^3.1.0",
     "bedrock-credentials-context": "^1.0.0",
     "bedrock-express": "^3.1.0",
