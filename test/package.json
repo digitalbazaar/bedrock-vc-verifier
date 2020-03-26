@@ -32,6 +32,6 @@
     "crypto-ld": "^3.7.0",
     "jsonld": "^2.0.2",
     "jsonld-signatures": "^5.0.0",
-    "vc-js": "digitalbazaar/vc-js#e10bbd725b3ab5b2505e8c18020505992703b5e1"
+    "vc-js": "digitalbazaar/vc-js#d6abe998fef0cda63c2360bbe974fc69ca989407"
   }
 }

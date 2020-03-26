@@ -35,7 +35,10 @@ describe('Interop Verifier API', () => {
       let result;
       try {
         result = await api.post('/credentials', {
-          verifiableCredential
+          options: {
+            checks: ['proof'],
+          },
+          verifiableCredential,
         });
       } catch(e) {
         error = e;
@@ -71,7 +74,10 @@ describe('Interop Verifier API', () => {
 
       try {
         result = await api.post('/credentials', {
-          verifiableCredential: badCredential
+          options: {
+            checks: ['proof'],
+          },
+          verifiableCredential: badCredential,
         });
       } catch(e) {
         error = e;
@@ -128,7 +134,8 @@ describe('Interop Verifier API', () => {
       try {
         result = await api.post('/presentations', {
           options: {
-            challenge
+            challenge,
+            checks: ['proof'],
           },
           presentation,
         });
@@ -139,15 +146,27 @@ describe('Interop Verifier API', () => {
       // apisauce API does not throw it puts errors in `result.problem`
       should.not.exist(result.problem);
       should.exist(result.data.checks);
-
       const {checks} = result.data;
       checks.should.be.an('array');
-      checks.should.have.length(2);
-      const [check1, check2] = checks;
-      check1.verified.should.be.a('boolean');
-      check1.verified.should.be.true;
-      // check2.verified.should.be.a('boolean');
-      // check2.verified.should.be.true;
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('proof');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.be.true;
+      should.exist(result.data.presentationResult);
+      result.data.presentationResult.should.be.an('object');
+      should.exist(result.data.presentationResult.verified);
+      result.data.presentationResult.verified.should.be.a('boolean');
+      result.data.presentationResult.verified.should.be.true;
+      should.exist(result.data.credentialResults);
+      const {data: {credentialResults}} = result;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.be.true;
     });
     it('returns an error if challenge is not specified', async () => {
       const verifiableCredential = clone(mockCredential);
