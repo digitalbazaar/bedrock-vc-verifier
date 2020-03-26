@@ -20,7 +20,7 @@
     "did-method-key": "^0.5.1",
     "did-veres-one": "^11.0.1",
     "serialize-error": "^5.0.0",
-    "vc-js": "digitalbazaar/vc-js#d6abe998fef0cda63c2360bbe974fc69ca989407"
+    "vc-js": "^0.5.0"
   },
   "peerDependencies": {
     "bedrock": "^3.1.0",
