@@ -130,14 +130,17 @@ describe('Interop Verifier API', () => {
 
       let error;
       let result;
+
+      const payload = {
+        options: {
+          challenge,
+          checks: ['proof'],
+        },
+        presentation,
+      };
+
       try {
-        result = await api.post('/presentations', {
-          options: {
-            challenge,
-            checks: ['proof'],
-          },
-          presentation,
-        });
+        result = await api.post('/presentations', payload);
       } catch(e) {
         error = e;
       }
