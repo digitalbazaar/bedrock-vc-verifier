@@ -67,7 +67,6 @@ describe('Interop Verifier API', () => {
       let result;
 
       const badCredential = clone(mockCredential);
-
       // change the degree name
       badCredential.credentialSubject.degree.name =
         'Bachelor of Science in Nursing';
@@ -207,8 +206,69 @@ describe('Interop Verifier API', () => {
       result.data.message.should.equal('"options.challenge" is required.');
       result.data.type.should.equal('TypeError');
     });
-    it.skip('does not verify an invalid presentation', async () => {
+    it('does not verify a presentation with a bad credential', async () => {
+      const badCredential = clone(mockCredential);
+      // change the degree name
+      badCredential.credentialSubject.degree.name =
+        'Bachelor of Science in Nursing';
 
+      const presentation = vc.createPresentation({
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential: badCredential,
+      });
+
+      const presentationSigningKey = new Ed25519KeyPair(
+        mockPresentationSigningKey);
+      const fingerprint = presentationSigningKey.fingerprint();
+      const verificationMethod = `did:key:${fingerprint}#${fingerprint}`;
+
+      const suite = new Ed25519Signature2018({
+        verificationMethod,
+        signer: presentationSigningKey.signer(),
+      });
+
+      const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
+      await vc.signPresentation({presentation, suite, challenge});
+
+      let error;
+      let result;
+      try {
+        result = await api.post('/presentations', {
+          options: {
+            challenge,
+            checks: ['proof'],
+          },
+          presentation,
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.not.exist(error);
+      // apisauce API does not throw it puts errors in `result.problem`
+      should.not.exist(result.problem);
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('proof');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.be.false;
+      should.exist(result.data.error);
+      result.data.error.should.be.an('array');
+      result.data.error.should.have.length(1);
+      const [e] = result.data.error;
+      e.should.be.an('object');
+      should.exist(e.name);
+      e.name.should.equal('VerificationError');
+      should.exist(e.errors);
+      e.errors.should.be.an('array');
+      e.errors.should.have.length(1);
+      const [cError] = e.errors;
+      should.exist(cError.name);
+      cError.name.should.equal('Error');
+      cError.message.should.equal('Invalid signature.');
     });
   });
 });
