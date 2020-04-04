@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/digitalbazaar/bedrock-vc-verifier",
   "dependencies": {
+    "axios": "^0.19.2",
     "did-method-key": "^0.5.1",
     "did-veres-one": "^11.0.1",
     "serialize-error": "^5.0.0",
