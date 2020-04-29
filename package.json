@@ -18,11 +18,14 @@
   "homepage": "https://github.com/digitalbazaar/bedrock-vc-verifier",
   "dependencies": {
     "axios": "^0.19.2",
+    "bedrock-did-context": "^1.0.0",
+    "bedrock-veres-one-context": "^10.0.0",
     "cors": "^2.8.5",
-    "did-method-key": "^0.5.1",
-    "did-veres-one": "^11.0.1",
-    "serialize-error": "^5.0.0",
-    "vc-js": "^0.6.0",
+    "did-io": "digitalbazaar/did-io#support-v1",
+    "did-method-key": "^0.6.1",
+    "did-veres-one": "veres-one/did-veres-one#support-v1",
+    "serialize-error": "^6.0.0",
+    "vc-js": "digitalbazaar/vc-js#master",
     "vc-revocation-list": "^1.0.0"
   },
   "peerDependencies": {
@@ -37,6 +40,6 @@
   },
   "devDependencies": {
     "eslint": "^6.8.0",
-    "eslint-config-digitalbazaar": "^2.3.0"
+    "eslint-config-digitalbazaar": "^2.4.0"
   }
 }
