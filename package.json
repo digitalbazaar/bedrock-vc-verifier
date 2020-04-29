@@ -22,8 +22,8 @@
     "did-method-key": "^0.5.1",
     "did-veres-one": "^11.0.1",
     "serialize-error": "^5.0.0",
-    "vc-js": "github:digitalbazaar/vc-js#check-status",
-    "vc-revocation-list": "github:digitalbazaar/vc-revocation-list#master"
+    "vc-js": "^0.6.0",
+    "vc-revocation-list": "^1.0.0"
   },
   "peerDependencies": {
     "bedrock": "^3.1.0",
