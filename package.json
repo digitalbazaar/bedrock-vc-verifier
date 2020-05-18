@@ -22,9 +22,9 @@
     "bedrock-veres-one-context": "^10.0.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "did-io": "digitalbazaar/did-io#support-v1",
+    "did-io": "^0.8.2",
     "did-method-key": "^0.6.1",
-    "did-veres-one": "veres-one/did-veres-one#support-v1",
+    "did-veres-one": "^12.1.1",
     "serialize-error": "^6.0.0",
     "vc-js": "^0.6.1",
     "vc-revocation-list": "^1.0.0"
