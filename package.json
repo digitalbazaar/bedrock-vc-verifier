@@ -17,30 +17,30 @@
   },
   "homepage": "https://github.com/digitalbazaar/bedrock-vc-verifier",
   "dependencies": {
-    "axios": "^0.19.2",
-    "bedrock-did-context": "^1.0.0",
-    "bedrock-veres-one-context": "^10.0.0",
+    "@digitalbazaar/ed25519-signature-2020": "^2.1.0",
+    "@digitalbazaar/http-client": "^1.0.0",
+    "@digitalbazaar/vc": "digitalbazaar/vc-js#v7.x",
+    "bedrock-did-context": "^2.0.0",
+    "bedrock-veres-one-context": "digitalbazaar/bedrock-veres-one-context#update-deps",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "did-io": "^0.8.2",
-    "did-method-key": "^0.6.1",
-    "did-veres-one": "^12.1.1",
-    "serialize-error": "^6.0.0",
-    "vc-js": "^0.6.1",
+    "bedrock-did-io": "digitalbazaar/bedrock-did-io#update-veres-one",
+    "did-veres-one": "veres-one/did-veres-one#v13.x",
+    "serialize-error": "^8.1.0",
     "vc-revocation-list": "^1.0.0"
   },
   "peerDependencies": {
-    "bedrock": "^3.1.0",
+    "bedrock": "^4.1.1",
     "bedrock-credentials-context": "^1.0.0",
-    "bedrock-express": "^3.1.0",
-    "bedrock-https-agent": "^1.0.1",
+    "bedrock-express": "^4.0.0",
+    "bedrock-https-agent": "^2.0.0",
     "bedrock-jsonld-document-loader": "^1.0.1",
     "bedrock-rest": "^3.0.0",
     "bedrock-vc-revocation-list-context": "^1.0.0",
-    "bedrock-veres-one-context": "^10.0.0"
+    "bedrock-veres-one-context": "digitalbazaar/bedrock-veres-one-context#update-deps"
   },
   "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-digitalbazaar": "^2.4.0"
+    "eslint": "^7.25.0",
+    "eslint-config-digitalbazaar": "^2.8.0"
   }
 }
