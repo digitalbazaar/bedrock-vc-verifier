@@ -20,15 +20,15 @@
     "@digitalbazaar/ed25519-signature-2020": "^2.1.0",
     "@digitalbazaar/http-client": "^1.0.0",
     "@digitalbazaar/security-document-loader": "^1.0.0",
-    "@digitalbazaar/vc": "digitalbazaar/vc-js#v7.x",
+    "@digitalbazaar/vc": "^1.0.0",
     "bedrock-did-context": "^2.0.0",
-    "bedrock-veres-one-context": "digitalbazaar/bedrock-veres-one-context#update-deps",
+    "bedrock-veres-one-context": "^11.0.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "bedrock-did-io": "digitalbazaar/bedrock-did-io#update-veres-one",
     "did-veres-one": "veres-one/did-veres-one#v13.x",
     "serialize-error": "^8.1.0",
-    "veres-one-context": "veres-one/veres-one-context#v12.x",
+    "veres-one-context": "^12.0.0",
     "vc-revocation-list": "^1.0.0"
   },
   "peerDependencies": {
@@ -39,7 +39,7 @@
     "bedrock-jsonld-document-loader": "^1.0.1",
     "bedrock-rest": "^3.0.0",
     "bedrock-vc-revocation-list-context": "^1.0.0",
-    "bedrock-veres-one-context": "digitalbazaar/bedrock-veres-one-context#update-deps"
+    "bedrock-veres-one-context": "^11.0.0"
   },
   "devDependencies": {
     "eslint": "^7.25.0",
