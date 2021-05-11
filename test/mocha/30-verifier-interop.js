@@ -6,10 +6,11 @@
 const {config, util: {clone}} = require('bedrock');
 const {create} = require('apisauce');
 const {httpsAgent} = require('bedrock-https-agent');
-const vc = require('vc-js');
-const {Ed25519KeyPair} = require('crypto-ld');
-const {suites: {Ed25519Signature2018}} = require('jsonld-signatures');
+const vc = require('@digitalbazaar/vc');
+const {CryptoLD} = require('crypto-ld');
+const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 
+const cryptoLd = new CryptoLD();
 const api = create({
   baseURL: `${config.server.baseUri}/verifier`,
   httpsAgent,
@@ -19,13 +20,6 @@ const api = create({
 // NOTE: using embedded context in mockCredential:
 // https://www.w3.org/2018/credentials/examples/v1
 const mockCredential = require('./mock-credential');
-
-const mockPresentationSigningKey = {
-  type: 'Ed25519VerificationKey2018',
-  // eslint-disable-next-line max-len
-  privateKeyBase58: '2NHZPVtqrTZ1FDDkjWT2yALQ7PxifWPVKbupzPdKqpHBzCZSwigPboHDnXxmQSJ6SdZnjnskLwXurzKkSQmQS945',
-  publicKeyBase58: 'G6RxBxsmPtk2dnGrJmGBuRXv1FejiCAYKAQ139wDNZRs'
-};
 
 describe('Interop Verifier API', () => {
   describe('credentials endpoint', () => {
@@ -115,12 +109,14 @@ describe('Interop Verifier API', () => {
         verifiableCredential
       });
 
-      const presentationSigningKey = new Ed25519KeyPair(
-        mockPresentationSigningKey);
+      const presentationSigningKey = await cryptoLd.generate({
+        type: 'Ed25519VerificationKey2020'
+      });
+
       const fingerprint = presentationSigningKey.fingerprint();
       const verificationMethod = `did:key:${fingerprint}#${fingerprint}`;
 
-      const suite = new Ed25519Signature2018({
+      const suite = new Ed25519Signature2020({
         verificationMethod,
         signer: presentationSigningKey.signer(),
       });
@@ -179,12 +175,13 @@ describe('Interop Verifier API', () => {
         verifiableCredential
       });
 
-      const presentationSigningKey = new Ed25519KeyPair(
-        mockPresentationSigningKey);
+      const presentationSigningKey = await cryptoLd.generate({
+        type: 'Ed25519VerificationKey2020'
+      });
       const fingerprint = presentationSigningKey.fingerprint();
       const verificationMethod = `did:key:${fingerprint}#${fingerprint}`;
 
-      const suite = new Ed25519Signature2018({
+      const suite = new Ed25519Signature2020({
         verificationMethod,
         signer: presentationSigningKey.signer(),
       });
@@ -220,12 +217,13 @@ describe('Interop Verifier API', () => {
         verifiableCredential: badCredential,
       });
 
-      const presentationSigningKey = new Ed25519KeyPair(
-        mockPresentationSigningKey);
+      const presentationSigningKey = await cryptoLd.generate({
+        type: 'Ed25519VerificationKey2020'
+      });
       const fingerprint = presentationSigningKey.fingerprint();
       const verificationMethod = `did:key:${fingerprint}#${fingerprint}`;
 
-      const suite = new Ed25519Signature2018({
+      const suite = new Ed25519Signature2020({
         verificationMethod,
         signer: presentationSigningKey.signer(),
       });

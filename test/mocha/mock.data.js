@@ -49,7 +49,7 @@ privateDidDocuments.alpha = {
   authentication: [
     {
       id: 'did:v1:test:nym:z279yHL6HsxRzCPU78DAWgZVieb8xPK1mJKJBbP8T2CezuFY#z279jeddPcVScp2qcA476nxuQnZGnmBHcXSKWgNusrT1u1V1',
-      type: 'Ed25519VerificationKey2018',
+      type: 'Ed25519VerificationKey2020',
       controller: 'did:v1:test:nym:z279yHL6HsxRzCPU78DAWgZVieb8xPK1mJKJBbP8T2CezuFY',
       publicKeyBase58: '2vXXVcAkogFwWGBHsyU1KCJrsFJLtuE8xnzyVNwmhhdq'
     }
@@ -57,7 +57,7 @@ privateDidDocuments.alpha = {
   capabilityDelegation: [
     {
       id: 'did:v1:test:nym:z279yHL6HsxRzCPU78DAWgZVieb8xPK1mJKJBbP8T2CezuFY#z279odRyQVywHaU723iXRVncxmd4ELNzCL5gGfcQgDVg6mhV',
-      type: 'Ed25519VerificationKey2018',
+      type: 'Ed25519VerificationKey2020',
       controller: 'did:v1:test:nym:z279yHL6HsxRzCPU78DAWgZVieb8xPK1mJKJBbP8T2CezuFY',
       publicKeyBase58: '6uKsWVfFUShCv9qiCgHisBNeJpW3UhsVinEUHjzRuTrK'
     }
@@ -65,7 +65,7 @@ privateDidDocuments.alpha = {
   capabilityInvocation: [
     {
       id: 'did:v1:test:nym:z279yHL6HsxRzCPU78DAWgZVieb8xPK1mJKJBbP8T2CezuFY#z279yHL6HsxRzCPU78DAWgZVieb8xPK1mJKJBbP8T2CezuFY',
-      type: 'Ed25519VerificationKey2018',
+      type: 'Ed25519VerificationKey2020',
       controller: 'did:v1:test:nym:z279yHL6HsxRzCPU78DAWgZVieb8xPK1mJKJBbP8T2CezuFY',
       publicKeyBase58: 'GZDzPsdkB4ca1ELMHs4bd4Lj2sS53g77di1C4YhQobQN'
     }

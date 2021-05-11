@@ -5,10 +5,22 @@
 
 const bedrock = require('bedrock');
 const {config} = bedrock;
-const axios = require('axios');
+const {httpClient} = require('@digitalbazaar/http-client');
 const {loader} = require('bedrock-vc-verifier');
 const helpers = require('./helpers');
 const https = require('https');
+const v1 = require('did-veres-one');
+const {CachedResolver} = require('@digitalbazaar/did-io');
+
+const resolver = new CachedResolver();
+
+const options = {
+  hostname: config['vc-verifier'].ledgerHostname,
+  mode: 'test'
+};
+
+const veresDriver = v1.driver(options);
+resolver.use(veresDriver);
 
 const strictSSL = false;
 
@@ -27,28 +39,27 @@ describe('verify API using local DID document loader', () => {
     let error;
     let result;
     const {
-      v1DidDoc: credentialSignerDoc,
-      assertionMethodKey: credentialSigningKey
-    } = await helpers.generateDid();
-    const {
-      v1DidDoc: presentationSignerDoc,
-      authenticationKey: presentationSigningKey
-    } = await helpers.generateDid();
-    loader.documents.set(credentialSignerDoc.id, credentialSignerDoc.doc);
-    loader.documents.set(presentationSignerDoc.id, presentationSignerDoc.doc);
+      didDocument,
+      methodFor
+    } = await veresDriver.generate(
+      {didType: 'nym', keyType: 'Ed25519VerificationKey2020'});
+
+    const credentialSigningKey = methodFor({purpose: 'assertionMethod'});
+    const presentationSigningKey = methodFor({purpose: 'authentication'});
+
+    loader.documents.set(didDocument.id, didDocument);
+
     const {presentation} = await helpers.generatePresentation({
       challenge,
       domain,
       credentialSigningKey,
       presentationSigningKey,
-      issuer: credentialSignerDoc.id
+      issuer: didDocument.id
     });
     try {
-      result = await axios({
-        httpsAgent: new https.Agent({rejectUnauthorized: strictSSL}),
-        data: {challenge, domain, presentation},
-        method: 'POST',
-        url: urls.verify,
+      result = await httpClient.post(urls.verify, {
+        agent: new https.Agent({rejectUnauthorized: strictSSL}),
+        json: {challenge, domain, presentation},
       });
     } catch(e) {
       error = e;
@@ -80,11 +91,9 @@ describe('verify API using local DID document loader', () => {
       {challenge, domain, credentialSigningKey, presentationSigningKey});
     const url = urls.verification({verifiedId: 'foo', referenceId: 'bar'});
     try {
-      result = await axios({
-        httpsAgent: new https.Agent({rejectUnauthorized: strictSSL}),
-        data: {challenge, domain, presentation},
-        method: 'POST',
-        url
+      result = await httpClient.post(url, {
+        agent: new https.Agent({rejectUnauthorized: strictSSL}),
+        json: {challenge, domain, presentation},
       });
     } catch(e) {
       error = e;

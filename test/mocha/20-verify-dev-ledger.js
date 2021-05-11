@@ -5,8 +5,8 @@
 
 const bedrock = require('bedrock');
 const {config} = bedrock;
-const axios = require('axios');
 const helpers = require('./helpers');
+const {httpClient} = require('@digitalbazaar/http-client');
 const https = require('https');
 
 const strictSSL = false;
@@ -25,11 +25,9 @@ describe.skip('verify API using local dev ledger', () => {
 
     let result;
     try {
-      result = await axios({
-        httpsAgent: new https.Agent({rejectUnauthorized: strictSSL}),
-        data: {challenge, domain, presentation},
-        method: 'POST',
-        url,
+      result = await httpClient.post(url, {
+        agent: new https.Agent({rejectUnauthorized: strictSSL}),
+        json: {challenge, domain, presentation},
       });
     } catch(e) {
       error = e;

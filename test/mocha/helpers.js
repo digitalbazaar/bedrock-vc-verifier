@@ -5,24 +5,40 @@
 
 const bedrock = require('bedrock');
 const {config} = bedrock;
+const didVeresOne = require('did-veres-one');
+const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const jsigs = require('jsonld-signatures');
 const mockData = require('./mock.data');
-const {loader: {documentLoader}} = require('bedrock-vc-verifier');
-const v1 = new (require('did-veres-one')).VeresOne({
+const {securityLoader} = require('@digitalbazaar/security-document-loader');
+const veresOneCtx = require('veres-one-context');
+const webkmsCtx = require('webkms-context');
+const zcapCtx = require('zcap-context');
+
+const loader = securityLoader();
+loader.addStatic(
+  veresOneCtx.constants.VERES_ONE_CONTEXT_V1_URL, veresOneCtx.contexts);
+loader.addStatic(zcapCtx.CONTEXT_URL, zcapCtx.CONTEXT);
+loader.addStatic(webkmsCtx.CONTEXT_URL, webkmsCtx.CONTEXT);
+
+const options = {
   hostname: config['vc-verifier'].ledgerHostname,
   mode: 'dev'
-});
+};
 
+loader.protocolHandlers.get('did').use(didVeresOne.driver(options));
+
+const securityDocumentLoader = loader.build();
+
+const {VeresOneClient} = didVeresOne;
+const client = new VeresOneClient(options);
 // FIXME: temporary, did-veres-one will be returning a keypair that can be
 // used for signing operations
-const {Ed25519KeyPair} = require('crypto-ld');
 
 const challenge = 'challengeString';
 const domain = 'example.org';
-
+const {sign} = jsigs;
 const api = {
   generateCredential,
-  generateDid,
   generatePresentation,
   registerDid,
   waitForConsensus,
@@ -34,51 +50,43 @@ module.exports = api;
 async function generateCredential({signingKey, issuer}) {
   const mockCredential = bedrock.util.clone(mockData.credentials.alpha);
   mockCredential.issuer = issuer;
-  const {Ed25519Signature2018} = jsigs.suites;
   const {AssertionProofPurpose} = jsigs.purposes;
-  const credential = await jsigs.sign(mockCredential, {
-    compactProof: false,
-    documentLoader,
-    suite: new Ed25519Signature2018({key: signingKey}),
+  const credential = await sign(mockCredential, {
+    documentLoader: securityDocumentLoader,
+    suite: new Ed25519Signature2020({key: signingKey}),
     purpose: new AssertionProofPurpose()
   });
   return {credential};
 }
 
-async function generateDid() {
-  const v1DidDoc = await v1.generate();
-  const [aKey] = v1DidDoc.doc.authentication;
-  const _authenticationKey = v1DidDoc.keys[aKey.id];
-  const akey = await _authenticationKey.export();
-  const authenticationKey = new Ed25519KeyPair(akey);
-  const [amKey] = v1DidDoc.doc.assertionMethod;
-  const _amKey = await v1DidDoc.keys[amKey.id].export();
-  const assertionMethodKey = new Ed25519KeyPair(_amKey);
-  return {v1DidDoc, authenticationKey, assertionMethodKey};
-}
-
 async function generatePresentation(
   {challenge, domain, credentialSigningKey, presentationSigningKey, issuer}) {
   const mockPresentation = bedrock.util.clone(mockData.presentations.alpha);
-  const {Ed25519Signature2018} = jsigs.suites;
   const {AuthenticationProofPurpose} = jsigs.purposes;
   const {credential} = await generateCredential(
     {signingKey: credentialSigningKey, issuer});
   mockPresentation.verifiableCredential.push(credential);
-  const presentation = await jsigs.sign(mockPresentation, {
-    compactProof: false,
-    documentLoader,
-    suite: new Ed25519Signature2018({key: presentationSigningKey}),
+  const presentation = await sign(mockPresentation, {
+    documentLoader: securityDocumentLoader,
+    suite: new Ed25519Signature2020({key: presentationSigningKey}),
     purpose: new AuthenticationProofPurpose({challenge, domain})
   });
   return {presentation};
 }
 
 async function registerDid() {
+  const {
+    didDocument,
+    keyPairs,
+    methodFor
+  } = await veresDriver.generate(
+    {didType: 'nym', keyType: 'Ed25519VerificationKey2020'});
+  const credentialSigningKey = methodFor({purpose: 'assertionMethod'});
+
   const {v1DidDoc, signingKey} = await generateDid();
-  await v1.register({didDocument: v1DidDoc});
-  await waitForConsensus({did: v1DidDoc.id});
-  return {v1DidDoc, signingKey};
+  await veresDriver.register({didDocument});
+  await waitForConsensus({did: didDocument.id});
+  return {didDocument, signingKey};
 }
 
 async function waitForConsensus({did}) {
@@ -88,7 +96,7 @@ async function waitForConsensus({did}) {
     try {
       // using v1.client.get here because v1.get will pull locally created
       // did from local storage as a pairwise did
-      didRecord = await v1.client.get({did});
+      didRecord = await client.get({did});
       found = true;
     } catch(e) {
       if(e.response.status !== 404) {
