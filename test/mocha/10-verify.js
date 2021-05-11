@@ -32,9 +32,8 @@ const urls = {
   }
 };
 
-// FIXME: update to latest vc-js APIs
 describe('verify API using local DID document loader', () => {
-  it('verifies a valid credential', async () => {
+  it.only('verifies a valid credential', async () => {
     const {challenge, domain} = helpers;
     let error;
     let result;
@@ -44,10 +43,12 @@ describe('verify API using local DID document loader', () => {
     } = await veresDriver.generate(
       {didType: 'nym', keyType: 'Ed25519VerificationKey2020'});
 
-    const credentialSigningKey = methodFor({purpose: 'assertionMethod'});
-    const presentationSigningKey = methodFor({purpose: 'authentication'});
-
-    loader.documents.set(didDocument.id, didDocument);
+    // NOTE: For a Veres One DID that was generated _and registered_, you'd
+    // want to use keys for the 'assertionMethod' and 'authentication'
+    // purpose. However, for un-registered methods, only the
+    // capabilityInvocation key will be used.
+    const credentialSigningKey = methodFor({purpose: 'capabilityInvocation'});
+    const presentationSigningKey = credentialSigningKey;
 
     const {presentation} = await helpers.generatePresentation({
       challenge,
@@ -62,6 +63,7 @@ describe('verify API using local DID document loader', () => {
         json: {challenge, domain, presentation},
       });
     } catch(e) {
+      console.error(e);
       error = e;
     }
     should.not.exist(error);
