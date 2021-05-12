@@ -4,18 +4,18 @@
 'use strict';
 
 const {config, util: {clone}} = require('bedrock');
-const {create} = require('apisauce');
-const {httpsAgent} = require('bedrock-https-agent');
-const vc = require('@digitalbazaar/vc');
 const {CryptoLD} = require('crypto-ld');
+const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
+const {Ed25519VerificationKey2020} = require(
+  '@digitalbazaar/ed25519-verification-key-2020');
+const {httpClient} = require('@digitalbazaar/http-client');
+const {httpsAgent} = require('bedrock-https-agent');
+const {loader} = require('bedrock-vc-verifier');
+const vc = require('@digitalbazaar/vc');
 
 const cryptoLd = new CryptoLD();
-const api = create({
-  baseURL: `${config.server.baseUri}/verifier`,
-  httpsAgent,
-  timeout: 1000,
-});
+cryptoLd.use(Ed25519VerificationKey2020);
 
 // NOTE: using embedded context in mockCredential:
 // https://www.w3.org/2018/credentials/examples/v1
@@ -28,12 +28,16 @@ describe('Interop Verifier API', () => {
       let error;
       let result;
       try {
-        result = await api.post('/credentials', {
-          options: {
-            checks: ['proof'],
-          },
-          verifiableCredential,
-        });
+        result = await httpClient.post(
+          `${config.server.baseUri}/verifier/credentials`, {
+            agent: httpsAgent,
+            json: {
+              options: {
+                checks: ['proof'],
+              },
+              verifiableCredential,
+            }
+          });
       } catch(e) {
         error = e;
       }
@@ -66,36 +70,27 @@ describe('Interop Verifier API', () => {
         'Bachelor of Science in Nursing';
 
       try {
-        result = await api.post('/credentials', {
-          options: {
-            checks: ['proof'],
-          },
-          verifiableCredential: badCredential,
-        });
+        result = await httpClient.post(
+          `${config.server.baseUri}/verifier/credentials`, {
+            agent: httpsAgent,
+            json: {
+              options: {
+                checks: ['proof'],
+              },
+              verifiableCredential: badCredential
+            }
+          });
       } catch(e) {
         error = e;
       }
-      should.not.exist(error);
-      // apisauce API does not throw it puts errors in `result.problem`
-      should.not.exist(result.problem);
-      should.exist(result.data.verified);
-      result.data.verified.should.be.a('boolean');
-      result.data.verified.should.be.false;
-      should.exist(result.data.checks);
-      const {checks} = result.data;
-      checks.should.be.an('array');
-      checks.should.have.length(1);
-      const [check] = checks;
-      check.should.be.a('string');
-      check.should.equal('proof');
-      should.exist(result.data.results);
-      result.data.results.should.be.an('array');
-      result.data.results.should.have.length(1);
-      const [r] = result.data.results;
-      r.verified.should.be.a('boolean');
-      r.verified.should.be.false;
-      // the signature is no longer valid because the data was changed
-      r.error.message.should.equal('Invalid signature.');
+      should.exist(error);
+      should.not.exist(result);
+      should.exist(error.data);
+      error.data.should.be.an('object');
+      error.data.verified.should.be.a('boolean');
+      error.data.verified.should.equal(false);
+      error.data.error.name.should.equal('VerificationError');
+      error.data.error.errors[0].message.should.equal('Invalid signature.');
     });
   });
 
@@ -103,26 +98,26 @@ describe('Interop Verifier API', () => {
     it('verifies a valid presentation', async () => {
       const verifiableCredential = clone(mockCredential);
       const presentation = vc.createPresentation({
-        // FIXME: is a holder required?
-        // holder: 'foo',
+        holder: 'did:test:foo',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
         verifiableCredential
       });
 
-      const presentationSigningKey = await cryptoLd.generate({
-        type: 'Ed25519VerificationKey2020'
-      });
+      const {
+        methodFor
+      } = await didKeyDriver.generate();
 
-      const fingerprint = presentationSigningKey.fingerprint();
-      const verificationMethod = `did:key:${fingerprint}#${fingerprint}`;
-
-      const suite = new Ed25519Signature2020({
-        verificationMethod,
-        signer: presentationSigningKey.signer(),
-      });
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
 
       const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
-      await vc.signPresentation({presentation, suite, challenge});
+      const documentLoader = loader.build();
+      await vc.signPresentation({
+        presentation,
+        suite,
+        challenge,
+        documentLoader
+      });
 
       let error;
       let result;
@@ -132,11 +127,15 @@ describe('Interop Verifier API', () => {
           challenge,
           checks: ['proof'],
         },
-        presentation,
+        verifiablePresentation: presentation,
       };
 
       try {
-        result = await api.post('/presentations', payload);
+        result = await httpClient.post(
+          `${config.server.baseUri}/verifier/presentations`, {
+            agent: httpsAgent,
+            json: payload
+          });
       } catch(e) {
         error = e;
       }
@@ -169,42 +168,42 @@ describe('Interop Verifier API', () => {
     it('returns an error if challenge is not specified', async () => {
       const verifiableCredential = clone(mockCredential);
       const presentation = vc.createPresentation({
-        // FIXME: is a holder required?
-        // holder: 'foo',
+        holder: 'foo',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
         verifiableCredential
       });
+      const {
+        methodFor
+      } = await didKeyDriver.generate();
 
-      const presentationSigningKey = await cryptoLd.generate({
-        type: 'Ed25519VerificationKey2020'
-      });
-      const fingerprint = presentationSigningKey.fingerprint();
-      const verificationMethod = `did:key:${fingerprint}#${fingerprint}`;
+      const signingKey = methodFor({purpose: 'assertionMethod'});
 
-      const suite = new Ed25519Signature2020({
-        verificationMethod,
-        signer: presentationSigningKey.signer(),
-      });
+      const suite = new Ed25519Signature2020({key: signingKey});
 
       const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
-      await vc.signPresentation({presentation, suite, challenge});
+      const documentLoader = loader.build();
+      await vc.signPresentation({
+        presentation, suite, challenge, documentLoader});
 
       let error;
       let result;
       try {
-        result = await api.post('/presentations', {
-          presentation,
-        });
+        result = await httpClient.post(
+          `${config.server.baseUri}/verifier/presentations`, {
+            agent: httpsAgent,
+            json: {presentation}
+          });
       } catch(e) {
         error = e;
       }
-      should.not.exist(error);
-      // apisauce API does not throw it puts errors in `result.problem`
-      should.exist(result.problem);
-      should.exist(result.data);
-      result.data.should.be.an('object');
-      result.data.message.should.equal('"options.challenge" is required.');
-      result.data.type.should.equal('TypeError');
+      should.exist(error);
+      should.exist(error.data);
+      should.not.exist(result);
+      error.data.should.be.an('object');
+      error.data.verified.should.be.a('boolean');
+      error.data.verified.should.equal(false);
+      error.data.error.message.should.equal('"options.challenge" is required.');
+      error.data.error.name.should.equal('TypeError');
     });
     it('does not verify a presentation with a bad credential', async () => {
       const badCredential = clone(mockCredential);
@@ -217,59 +216,56 @@ describe('Interop Verifier API', () => {
         verifiableCredential: badCredential,
       });
 
-      const presentationSigningKey = await cryptoLd.generate({
-        type: 'Ed25519VerificationKey2020'
-      });
-      const fingerprint = presentationSigningKey.fingerprint();
-      const verificationMethod = `did:key:${fingerprint}#${fingerprint}`;
+      const {
+        methodFor
+      } = await didKeyDriver.generate();
 
-      const suite = new Ed25519Signature2020({
-        verificationMethod,
-        signer: presentationSigningKey.signer(),
-      });
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+
+      const suite = new Ed25519Signature2020({key: signingKey});
 
       const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
-      await vc.signPresentation({presentation, suite, challenge});
+      const documentLoader = loader.build();
+      await vc.signPresentation({
+        presentation, suite, challenge, documentLoader});
 
       let error;
       let result;
+      const payload = {
+        options: {
+          challenge,
+          checks: ['proof'],
+        },
+        verifiablePresentation: presentation,
+      };
       try {
-        result = await api.post('/presentations', {
-          options: {
-            challenge,
-            checks: ['proof'],
-          },
-          presentation,
-        });
+        result = await httpClient.post(
+          `${config.server.baseUri}/verifier/presentations`, {
+            agent: httpsAgent,
+            json: payload
+          });
       } catch(e) {
         error = e;
       }
-      should.not.exist(error);
-      // apisauce API does not throw it puts errors in `result.problem`
-      should.not.exist(result.problem);
-      should.exist(result.data.checks);
-      const {checks} = result.data;
+      should.exist(error);
+      should.not.exist(result);
+      should.exist(error.data.checks);
+      const {checks} = error.data;
       checks.should.be.an('array');
       checks.should.have.length(1);
-      checks[0].should.be.a('string');
-      checks[0].should.equal('proof');
-      should.exist(result.data.verified);
-      result.data.verified.should.be.a('boolean');
-      result.data.verified.should.be.false;
-      should.exist(result.data.error);
-      result.data.error.should.be.an('array');
-      result.data.error.should.have.length(1);
-      const [e] = result.data.error;
+      checks[0].should.be.an('object');
+      checks[0].check.should.equal('proof');
+      should.exist(error.data.verified);
+      error.data.verified.should.be.a('boolean');
+      error.data.verified.should.be.false;
+      should.exist(error.data.error);
+      error.data.error.errors.should.be.an('array');
+      error.data.error.errors.should.have.length(1);
+      error.data.error.name.should.equal('VerificationError');
+      const e = error.data.error.errors[0];
       e.should.be.an('object');
       should.exist(e.name);
-      e.name.should.equal('VerificationError');
-      should.exist(e.errors);
-      e.errors.should.be.an('array');
-      e.errors.should.have.length(1);
-      const [cError] = e.errors;
-      should.exist(cError.name);
-      cError.name.should.equal('Error');
-      cError.message.should.equal('Invalid signature.');
+      e.message.should.equal('Invalid signature.');
     });
   });
 });

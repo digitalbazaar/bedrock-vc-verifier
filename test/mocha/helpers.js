@@ -40,7 +40,6 @@ const {sign} = jsigs;
 const api = {
   generateCredential,
   generatePresentation,
-  registerDid,
   waitForConsensus,
   challenge,
   domain
@@ -72,21 +71,6 @@ async function generatePresentation(
     purpose: new AuthenticationProofPurpose({challenge, domain})
   });
   return {presentation};
-}
-
-async function registerDid() {
-  const {
-    didDocument,
-    keyPairs,
-    methodFor
-  } = await veresDriver.generate(
-    {didType: 'nym', keyType: 'Ed25519VerificationKey2020'});
-  const credentialSigningKey = methodFor({purpose: 'assertionMethod'});
-
-  const {v1DidDoc, signingKey} = await generateDid();
-  await veresDriver.register({didDocument});
-  await waitForConsensus({did: didDocument.id});
-  return {didDocument, signingKey};
 }
 
 async function waitForConsensus({did}) {
