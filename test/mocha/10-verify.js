@@ -71,7 +71,7 @@ describe('verify API using local DID document loader', () => {
     data.should.be.an('object');
     should.exist(data.verified);
     data.verified.should.be.a('boolean');
-    data.verified.should.be.true;
+    data.verified.should.equal(true);
   });
   it('verifies a credential with a verifierId and a referenceId',
     async () => {
@@ -102,6 +102,6 @@ describe('verify API using local DID document loader', () => {
       data.should.be.an('object');
       should.exist(data.verified);
       data.verified.should.be.a('boolean');
-      data.verified.should.be.true;
+      data.verified.should.equal(true);
     });
 });
