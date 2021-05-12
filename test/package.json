@@ -17,7 +17,6 @@
     "@digitalbazaar/http-client": "^1.0.0",
     "@digitalbazaar/security-document-loader": "^1.0.0",
     "@digitalbazaar/vc": "^1.0.0",
-    "apisauce": "^2.1.1",
     "bedrock": "^4.1.1",
     "bedrock-credentials-context": "^1.0.0",
     "bedrock-did-io": "digitalbazaar/bedrock-did-io#update-veres-one",

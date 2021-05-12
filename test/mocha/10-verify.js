@@ -67,7 +67,6 @@ describe('verify API using local DID document loader', () => {
     should.not.exist(error);
     should.exist(result.data);
     const {data} = result;
-    should.exist(data);
     data.should.be.an('object');
     should.exist(data.verified);
     data.verified.should.be.a('boolean');

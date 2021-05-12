@@ -42,11 +42,9 @@ describe('Interop Verifier API', () => {
         error = e;
       }
       should.not.exist(error);
-      // apisauce API does not throw it puts errors in `result.problem`
-      should.not.exist(result.problem);
       should.exist(result.data.verified);
       result.data.verified.should.be.a('boolean');
-      result.data.verified.should.be.true;
+      result.data.verified.should.equal(true);
       const {checks} = result.data;
       checks.should.be.an('array');
       checks.should.have.length(1);
@@ -58,7 +56,7 @@ describe('Interop Verifier API', () => {
       result.data.results.should.have.length(1);
       const [r] = result.data.results;
       r.verified.should.be.a('boolean');
-      r.verified.should.be.true;
+      r.verified.should.equal(true);
     });
     it('does not verify an invalid credential', async () => {
       let error;
@@ -140,8 +138,6 @@ describe('Interop Verifier API', () => {
         error = e;
       }
       should.not.exist(error);
-      // apisauce API does not throw it puts errors in `result.problem`
-      should.not.exist(result.problem);
       should.exist(result.data.checks);
       const {checks} = result.data;
       checks.should.be.an('array');
@@ -150,12 +146,12 @@ describe('Interop Verifier API', () => {
       checks[0].should.equal('proof');
       should.exist(result.data.verified);
       result.data.verified.should.be.a('boolean');
-      result.data.verified.should.be.true;
+      result.data.verified.should.equal(true);
       should.exist(result.data.presentationResult);
       result.data.presentationResult.should.be.an('object');
       should.exist(result.data.presentationResult.verified);
       result.data.presentationResult.verified.should.be.a('boolean');
-      result.data.presentationResult.verified.should.be.true;
+      result.data.presentationResult.verified.should.equal(true);
       should.exist(result.data.credentialResults);
       const {data: {credentialResults}} = result;
       credentialResults.should.be.an('array');
@@ -163,7 +159,7 @@ describe('Interop Verifier API', () => {
       const [credentialResult] = credentialResults;
       should.exist(credentialResult.verified);
       credentialResult.verified.should.be.a('boolean');
-      credentialResult.verified.should.be.true;
+      credentialResult.verified.should.equal(true);
     });
     it('returns an error if challenge is not specified', async () => {
       const verifiableCredential = clone(mockCredential);
@@ -257,7 +253,7 @@ describe('Interop Verifier API', () => {
       checks[0].check.should.equal('proof');
       should.exist(error.data.verified);
       error.data.verified.should.be.a('boolean');
-      error.data.verified.should.be.false;
+      error.data.verified.should.equal(false);
       should.exist(error.data.error);
       error.data.error.errors.should.be.an('array');
       error.data.error.errors.should.have.length(1);
