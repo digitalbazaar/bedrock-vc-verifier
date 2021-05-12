@@ -48,6 +48,9 @@
     "eslint": "^7.25.0",
     "eslint-config-digitalbazaar": "^2.8.0"
   },
+  "scripts": {
+    "lint": "eslint ."
+  },
   "engines": {
     "node": ">=12"
   }
