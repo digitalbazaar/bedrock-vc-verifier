@@ -9,17 +9,12 @@ const {httpClient} = require('@digitalbazaar/http-client');
 const helpers = require('./helpers');
 const https = require('https');
 const didVeresOne = require('did-veres-one');
-const {CachedResolver} = require('@digitalbazaar/did-io');
-
-const resolver = new CachedResolver();
 
 const options = {
   hostname: config['vc-verifier'].ledgerHostname,
   mode: 'test'
 };
-
 const veresDriver = didVeresOne.driver(options);
-resolver.use(veresDriver);
 
 const strictSSL = false;
 
