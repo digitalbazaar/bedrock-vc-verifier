@@ -11,7 +11,7 @@ const {Ed25519VerificationKey2020} = require(
   '@digitalbazaar/ed25519-verification-key-2020');
 const {httpClient} = require('@digitalbazaar/http-client');
 const {httpsAgent} = require('bedrock-https-agent');
-const {loader} = require('bedrock-vc-verifier');
+const {documentLoader} = require('bedrock-vc-verifier');
 const vc = require('@digitalbazaar/vc');
 
 const cryptoLd = new CryptoLD();
@@ -109,7 +109,6 @@ describe('Interop Verifier API', () => {
       const suite = new Ed25519Signature2020({key: signingKey});
 
       const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
-      const documentLoader = loader.build();
       await vc.signPresentation({
         presentation,
         suite,
@@ -177,7 +176,6 @@ describe('Interop Verifier API', () => {
       const suite = new Ed25519Signature2020({key: signingKey});
 
       const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
-      const documentLoader = loader.build();
       await vc.signPresentation({
         presentation, suite, challenge, documentLoader});
 
@@ -221,7 +219,6 @@ describe('Interop Verifier API', () => {
       const suite = new Ed25519Signature2020({key: signingKey});
 
       const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
-      const documentLoader = loader.build();
       await vc.signPresentation({
         presentation, suite, challenge, documentLoader});
 

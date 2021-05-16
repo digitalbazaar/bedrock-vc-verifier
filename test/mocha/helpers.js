@@ -9,26 +9,12 @@ const didVeresOne = require('did-veres-one');
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const jsigs = require('jsonld-signatures');
 const mockData = require('./mock.data');
-const {securityLoader} = require('@digitalbazaar/security-document-loader');
-const veresOneCtx = require('veres-one-context');
-const webkmsCtx = require('webkms-context');
-const zcapCtx = require('zcap-context');
-
-const loader = securityLoader();
-loader.addStatic(
-  veresOneCtx.constants.VERES_ONE_CONTEXT_V1_URL, veresOneCtx.contexts);
-loader.addStatic(zcapCtx.CONTEXT_URL, zcapCtx.CONTEXT);
-loader.addStatic(webkmsCtx.CONTEXT_URL, webkmsCtx.CONTEXT);
+const {documentLoader} = require('bedrock-vc-verifier');
 
 const options = {
   hostname: config['vc-verifier'].ledgerHostname,
   mode: 'dev'
 };
-
-loader.protocolHandlers.get('did').use(didVeresOne.driver(options));
-
-const securityDocumentLoader = loader.build();
-
 const {VeresOneClient} = didVeresOne;
 const client = new VeresOneClient(options);
 // FIXME: temporary, did-veres-one will be returning a keypair that can be
@@ -51,7 +37,7 @@ async function generateCredential({signingKey, issuer}) {
   mockCredential.issuer = issuer;
   const {AssertionProofPurpose} = jsigs.purposes;
   const credential = await sign(mockCredential, {
-    documentLoader: securityDocumentLoader,
+    documentLoader,
     suite: new Ed25519Signature2020({key: signingKey}),
     purpose: new AssertionProofPurpose()
   });
@@ -66,7 +52,7 @@ async function generatePresentation(
     {signingKey: credentialSigningKey, issuer});
   mockPresentation.verifiableCredential.push(credential);
   const presentation = await sign(mockPresentation, {
-    documentLoader: securityDocumentLoader,
+    documentLoader,
     suite: new Ed25519Signature2020({key: presentationSigningKey}),
     purpose: new AuthenticationProofPurpose({challenge, domain})
   });
