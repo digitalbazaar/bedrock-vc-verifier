@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/digitalbazaar/bedrock-vc-verifier",
   "dependencies": {
+    "@digitalbazaar/ed25519-signature-2018": "^2.0.1",
     "@digitalbazaar/ed25519-signature-2020": "^2.1.0",
     "@digitalbazaar/http-client": "^1.0.0",
     "@digitalbazaar/vc": "^1.0.0",
