@@ -4,13 +4,11 @@
 'use strict';
 
 const bedrock = require('bedrock');
-const {config} = bedrock;
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const jsigs = require('jsonld-signatures');
 const mockData = require('./mock.data');
 const {documentLoader} = require('bedrock-vc-verifier');
 const {didIo} = require('bedrock-did-io');
-
 
 const challenge = 'challengeString';
 const domain = 'example.org';
