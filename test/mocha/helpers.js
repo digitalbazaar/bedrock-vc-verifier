@@ -8,7 +8,6 @@ const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const jsigs = require('jsonld-signatures');
 const mockData = require('./mock.data');
 const {documentLoader} = require('bedrock-vc-verifier');
-const {didIo} = require('bedrock-did-io');
 
 const challenge = 'challengeString';
 const domain = 'example.org';
@@ -16,7 +15,6 @@ const {sign} = jsigs;
 const api = {
   generateCredential,
   generatePresentation,
-  waitForConsensus,
   challenge,
   domain
 };
@@ -47,23 +45,4 @@ async function generatePresentation(
     purpose: new AuthenticationProofPurpose({challenge, domain})
   });
   return {presentation};
-}
-
-async function waitForConsensus({did}) {
-  let found = false;
-  let didRecord;
-  while(!found) {
-    try {
-      didRecord = await didIo.get({did});
-      found = true;
-    } catch(e) {
-      if(e.response.status !== 404) {
-        throw e;
-      }
-      console.log('Waiting for consensus...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      continue;
-    }
-  }
-  return didRecord;
 }
