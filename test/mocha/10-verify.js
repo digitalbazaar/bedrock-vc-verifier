@@ -11,7 +11,6 @@ const https = require('https');
 const didVeresOne = require('did-veres-one');
 
 const options = {
-  hostname: config['vc-verifier'].ledgerHostname,
   mode: 'test'
 };
 const veresDriver = didVeresOne.driver(options);

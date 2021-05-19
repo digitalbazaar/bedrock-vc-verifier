@@ -5,20 +5,12 @@
 
 const bedrock = require('bedrock');
 const {config} = bedrock;
-const didVeresOne = require('did-veres-one');
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const jsigs = require('jsonld-signatures');
 const mockData = require('./mock.data');
 const {documentLoader} = require('bedrock-vc-verifier');
+const {didIo} = require('bedrock-did-io');
 
-const options = {
-  hostname: config['vc-verifier'].ledgerHostname,
-  mode: 'dev'
-};
-const {VeresOneClient} = didVeresOne;
-const client = new VeresOneClient(options);
-// FIXME: temporary, did-veres-one will be returning a keypair that can be
-// used for signing operations
 
 const challenge = 'challengeString';
 const domain = 'example.org';
@@ -64,9 +56,7 @@ async function waitForConsensus({did}) {
   let didRecord;
   while(!found) {
     try {
-      // using v1.client.get here because v1.get will pull locally created
-      // did from local storage as a pairwise did
-      didRecord = await client.get({did});
+      didRecord = await didIo.get({did});
       found = true;
     } catch(e) {
       if(e.response.status !== 404) {
