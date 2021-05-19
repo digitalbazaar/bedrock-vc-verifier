@@ -7,15 +7,13 @@ const bedrock = require('bedrock');
 const {config} = bedrock;
 const {httpClient} = require('@digitalbazaar/http-client');
 const helpers = require('./helpers');
-const https = require('https');
+const {agent} = require('bedrock-https-agent');
 const didVeresOne = require('did-veres-one');
 
 const options = {
   mode: 'test'
 };
 const veresDriver = didVeresOne.driver(options);
-
-const strictSSL = false;
 
 const urls = {
   verify: `${config.server.baseUri}/vc/verify`,
@@ -52,7 +50,7 @@ describe('verify API using local DID document loader', () => {
     });
     try {
       result = await httpClient.post(urls.verify, {
-        agent: new https.Agent({rejectUnauthorized: strictSSL}),
+        agent,
         json: {challenge, domain, presentation},
       });
     } catch(e) {
@@ -82,7 +80,7 @@ describe('verify API using local DID document loader', () => {
       const url = urls.verification({verifiedId: 'foo', referenceId: 'bar'});
       try {
         result = await httpClient.post(url, {
-          agent: new https.Agent({rejectUnauthorized: strictSSL}),
+          agent,
           json: {challenge, domain, presentation},
         });
       } catch(e) {
