@@ -19,7 +19,7 @@
     "@digitalbazaar/vc": "^1.0.0",
     "bedrock": "^4.1.1",
     "bedrock-credentials-context": "^1.0.0",
-    "bedrock-did-io": "digitalbazaar/bedrock-did-io#update-veres-one",
+    "bedrock-did-io": "^2.0.0",
     "bedrock-express": "^4.0.0",
     "bedrock-https-agent": "^2.0.0",
     "bedrock-jsonld-document-loader": "^1.0.1",
@@ -36,7 +36,7 @@
     "credentials-context": "^1.0.0",
     "crypto-ld": "^6.0.0",
     "did-context": "^3.0.1",
-    "did-veres-one": "veres-one/did-veres-one#v13.x",
+    "did-veres-one": "14.0.0-beta.0",
     "jsonld": "^5.2.0",
     "jsonld-signatures": "^9.0.2",
     "veres-one-context": "^12.0.0"
