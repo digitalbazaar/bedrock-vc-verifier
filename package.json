@@ -22,6 +22,7 @@
     "@digitalbazaar/http-client": "^1.1.0",
     "@digitalbazaar/vc": "^1.0.0",
     "bedrock-did-context": "^2.0.0",
+    "bedrock-security-context": "^4.1.0",
     "bedrock-veres-one-context": "^11.0.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
