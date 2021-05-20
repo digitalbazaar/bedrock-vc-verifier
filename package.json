@@ -25,6 +25,7 @@
     "bedrock-veres-one-context": "^11.0.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "did-context": "^3.0.1",
     "did-veres-one": "veres-one/did-veres-one#v13.x",
     "serialize-error": "^8.1.0",
     "vc-revocation-list": "^1.0.0",

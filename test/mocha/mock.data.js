@@ -4,20 +4,17 @@
 */
 'use strict';
 
-const {config: {constants}} = require('bedrock');
+const {constants: {VERES_ONE_CONTEXT_V1_URL}} = require('veres-one-context');
+const {constants: {DID_CONTEXT_URL}} = require('did-context');
+const {constants: {CREDENTIALS_CONTEXT_V1_URL}} = require('credentials-context');
 
 const mock = {};
 module.exports = mock;
 
-const didContexts = [
-  constants.DID_CONTEXT_URL,
-  constants.VERES_ONE_CONTEXT_V1_URL
-];
-
 const credentials = mock.credentials = {};
 credentials.alpha = {
   '@context': [
-    constants.CREDENTIALS_CONTEXT_V1_URL, {
+    CREDENTIALS_CONTEXT_V1_URL, {
       ex1: 'https://example.com/examples/v1',
       AlumniCredential: 'ex1:AlumniCredential',
       alumniOf: 'ex1:alumniOf'
@@ -36,7 +33,7 @@ credentials.alpha = {
 const presentations = mock.presentations = {};
 
 presentations.alpha = {
-  '@context': [constants.CREDENTIALS_CONTEXT_V1_URL],
+  '@context': [CREDENTIALS_CONTEXT_V1_URL],
   type: ['VerifiablePresentation'],
   verifiableCredential: [],
 };
@@ -44,7 +41,7 @@ presentations.alpha = {
 const privateDidDocuments = mock.privateDidDocuments = {};
 
 privateDidDocuments.alpha = {
-  '@context': didContexts,
+  '@context': [DID_CONTEXT_URL, VERES_ONE_CONTEXT_V1_URL],
   id: 'did:v1:test:nym:z279yHL6HsxRzCPU78DAWgZVieb8xPK1mJKJBbP8T2CezuFY',
   authentication: [
     {
