@@ -7,9 +7,8 @@ const bedrock = require('bedrock');
 const {config} = bedrock;
 const helpers = require('./helpers');
 const {httpClient} = require('@digitalbazaar/http-client');
-const https = require('https');
+const {agent} = require('bedrock-https-agent');
 
-const strictSSL = false;
 const url = `${config.server.baseUri}/vc/verify`;
 
 // this test can only be run if there is a dev veres-one ledger on localhost
@@ -26,7 +25,7 @@ describe.skip('verify API using local dev ledger', () => {
     let result;
     try {
       result = await httpClient.post(url, {
-        agent: new https.Agent({rejectUnauthorized: strictSSL}),
+        agent,
         json: {challenge, domain, presentation},
       });
     } catch(e) {

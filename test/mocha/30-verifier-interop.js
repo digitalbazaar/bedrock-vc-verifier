@@ -10,7 +10,7 @@ const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const {Ed25519VerificationKey2020} = require(
   '@digitalbazaar/ed25519-verification-key-2020');
 const {httpClient} = require('@digitalbazaar/http-client');
-const {httpsAgent} = require('bedrock-https-agent');
+const {agent} = require('bedrock-https-agent');
 const {_documentLoader: documentLoader} = require('bedrock-vc-verifier');
 const vc = require('@digitalbazaar/vc');
 
@@ -30,7 +30,7 @@ describe('Interop Verifier API', () => {
       try {
         result = await httpClient.post(
           `${config.server.baseUri}/verifier/credentials`, {
-            agent: httpsAgent,
+            agent,
             json: {
               options: {
                 checks: ['proof'],
@@ -70,7 +70,7 @@ describe('Interop Verifier API', () => {
       try {
         result = await httpClient.post(
           `${config.server.baseUri}/verifier/credentials`, {
-            agent: httpsAgent,
+            agent,
             json: {
               options: {
                 checks: ['proof'],
@@ -130,7 +130,7 @@ describe('Interop Verifier API', () => {
       try {
         result = await httpClient.post(
           `${config.server.baseUri}/verifier/presentations`, {
-            agent: httpsAgent,
+            agent,
             json: payload
           });
       } catch(e) {
@@ -185,7 +185,7 @@ describe('Interop Verifier API', () => {
       try {
         result = await httpClient.post(
           `${config.server.baseUri}/verifier/presentations`, {
-            agent: httpsAgent,
+            agent,
             json: {presentation}
           });
       } catch(e) {
@@ -236,7 +236,7 @@ describe('Interop Verifier API', () => {
       try {
         result = await httpClient.post(
           `${config.server.baseUri}/verifier/presentations`, {
-            agent: httpsAgent,
+            agent,
             json: payload
           });
       } catch(e) {
