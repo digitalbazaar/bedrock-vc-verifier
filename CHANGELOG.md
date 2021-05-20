@@ -4,6 +4,7 @@
 
 ### Changed
 - **BREAKING**: Remove `axios` and use `@digitalbazaar/http-client@1.1.0`.
+- **BREAKING**: Remove `cfg.ledgerHostname` and `cfg.mode` from `config.js`.
 - Rename `vc-js` to `@digitalbazaar/vc`.
 - Update to support ed25519 2020 signature suite.
 - Update peerDeps and testDeps.
