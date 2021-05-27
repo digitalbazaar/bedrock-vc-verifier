@@ -36,7 +36,7 @@
   "peerDependencies": {
     "bedrock": "^4.1.1",
     "bedrock-credentials-context": "^1.0.0",
-    "bedrock-did-io": "^2.0.0",
+    "bedrock-did-io": "digitalbazaar/bedrock-did-io#support-2018",
     "bedrock-express": "^4.0.0",
     "bedrock-https-agent": "^2.0.0",
     "bedrock-jsonld-document-loader": "^1.0.1",

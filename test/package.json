@@ -13,13 +13,13 @@
     "url": "http://digitalbazaar.com"
   },
   "dependencies": {
-    "@digitalbazaar/did-method-key": "^1.1.0",
+    "@digitalbazaar/did-method-key": "^1.2.0",
     "@digitalbazaar/ed25519-signature-2020": "^2.2.0",
     "@digitalbazaar/http-client": "^1.1.0",
     "@digitalbazaar/vc": "^1.0.0",
     "bedrock": "^4.1.1",
     "bedrock-credentials-context": "^1.0.0",
-    "bedrock-did-io": "^2.0.0",
+    "bedrock-did-io": "digitalbazaar/bedrock-did-io#support-2018",
     "bedrock-express": "^4.0.0",
     "bedrock-https-agent": "^2.0.0",
     "bedrock-jsonld-document-loader": "^1.0.1",

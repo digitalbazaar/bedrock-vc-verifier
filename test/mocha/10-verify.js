@@ -31,8 +31,7 @@ describe('verify API using local DID document loader', () => {
     const {
       didDocument,
       methodFor
-    } = await veresDriver.generate(
-      {didType: 'nym', keyType: 'Ed25519VerificationKey2020'});
+    } = await veresDriver.generate({didType: 'nym'});
 
     // NOTE: For a Veres One DID that was generated _and registered_, you'd
     // want to use keys for the 'assertionMethod' and 'authentication'
