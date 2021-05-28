@@ -3,10 +3,8 @@
  */
 const {config} = require('bedrock');
 const path = require('path');
+require('bedrock-did-io');
 
 config.mocha.tests.push(path.join(__dirname, 'mocha'));
-
-const cfg = config['vc-verifier'];
-cfg.mode = 'test';
 
 config['https-agent'].rejectUnauthorized = false;
