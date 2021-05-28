@@ -7,6 +7,7 @@
 - **BREAKING**: Remove `cfg.ledgerHostname` and `cfg.mode` from `config.js`.
 - **BREAKING**: Revocation list credentials must have the same issuer value
   as the credential to be revoked.
+- **BREAKING**: Use [bedrock-did-io@3.0](https://github.com/digitalbazaar/bedrock-did-io/blob/main/CHANGELOG.md).
 - Rename `vc-js` to `@digitalbazaar/vc`.
 - Update to support ed25519 2020 signature suite.
 - Update peerDeps and testDeps.
