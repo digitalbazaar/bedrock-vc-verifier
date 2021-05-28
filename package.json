@@ -30,7 +30,7 @@
     "crypto-ld": "^6.0.0",
     "did-context": "^3.0.1",
     "serialize-error": "^8.1.0",
-    "vc-revocation-list": "^1.0.0",
+    "vc-revocation-list": "^3.0.0",
     "veres-one-context": "^12.0.0"
   },
   "peerDependencies": {
