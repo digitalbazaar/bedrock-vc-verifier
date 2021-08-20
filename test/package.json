@@ -13,18 +13,18 @@
     "url": "http://digitalbazaar.com"
   },
   "dependencies": {
-    "@digitalbazaar/did-method-key": "^1.2.0",
-    "@digitalbazaar/ed25519-signature-2020": "^2.2.0",
-    "@digitalbazaar/http-client": "^1.1.0",
+    "@digitalbazaar/did-method-key": "^2.0.0",
+    "@digitalbazaar/ed25519-signature-2020": "^3.0.0",
+    "@digitalbazaar/http-client": "^1.2.0",
     "@digitalbazaar/vc": "^1.0.0",
     "bedrock": "^4.1.1",
     "bedrock-credentials-context": "^1.0.0",
     "bedrock-did-context": "^2.0.0",
-    "bedrock-did-io": "^3.0.0",
+    "bedrock-did-io": "^4.0.1",
     "bedrock-express": "^4.0.0",
     "bedrock-https-agent": "^2.0.0",
-    "bedrock-jsonld-document-loader": "^1.0.1",
-    "bedrock-ledger-context": "^18.0.0",
+    "bedrock-jsonld-document-loader": "^1.1.0",
+    "bedrock-ledger-context": "^20.0.1",
     "bedrock-rest": "^3.0.0",
     "bedrock-security-context": "^4.1.0",
     "bedrock-server": "^2.7.0",
@@ -37,9 +37,9 @@
     "credentials-context": "^1.0.0",
     "crypto-ld": "^6.0.0",
     "did-context": "^3.0.1",
-    "did-veres-one": "14.0.0-beta.0",
+    "did-veres-one": "14.0.0-beta.2",
     "jsonld": "^5.2.0",
-    "jsonld-signatures": "^9.0.2",
+    "jsonld-signatures": "^9.3.0",
     "veres-one-context": "^12.0.0"
   }
 }
