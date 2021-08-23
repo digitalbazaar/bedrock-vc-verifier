@@ -24,7 +24,7 @@ const urls = {
 };
 
 describe('verify API using local DID document loader', () => {
-  it.skip('verifies a valid credential', async () => {
+  it('verifies a valid credential', async () => {
     const {challenge, domain} = helpers;
     let error;
     let result;

@@ -20,6 +20,7 @@
     "@digitalbazaar/ed25519-signature-2018": "^2.0.1",
     "@digitalbazaar/ed25519-signature-2020": "^3.0.0",
     "@digitalbazaar/ed25519-verification-key-2018": "^3.1.1",
+    "@digitalbazaar/ed25519-verification-key-2020": "^3.1.0",
     "@digitalbazaar/http-client": "^1.2.0",
     "@digitalbazaar/vc": "^1.0.0",
     "body-parser": "^1.19.0",
