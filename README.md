@@ -71,6 +71,8 @@ Example request:
 
 #### Verify Credentials - `POST /verifier/credentials`
 
+Alias: `/instances/:instanceId/credentials/verify`
+
 Optionally performs status checks using the `vc-revocation-list` library.
 
 Example request:
@@ -85,6 +87,8 @@ Example request:
 ```
 
 #### Verify Presentations - `POST /verifier/presentations`
+
+Alias: `/instances/:instanceId/presentations/verify`
 
 Optionally performs status checks using the `vc-revocation-list` library.
 
