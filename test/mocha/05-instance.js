@@ -7,9 +7,8 @@ const bedrock = require('bedrock');
 const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
 const helpers = require('./helpers');
 const {agent} = require('bedrock-https-agent');
-const {httpClient, DEFAULT_HEADERS} = require('@digitalbazaar/http-client');
+const {httpClient} = require('@digitalbazaar/http-client');
 const mockData = require('./mock.data');
-const {signCapabilityInvocation} = require('http-signature-zcap-invoke');
 
 describe('bedrock-vc-verifier HTTP API', () => {
   describe('instances', () => {
@@ -274,20 +273,11 @@ describe('bedrock-vc-verifier HTTP API', () => {
           sequence: 1,
         };
 
-        const headers = await signCapabilityInvocation({
-          url, method: 'post',
-          headers: DEFAULT_HEADERS,
-          json: newConfig,
-          capability: 'urn:zcap:root:' + encodeURIComponent(url),
-          invocationSigner: capabilityAgent.getSigner(),
-          capabilityAction: 'write'
-        });
-
         err = null;
         result = null;
         try {
-          result = await httpClient.post(
-            url, {agent, headers, json: newConfig});
+          const zcapClient = helpers.createZcapClient({capabilityAgent});
+          result = await zcapClient.write({url, json: newConfig});
         } catch(e) {
           err = e;
         }
@@ -365,22 +355,15 @@ describe('bedrock-vc-verifier HTTP API', () => {
           sequence: 1,
         };
 
-        // the capability invocation here is signed by capabilityAgent2 which
-        // is not the controller of the instance
-        const headers = await signCapabilityInvocation({
-          url, method: 'post',
-          headers: DEFAULT_HEADERS,
-          json: newConfig,
-          capability: 'urn:zcap:root:' + encodeURIComponent(url),
-          invocationSigner: capabilityAgent2.signer,
-          capabilityAction: 'write'
-        });
-
         err = null;
         result = null;
         try {
-          result = await httpClient.post(
-            url, {agent, headers, json: newConfig});
+          // the capability invocation here is signed by capabilityAgent2 which
+          // is not the controller of the instance
+          const zcapClient = helpers.createZcapClient({
+            capabilityAgent: capabilityAgent2
+          });
+          result = await zcapClient.write({url, json: newConfig});
         } catch(e) {
           err = e;
         }
@@ -427,20 +410,11 @@ describe('bedrock-vc-verifier HTTP API', () => {
           sequence: 10,
         };
 
-        const headers = await signCapabilityInvocation({
-          url, method: 'post',
-          headers: DEFAULT_HEADERS,
-          json: newConfig,
-          capability: 'urn:zcap:root:' + encodeURIComponent(url),
-          invocationSigner: capabilityAgent.getSigner(),
-          capabilityAction: 'write'
-        });
-
         err = null;
         result = null;
         try {
-          result = await httpClient.post(
-            url, {agent, headers, json: newConfig});
+          const zcapClient = helpers.createZcapClient({capabilityAgent});
+          result = await zcapClient.write({url, json: newConfig});
         } catch(e) {
           err = e;
         }
@@ -491,20 +465,11 @@ describe('bedrock-vc-verifier HTTP API', () => {
             sequence: 1,
           };
 
-          const headers = await signCapabilityInvocation({
-            url, method: 'post',
-            headers: DEFAULT_HEADERS,
-            json: newConfig,
-            capability: 'urn:zcap:root:' + encodeURIComponent(url),
-            invocationSigner: capabilityAgent.getSigner(),
-            capabilityAction: 'write'
-          });
-
           err = null;
           result = null;
           try {
-            result = await httpClient.post(
-              url, {agent, headers, json: newConfig});
+            const zcapClient = helpers.createZcapClient({capabilityAgent});
+            result = await zcapClient.write({url, json: newConfig});
           } catch(e) {
             err = e;
           }
@@ -587,20 +552,11 @@ describe('bedrock-vc-verifier HTTP API', () => {
             sequence: 1,
           };
 
-          const headers = await signCapabilityInvocation({
-            url, method: 'post',
-            headers: DEFAULT_HEADERS,
-            json: newConfig,
-            capability: 'urn:zcap:root:' + encodeURIComponent(url),
-            invocationSigner: capabilityAgent.getSigner(),
-            capabilityAction: 'write'
-          });
-
           err = null;
           result = null;
           try {
-            result = await httpClient.post(
-              url, {agent, headers, json: newConfig});
+            const zcapClient = helpers.createZcapClient({capabilityAgent});
+            result = await zcapClient.write({url, json: newConfig});
           } catch(e) {
             err = e;
           }

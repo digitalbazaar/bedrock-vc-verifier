@@ -63,19 +63,23 @@ exports.createInstance = async ({
     config.ipAllowList = ipAllowList;
   }
 
-  const zcapClient = new ZcapClient({
-    agent: httpsAgent,
-    invocationSigner: capabilityAgent.getSigner(),
-    SuiteClass: Ed25519Signature2020
-  });
   // create an instance
   const verifierService = `${bedrock.config.server.baseUri}/verifiers`;
+  const zcapClient = exports.createZcapClient({capabilityAgent});
   ({data: {config}} = await zcapClient.write(
     {url: verifierService, json: config}));
 
   // return full instance ID
   const {id} = config;
   return {id: `${verifierService}/${id}`};
+};
+
+exports.createZcapClient = function({capabilityAgent} = {}) {
+  return new ZcapClient({
+    agent: httpsAgent,
+    invocationSigner: capabilityAgent.getSigner(),
+    SuiteClass: Ed25519Signature2020
+  });
 };
 
 exports.generateCredential = async function({signingKey, issuer}) {
