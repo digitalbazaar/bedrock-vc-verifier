@@ -8,3 +8,4 @@ TAGS
 coverage
 node_modules
 reports
+.nyc_output

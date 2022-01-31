@@ -5,7 +5,10 @@
   "main": "test",
   "private": true,
   "scripts": {
-    "test": "node --preserve-symlinks test.js test"
+    "test": "node --preserve-symlinks test.js test",
+    "coverage": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text-summary npm test",
+    "coverage-ci": "cross-env NODE_ENV=test nyc --reporter=lcovonly npm test",
+    "coverage-report": "nyc report"
   },
   "author": {
     "name": "Digital Bazaar, Inc.",
@@ -15,31 +18,41 @@
   "dependencies": {
     "@digitalbazaar/did-method-key": "^2.0.0",
     "@digitalbazaar/ed25519-signature-2020": "^3.0.0",
-    "@digitalbazaar/http-client": "^1.2.0",
-    "@digitalbazaar/vc": "^1.0.0",
-    "bedrock": "^4.1.1",
+    "@digitalbazaar/http-client": "^2.0.1",
+    "@digitalbazaar/vc": "^2.1.0",
+    "bedrock": "^4.4.3",
     "bedrock-credentials-context": "^1.0.0",
     "bedrock-did-context": "^2.0.0",
-    "bedrock-did-io": "^4.0.2",
-    "bedrock-express": "^4.0.0",
-    "bedrock-https-agent": "^2.0.0",
-    "bedrock-jsonld-document-loader": "^1.1.0",
-    "bedrock-ledger-context": "^20.0.1",
+    "bedrock-did-io": "^5.0.0",
+    "bedrock-express": "^6.3.0",
+    "bedrock-https-agent": "^2.2.0",
+    "bedrock-jsonld-document-loader": "^1.2.1",
+    "bedrock-ledger-context": "^21.0.0",
     "bedrock-rest": "^3.0.0",
-    "bedrock-security-context": "^4.1.0",
-    "bedrock-server": "^2.7.0",
-    "bedrock-test": "^5.3.2",
-    "bedrock-validation": "^5.0.0",
-    "bedrock-vc-revocation-list-context": "^1.0.0",
+    "bedrock-security-context": "^5.0.0",
+    "bedrock-server": "^3.1.0",
+    "bedrock-test": "^6.0.0",
+    "bedrock-validation": "^5.2.2",
     "bedrock-vc-verifier": "file:..",
-    "bedrock-veres-one-context": "^11.0.0",
+    "bedrock-veres-one-context": "^12.0.0",
     "bedrock-views": "^7.1.0",
-    "credentials-context": "^1.0.0",
+    "credentials-context": "^2.0.0",
+    "cross-env": "^7.0.3",
     "crypto-ld": "^6.0.0",
-    "did-context": "^3.0.1",
+    "did-context": "^3.1.1",
     "did-veres-one": "14.0.0-beta.3",
     "jsonld": "^5.2.0",
     "jsonld-signatures": "^9.3.0",
+    "nyc": "^15.1.0",
     "veres-one-context": "^12.0.0"
+  },
+  "nyc": {
+    "excludeNodeModules": false,
+    "include": [
+      "node_modules/bedrock-vc-verifier/**"
+    ],
+    "exclude": [
+      "node_modules/bedrock-vc-verifier/node_modules/**"
+    ]
   }
 }
