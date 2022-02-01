@@ -41,6 +41,7 @@
     "bedrock-jsonld-document-loader": "^1.2.1",
     "bedrock-rest": "^3.0.0",
     "bedrock-security-context": "^5.0.0",
+    "bedrock-vc-status-list-context": "^1.0.0",
     "bedrock-veres-one-context": "^12.0.0"
   },
   "devDependencies": {
