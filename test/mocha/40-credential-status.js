@@ -21,22 +21,21 @@ const VC_SL_CONTEXT = statusListCtx.contexts.get(VC_SL_CONTEXT_URL);
 const documents = new Map();
 documents.set(VC_SL_CONTEXT_URL, VC_SL_CONTEXT);
 
-const encodedList100KWith50KthRevoked =
-  'H4sIAAAAAAAAA-3OMQ0AAAgDsOHfNB72EJJWQRMAAAAAAIDWXAcAAAAAAIDHFrc4zDz' +
-  'UMAAA';
+const encodedList100k =
+  'H4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA';
 const slCredential = {
   '@context': [
     'https://www.w3.org/2018/credentials/v1',
     VC_SL_CONTEXT_URL
   ],
   id: 'https://example.com/status/1',
-  issuer: 'did:key:z6MkmHipNuE35C6ona8Hkgpq3mpn4C3rX5kp1SjwcZ7HCWnH',
+  issuer: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
   issuanceDate: '2021-03-10T04:24:12.164Z',
   type: ['VerifiableCredential', 'StatusList2021Credential'],
   credentialSubject: {
     id: `https://example.com/status/1#list`,
     type: 'RevocationList2021',
-    encodedList: encodedList100KWith50KthRevoked
+    encodedList: encodedList100k
   }
 };
 documents.set(slCredential.id, slCredential);
@@ -75,7 +74,16 @@ describe('verify API using local DID document loader', () => {
       },
       issuer: slCredential.issuer,
     };
-    const keyPair = await Ed25519VerificationKey2020.generate();
+    const keyData = {
+      id: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv#' +
+        'z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+      controller: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+      type: 'Ed25519VerificationKey2020',
+      publicKeyMultibase: 'z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+      privateKeyMultibase: 'zrv2rP9yjtz3YwCas9m6hnoPxmoqZV72xbCEuomXi4wwSS4S' +
+        'hekesADYiAMHoxoqfyBDKQowGMvYx9rp6QGJ7Qbk7Y4'
+    };
+    const keyPair = await Ed25519VerificationKey2020.from(keyData);
 
     const suite = new Ed25519Signature2020({key: keyPair});
 
@@ -106,7 +114,6 @@ describe('verify API using local DID document loader', () => {
     result.data.verified.should.be.a('boolean');
     result.data.verified.should.equal(true);
     const {checks} = result.data;
-    console.log(checks, '<><><>checks');
     checks.should.be.an('array');
     checks.should.have.length(1);
     const [check] = checks;
