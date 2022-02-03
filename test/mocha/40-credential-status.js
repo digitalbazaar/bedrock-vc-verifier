@@ -23,31 +23,14 @@ const encodedList100k =
 const key = fs.readFileSync(__dirname + '/key.pem');
 const cert = fs.readFileSync(__dirname + '/cert.pem');
 
-let BASE_URL;
-let slCredential;
+const PORT = 9001;
+const BASE_URL = `https://localhost:${PORT}`;
 
 function _startServer({app}) {
   return new Promise(resolve => {
     const server = https.createServer({key, cert}, app);
-    server.listen(() => {
-      const {port} = server.address();
-      BASE_URL = `https://localhost:${port}`;
+    server.listen(PORT, () => {
       console.log(`Test server listening at ${BASE_URL}`);
-      slCredential = {
-        '@context': [
-          'https://www.w3.org/2018/credentials/v1',
-          VC_SL_CONTEXT_URL
-        ],
-        id: `https://localhost:${port}/status/1`,
-        issuer: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
-        issuanceDate: '2021-03-10T04:24:12.164Z',
-        type: ['VerifiableCredential', 'StatusList2021Credential'],
-        credentialSubject: {
-          id: `https://localhost:${port}/1#list`,
-          type: 'RevocationList2021',
-          encodedList: encodedList100k
-        }
-      };
       return resolve(server);
     });
   });
@@ -56,6 +39,21 @@ function _startServer({app}) {
 const app = express();
 app.use(express.json());
 
+let slCredential = {
+  '@context': [
+    'https://www.w3.org/2018/credentials/v1',
+    VC_SL_CONTEXT_URL
+  ],
+  id: `https://localhost:${PORT}/status/1`,
+  issuer: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+  issuanceDate: '2021-03-10T04:24:12.164Z',
+  type: ['VerifiableCredential', 'StatusList2021Credential'],
+  credentialSubject: {
+    id: `https://localhost:${PORT}/1#list`,
+    type: 'RevocationList2021',
+    encodedList: encodedList100k
+  }
+};
 // mount the test routes
 app.get('/status/1',
   // eslint-disable-next-line no-unused-vars
@@ -71,7 +69,23 @@ after(async () => {
 });
 
 describe('verify API using local DID document loader', () => {
-  it.skip('verifies and checks status of a credential', async () => {
+  it('verifies and checks status of a credential', async () => {
+    const keyData = {
+      id: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv#' +
+            'z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+      controller: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+      type: 'Ed25519VerificationKey2020',
+      publicKeyMultibase: 'z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+      privateKeyMultibase: 'zrv2rP9yjtz3YwCas9m6hnoPxmoqZV72xbCEuomXi4wwSS4S' +
+        'hekesADYiAMHoxoqfyBDKQowGMvYx9rp6QGJ7Qbk7Y4'
+    };
+    const keyPair = await Ed25519VerificationKey2020.from(keyData);
+    const suite = new Ed25519Signature2020({key: keyPair});
+    slCredential = await vc.issue({
+      credential: slCredential,
+      documentLoader,
+      suite
+    });
     const unsignedCredential = {
       '@context': [
         'https://www.w3.org/2018/credentials/v1',
@@ -86,32 +100,19 @@ describe('verify API using local DID document loader', () => {
       },
       issuanceDate: '2010-01-01T19:23:24Z',
       credentialStatus: {
-        id: 'https://example.com/status/1#67342',
+        id: slCredential.id,
         type: 'RevocationList2021Status',
         statusListIndex: '67342',
         statusListCredential: slCredential.id
       },
       issuer: slCredential.issuer,
     };
-    const keyData = {
-      id: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv#' +
-        'z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
-      controller: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
-      type: 'Ed25519VerificationKey2020',
-      publicKeyMultibase: 'z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
-      privateKeyMultibase: 'zrv2rP9yjtz3YwCas9m6hnoPxmoqZV72xbCEuomXi4wwSS4S' +
-        'hekesADYiAMHoxoqfyBDKQowGMvYx9rp6QGJ7Qbk7Y4'
-    };
-    const keyPair = await Ed25519VerificationKey2020.from(keyData);
-
-    const suite = new Ed25519Signature2020({key: keyPair});
 
     const verifiableCredential = await vc.issue({
       credential: unsignedCredential,
       documentLoader,
       suite
     });
-    console.log(verifiableCredential, '<><><><>verifiableCredential');
     let error;
     let result;
     try {
@@ -126,7 +127,6 @@ describe('verify API using local DID document loader', () => {
           }
         });
     } catch(e) {
-      console.log(JSON.stringify(e.data, null, 2));
       error = e;
     }
     should.not.exist(error);
@@ -138,7 +138,7 @@ describe('verify API using local DID document loader', () => {
     checks.should.have.length(1);
     const [check] = checks;
     check.should.be.a('string');
-    check.should.equal('proof');
+    check.should.equal('credentialStatus');
     should.exist(result.data.results);
     result.data.results.should.be.an('array');
     result.data.results.should.have.length(1);
