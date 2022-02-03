@@ -10,47 +10,66 @@ const {agent} = require('bedrock-https-agent');
 const vc = require('@digitalbazaar/vc');
 const statusListCtx = require('vc-status-list-context');
 const {_documentLoader: documentLoader} = require('bedrock-vc-verifier');
-const {extendContextLoader} = require('jsonld-signatures');
 const {Ed25519VerificationKey2020} =
   require('@digitalbazaar/ed25519-verification-key-2020');
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
+const express = require('express');
+const fs = require('fs');
+const https = require('https');
 
 const VC_SL_CONTEXT_URL = statusListCtx.constants.CONTEXT_URL_V1;
-const VC_SL_CONTEXT = statusListCtx.contexts.get(VC_SL_CONTEXT_URL);
-
-const documents = new Map();
-documents.set(VC_SL_CONTEXT_URL, VC_SL_CONTEXT);
-
 const encodedList100k =
   'H4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA';
-const slCredential = {
-  '@context': [
-    'https://www.w3.org/2018/credentials/v1',
-    VC_SL_CONTEXT_URL
-  ],
-  id: 'https://example.com/status/1',
-  issuer: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
-  issuanceDate: '2021-03-10T04:24:12.164Z',
-  type: ['VerifiableCredential', 'StatusList2021Credential'],
-  credentialSubject: {
-    id: `https://example.com/status/1#list`,
-    type: 'RevocationList2021',
-    encodedList: encodedList100k
-  }
-};
-documents.set(slCredential.id, slCredential);
+const key = fs.readFileSync(__dirname + '/key.pem');
+const cert = fs.readFileSync(__dirname + '/cert.pem');
 
-const docLoader = extendContextLoader(async url => {
-  const doc = documents.get(url);
-  if(doc) {
-    return {
-      contextUrl: null,
-      documentUrl: url,
-      document: doc
-    };
-  }
-  return documentLoader(url);
+let BASE_URL;
+let slCredential;
+
+function _startServer({app}) {
+  return new Promise(resolve => {
+    const server = https.createServer({key, cert}, app);
+    server.listen(() => {
+      const {port} = server.address();
+      BASE_URL = `https://localhost:${port}`;
+      console.log(`Test server listening at ${BASE_URL}`);
+      slCredential = {
+        '@context': [
+          'https://www.w3.org/2018/credentials/v1',
+          VC_SL_CONTEXT_URL
+        ],
+        id: `https://localhost:${port}/status/1`,
+        issuer: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+        issuanceDate: '2021-03-10T04:24:12.164Z',
+        type: ['VerifiableCredential', 'StatusList2021Credential'],
+        credentialSubject: {
+          id: `https://localhost:${port}/1#list`,
+          type: 'RevocationList2021',
+          encodedList: encodedList100k
+        }
+      };
+      return resolve(server);
+    });
+  });
+}
+
+const app = express();
+app.use(express.json());
+
+// mount the test routes
+app.get('/status/1',
+  // eslint-disable-next-line no-unused-vars
+  (req, res, next) => {
+    res.json(slCredential);
+  });
+let server;
+before(async () => {
+  server = await _startServer({app});
 });
+after(async () => {
+  server.close();
+});
+
 describe('verify API using local DID document loader', () => {
   it.skip('verifies and checks status of a credential', async () => {
     const unsignedCredential = {
@@ -89,7 +108,7 @@ describe('verify API using local DID document loader', () => {
 
     const verifiableCredential = await vc.issue({
       credential: unsignedCredential,
-      documentLoader: docLoader,
+      documentLoader,
       suite
     });
     console.log(verifiableCredential, '<><><><>verifiableCredential');
@@ -107,6 +126,7 @@ describe('verify API using local DID document loader', () => {
           }
         });
     } catch(e) {
+      console.log(JSON.stringify(e.data, null, 2));
       error = e;
     }
     should.not.exist(error);
