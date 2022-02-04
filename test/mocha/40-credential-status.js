@@ -58,10 +58,40 @@ let slCredential = {
   }
 };
 
+const unsignedCredential = {
+  '@context': [
+    'https://www.w3.org/2018/credentials/v1',
+    VC_SL_CONTEXT_URL,
+    'https://w3id.org/security/suites/ed25519-2020/v1'
+  ],
+  id: 'urn:uuid:a0418a78-7924-11ea-8a23-10bf48838a41',
+  type: ['VerifiableCredential', 'example:TestCredential'],
+  credentialSubject: {
+    id: 'urn:uuid:4886029a-7925-11ea-9274-10bf48838a41',
+    'example:test': 'foo'
+  },
+  issuanceDate: '2010-01-01T19:23:24Z',
+  credentialStatus: {
+    id: slCredential.id,
+    type: 'RevocationList2021Status',
+    statusListIndex: '67342',
+    statusListCredential: slCredential.id
+  },
+  issuer: slCredential.issuer,
+};
+
 let revokedSlCredential = clone(slCredential);
 
 revokedSlCredential.credentialSubject.encodedList =
   encodedList100KWith50KthRevoked;
+
+const revokedUnsignedCredential = clone(unsignedCredential);
+revokedUnsignedCredential.credentialStatus.id =
+  `${revokedSlCredential.id}/50000`;
+revokedUnsignedCredential.credentialStatus.statusListIndex = 50000;
+revokedUnsignedCredential.credentialStatus.statusListCredential =
+      `${revokedSlCredential.id}/50000`;
+revokedUnsignedCredential.issuer = revokedSlCredential.issuer;
 
 // mount the test routes
 app.get('/status/1',
@@ -100,28 +130,6 @@ describe('verify API using local DID document loader', () => {
       documentLoader,
       suite
     });
-    const unsignedCredential = {
-      '@context': [
-        'https://www.w3.org/2018/credentials/v1',
-        VC_SL_CONTEXT_URL,
-        'https://w3id.org/security/suites/ed25519-2020/v1'
-      ],
-      id: 'urn:uuid:a0418a78-7924-11ea-8a23-10bf48838a41',
-      type: ['VerifiableCredential', 'example:TestCredential'],
-      credentialSubject: {
-        id: 'urn:uuid:4886029a-7925-11ea-9274-10bf48838a41',
-        'example:test': 'foo'
-      },
-      issuanceDate: '2010-01-01T19:23:24Z',
-      credentialStatus: {
-        id: slCredential.id,
-        type: 'RevocationList2021Status',
-        statusListIndex: '67342',
-        statusListCredential: slCredential.id
-      },
-      issuer: slCredential.issuer,
-    };
-
     const verifiableCredential = await vc.issue({
       credential: unsignedCredential,
       documentLoader,
@@ -176,30 +184,8 @@ describe('verify API using local DID document loader', () => {
       documentLoader,
       suite
     });
-    const unsignedCredential = {
-      '@context': [
-        'https://www.w3.org/2018/credentials/v1',
-        VC_SL_CONTEXT_URL,
-        'https://w3id.org/security/suites/ed25519-2020/v1'
-      ],
-      id: 'urn:uuid:a0418a78-7924-11ea-8a23-10bf48838a41',
-      type: ['VerifiableCredential', 'example:TestCredential'],
-      credentialSubject: {
-        id: 'urn:uuid:4886029a-7925-11ea-9274-10bf48838a41',
-        'example:test': 'foo'
-      },
-      issuanceDate: '2010-01-01T19:23:24Z',
-      credentialStatus: {
-        id: `${revokedSlCredential.id}/50000`,
-        type: 'RevocationList2021Status',
-        statusListIndex: '50000',
-        statusListCredential: `${revokedSlCredential.id}/50000`
-      },
-      issuer: revokedSlCredential.issuer,
-    };
-
     const verifiableCredential = await vc.issue({
-      credential: unsignedCredential,
+      credential: revokedUnsignedCredential,
       documentLoader,
       suite
     });
@@ -224,10 +210,10 @@ describe('verify API using local DID document loader', () => {
     should.not.exist(result);
     error.data.verified.should.be.a('boolean');
     error.data.verified.should.equal(false);
-    const {checks} = error.data;
+    const {checks, error: {message: errorMsg}} = error.data;
     checks.should.be.an('array');
     checks.should.have.length(1);
-    error.data.error.message.should.equal('The credential has been revoked.');
+    errorMsg.should.equal('The credential has been revoked.');
     error.data.statusResult.verified.should.equal(false);
     const [{check}] = checks;
     check.should.be.an('array');
