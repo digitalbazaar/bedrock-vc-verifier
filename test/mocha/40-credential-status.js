@@ -64,7 +64,7 @@ let slCredential = {
 };
 
 // Unsigned 2021 Credential
-const unsignedCredential = {
+const unsignedCredentialSl2021Type = {
   '@context': [
     'https://www.w3.org/2018/credentials/v1',
     VC_SL_CONTEXT_URL,
@@ -92,7 +92,7 @@ let revokedSlCredential = clone(slCredential);
 revokedSlCredential.credentialSubject.encodedList =
   encodedList100KWith50KthRevoked;
 
-const revokedUnsignedCredential = clone(unsignedCredential);
+const revokedUnsignedCredential = clone(unsignedCredentialSl2021Type);
 revokedUnsignedCredential.credentialStatus.id =
   `${revokedSlCredential.id}/50000`;
 revokedUnsignedCredential.credentialStatus.statusListIndex = 50000;
@@ -140,6 +140,20 @@ const unsignedCredentialRL2020Type = {
   issuer: rlCredential.issuer,
 };
 
+// Revoked Revocation List 2020 Credential
+let revokedRlCredential = clone(rlCredential);
+
+revokedRlCredential.credentialSubject.encodedList =
+  encodedList100KWith50KthRevoked;
+
+const revokedUnsignedCredential2 = clone(unsignedCredentialRL2020Type);
+revokedUnsignedCredential2.credentialStatus.id =
+  `${revokedRlCredential.id}/50000`;
+revokedUnsignedCredential2.credentialStatus.revocationListIndex = 50000;
+revokedUnsignedCredential2.credentialStatus.revocationListCredential =
+  `${revokedRlCredential.id}/50000`;
+revokedUnsignedCredential2.issuer = revokedRlCredential.issuer;
+
 // mount the test routes
 app.get('/status/1',
   // eslint-disable-next-line no-unused-vars
@@ -158,6 +172,11 @@ app.get('/status/2',
     // responds with a valid revocation list 2020 type credential
     res.json(rlCredential);
   });
+app.get('/status/2/50000',
+  // eslint-disable-next-line no-unused-vars
+  (req, res, next) => {
+    res.json(revokedRlCredential);
+  });
 let server;
 before(async () => {
   server = await _startServer({app});
@@ -166,7 +185,7 @@ after(async () => {
   server.close();
 });
 
-describe('verify API using local DID document loader', () => {
+describe('verify credential status', () => {
   let keyData;
   let keyPair;
   let suite;
@@ -183,14 +202,14 @@ describe('verify API using local DID document loader', () => {
     keyPair = await Ed25519VerificationKey2020.from(keyData);
     suite = new Ed25519Signature2020({key: keyPair});
   });
-  it('should verify StatusList2021Credential type', async () => {
+  it('should verify "StatusList2021Credential" type', async () => {
     slCredential = await vc.issue({
       credential: slCredential,
       documentLoader,
       suite
     });
     const verifiableCredential = await vc.issue({
-      credential: unsignedCredential,
+      credential: unsignedCredentialSl2021Type,
       documentLoader,
       suite
     });
@@ -226,52 +245,53 @@ describe('verify API using local DID document loader', () => {
     r.verified.should.be.a('boolean');
     r.verified.should.equal(true);
   });
-  it('should fail to verify a revoked credential', async () => {
-    revokedSlCredential = await vc.issue({
-      credential: revokedSlCredential,
-      documentLoader,
-      suite
+  it('should fail to verify a revoked "StatusList2021Credential" type',
+    async () => {
+      revokedSlCredential = await vc.issue({
+        credential: revokedSlCredential,
+        documentLoader,
+        suite
+      });
+      const verifiableCredential = await vc.issue({
+        credential: revokedUnsignedCredential,
+        documentLoader,
+        suite
+      });
+      let error;
+      let result;
+      try {
+        result = await httpClient.post(
+          `${config.server.baseUri}/verifier/credentials`, {
+            agent,
+            json: {
+              options: {
+                checks: ['credentialStatus'],
+              },
+              verifiableCredential,
+            }
+          });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      should.not.exist(result);
+      error.data.verified.should.be.a('boolean');
+      error.data.verified.should.equal(false);
+      const {checks, error: {message: errorMsg}} = error.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      errorMsg.should.equal('The credential has been revoked.');
+      error.data.statusResult.verified.should.equal(false);
+      const [{check}] = checks;
+      check.should.be.an('array');
+      check.should.eql(['credentialStatus']);
+      should.exist(error.data.results);
+      error.data.results.should.be.an('array');
+      error.data.results.should.have.length(1);
+      const [r] = error.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
     });
-    const verifiableCredential = await vc.issue({
-      credential: revokedUnsignedCredential,
-      documentLoader,
-      suite
-    });
-    let error;
-    let result;
-    try {
-      result = await httpClient.post(
-        `${config.server.baseUri}/verifier/credentials`, {
-          agent,
-          json: {
-            options: {
-              checks: ['credentialStatus'],
-            },
-            verifiableCredential,
-          }
-        });
-    } catch(e) {
-      error = e;
-    }
-    should.exist(error);
-    should.not.exist(result);
-    error.data.verified.should.be.a('boolean');
-    error.data.verified.should.equal(false);
-    const {checks, error: {message: errorMsg}} = error.data;
-    checks.should.be.an('array');
-    checks.should.have.length(1);
-    errorMsg.should.equal('The credential has been revoked.');
-    error.data.statusResult.verified.should.equal(false);
-    const [{check}] = checks;
-    check.should.be.an('array');
-    check.should.eql(['credentialStatus']);
-    should.exist(error.data.results);
-    error.data.results.should.be.an('array');
-    error.data.results.should.have.length(1);
-    const [r] = error.data.results;
-    r.verified.should.be.a('boolean');
-    r.verified.should.equal(true);
-  });
   it('should verify "RevocationList2020Credential" type', async () => {
     rlCredential = await vc.issue({
       credential: rlCredential,
@@ -314,6 +334,52 @@ describe('verify API using local DID document loader', () => {
     const [r] = result.data.results;
     r.verified.should.be.a('boolean');
     r.verified.should.equal(true);
-
   });
+  it('should fail to verify a revoked "RevocationList2020Credential" type',
+    async () => {
+      revokedRlCredential = await vc.issue({
+        credential: revokedRlCredential,
+        documentLoader,
+        suite
+      });
+      const verifiableCredential = await vc.issue({
+        credential: revokedUnsignedCredential2,
+        documentLoader,
+        suite
+      });
+      let error;
+      let result;
+      try {
+        result = await httpClient.post(
+          `${config.server.baseUri}/verifier/credentials`, {
+            agent,
+            json: {
+              options: {
+                checks: ['credentialStatus'],
+              },
+              verifiableCredential,
+            }
+          });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      should.not.exist(result);
+      error.data.verified.should.be.a('boolean');
+      error.data.verified.should.equal(false);
+      const {checks, error: {message: errorMsg}} = error.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      errorMsg.should.equal('The credential has been revoked.');
+      error.data.statusResult.verified.should.equal(false);
+      const [{check}] = checks;
+      check.should.be.an('array');
+      check.should.eql(['credentialStatus']);
+      should.exist(error.data.results);
+      error.data.results.should.be.an('array');
+      error.data.results.should.have.length(1);
+      const [r] = error.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    });
 });
