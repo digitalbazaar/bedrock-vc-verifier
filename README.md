@@ -73,7 +73,8 @@ Example request:
 
 Alias: `/instances/:instanceId/credentials/verify`
 
-Optionally performs status checks using the `vc-status-list` library.
+Optionally performs status checks using the `vc-revocation-list` or
+`vc-status-list` library.
 
 Example request:
 
@@ -90,7 +91,8 @@ Example request:
 
 Alias: `/instances/:instanceId/presentations/verify`
 
-Optionally performs status checks using the `vc-revocation-list` library.
+Optionally performs status checks using the `vc-revocation-list` or
+`vc-status-list` library.
 
 Example request:
 

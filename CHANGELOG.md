@@ -1,5 +1,12 @@
 # bedrock-vc-verifier ChangeLog
 
+## 2.2.0 - 2022-TBD
+
+### Added
+- Add support for "StatusList2021Credential" status checks using
+  `vc-status-list@1.0`
+- Add tests.
+
 ## 2.1.0 - 2021-09-14
 
 ### Added
