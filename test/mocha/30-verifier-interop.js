@@ -249,7 +249,7 @@ describe('Interop Verifier API', () => {
       checks.should.be.an('array');
       checks.should.have.length(1);
       checks[0].should.be.an('object');
-      checks[0].check.should.equal('proof');
+      checks[0].check.should.eql(['proof']);
       should.exist(error.data.verified);
       error.data.verified.should.be.a('boolean');
       error.data.verified.should.equal(false);
