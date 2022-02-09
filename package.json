@@ -29,7 +29,7 @@
     "did-context": "^3.1.1",
     "serialize-error": "^8.1.0",
     "vc-revocation-list": "^3.0.0",
-    "vc-status-list": "digitalbazaar/vc-status-list#initial",
+    "vc-status-list": "^1.0.0",
     "veres-one-context": "^12.0.0"
   },
   "peerDependencies": {
