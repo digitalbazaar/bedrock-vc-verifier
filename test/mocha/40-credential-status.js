@@ -91,16 +91,16 @@ function _startServer({app}) {
 
       revokedSlCredential.id = `${BASE_URL}/status/2`,
       revokedSlCredential.credentialSubject.encodedList =
-    encodedList100KWith50KthRevoked;
+        encodedList100KWith50KthRevoked;
       revokedSlCredential.credentialSubject.id = `${BASE_URL}/status/2#list`;
 
       // Revoked Unsigned 2021 Credential
       revokedUnsignedCredential = clone(unsignedCredentialSl2021Type);
       revokedUnsignedCredential.credentialStatus.id =
-    `${revokedSlCredential.id}#50000`;
+        `${revokedSlCredential.id}#50000`;
       revokedUnsignedCredential.credentialStatus.statusListIndex = 50000;
       revokedUnsignedCredential.credentialStatus.statusListCredential =
-    `${revokedSlCredential.id}`;
+        `${revokedSlCredential.id}`;
       revokedUnsignedCredential.issuer = revokedSlCredential.issuer;
 
       // Revocation List 2020 Credential
@@ -148,16 +148,16 @@ function _startServer({app}) {
 
       revokedRlCredential.id = `${BASE_URL}/status/4`,
       revokedRlCredential.credentialSubject.encodedList =
-    encodedList100KWith50KthRevoked;
+        encodedList100KWith50KthRevoked;
       revokedRlCredential.credentialSubject.id = `${BASE_URL}/status/4#list`;
 
       // Revoked Unsigned 2020 Credential
       revokedUnsignedCredential2 = clone(unsignedCredentialRL2020Type);
       revokedUnsignedCredential2.credentialStatus.id =
-    `${revokedRlCredential.id}#50000`;
+        `${revokedRlCredential.id}#50000`;
       revokedUnsignedCredential2.credentialStatus.revocationListIndex = 50000;
       revokedUnsignedCredential2.credentialStatus.revocationListCredential =
-    `${revokedRlCredential.id}`;
+        `${revokedRlCredential.id}`;
       revokedUnsignedCredential2.issuer = revokedRlCredential.issuer;
 
       return resolve(server);
