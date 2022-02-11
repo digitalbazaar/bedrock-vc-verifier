@@ -218,7 +218,7 @@ describe('verify credential status', () => {
     keyPair = await Ed25519VerificationKey2020.from(keyData);
     suite = new Ed25519Signature2020({key: keyPair});
   });
-  it('should verify "StatusList2021Credential" type', async () => {
+  it.only('should verify "StatusList2021Credential" type', async () => {
     slCredential = await vc.issue({
       credential: slCredential,
       documentLoader,
