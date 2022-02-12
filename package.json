@@ -35,7 +35,7 @@
     "bedrock-did-context": "^2.0.0",
     "bedrock-did-io": "^5.0.0",
     "bedrock-express": "^6.3.0",
-    "bedrock-jsonld-document-loader": "^1.2.1",
+    "bedrock-jsonld-document-loader": "digitalbazaar/bedrock-jsonld-document-loader#fix-get-return-value",
     "bedrock-rest": "^3.0.0",
     "bedrock-security-context": "^5.0.0",
     "bedrock-vc-status-list-context": "^1.0.0",

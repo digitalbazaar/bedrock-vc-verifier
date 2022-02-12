@@ -27,7 +27,7 @@
     "bedrock-did-io": "^5.0.0",
     "bedrock-express": "^6.3.0",
     "bedrock-https-agent": "^2.2.0",
-    "bedrock-jsonld-document-loader": "^1.2.1",
+    "bedrock-jsonld-document-loader": "digitalbazaar/bedrock-jsonld-document-loader#fix-get-return-value",
     "bedrock-ledger-context": "^21.0.0",
     "bedrock-rest": "^3.0.0",
     "bedrock-security-context": "^5.0.0",
