@@ -11,7 +11,7 @@ const {agent} = require('bedrock-https-agent');
 const didVeresOne = require('did-veres-one');
 
 const options = {
-  mode: 'test',
+  mode: 'test'
 };
 const veresDriver = didVeresOne.driver(options);
 
@@ -32,12 +32,12 @@ describe('verify API using local DID document loader', () => {
       didDocument,
       methodFor
     } = await veresDriver.generate({didType: 'nym'});
+
     // NOTE: For a Veres One DID that was generated _and registered_, you'd
     // want to use keys for the 'assertionMethod' and 'authentication'
     // purpose. However, for un-registered methods, only the
     // capabilityInvocation key will be used.
     const credentialSigningKey = methodFor({purpose: 'capabilityInvocation'});
-
     const presentationSigningKey = credentialSigningKey;
 
     const {presentation} = await helpers.generatePresentation({
