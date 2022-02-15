@@ -9,18 +9,9 @@ const {httpClient} = require('@digitalbazaar/http-client');
 const helpers = require('./helpers');
 const {agent} = require('bedrock-https-agent');
 const didVeresOne = require('did-veres-one');
-const {
-  Ed25519VerificationKey2018
-} = require('@digitalbazaar/ed25519-verification-key-2018');
-const {CryptoLD} = require('crypto-ld');
-
-const cryptoLd = new CryptoLD();
-cryptoLd.use(Ed25519VerificationKey2018);
 
 const options = {
   mode: 'test',
-  verificationSuite: Ed25519VerificationKey2018,
-  cryptoLd
 };
 const veresDriver = didVeresOne.driver(options);
 
@@ -33,7 +24,7 @@ const urls = {
 };
 
 describe('verify API using local DID document loader', () => {
-  it.only('verifies a valid credential', async () => {
+  it('verifies a valid credential', async () => {
     const {challenge, domain} = helpers;
     let error;
     let result;
@@ -41,12 +32,12 @@ describe('verify API using local DID document loader', () => {
       didDocument,
       methodFor
     } = await veresDriver.generate({didType: 'nym'});
-
     // NOTE: For a Veres One DID that was generated _and registered_, you'd
     // want to use keys for the 'assertionMethod' and 'authentication'
     // purpose. However, for un-registered methods, only the
     // capabilityInvocation key will be used.
     const credentialSigningKey = methodFor({purpose: 'capabilityInvocation'});
+
     const presentationSigningKey = credentialSigningKey;
 
     const {presentation} = await helpers.generatePresentation({
@@ -61,10 +52,8 @@ describe('verify API using local DID document loader', () => {
         agent,
         json: {challenge, domain, presentation},
       });
-      console.log(result.data.error, '<><><><>result');
     } catch(e) {
       error = e;
-      console.log(error, '<><><><>error');
     }
     should.not.exist(error);
     should.exist(result.data);

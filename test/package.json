@@ -18,7 +18,6 @@
   "dependencies": {
     "@digitalbazaar/did-method-key": "^2.0.0",
     "@digitalbazaar/ed25519-signature-2020": "^3.0.0",
-    "@digitalbazaar/ed25519-verification-key-2018": "^3.1.1",
     "@digitalbazaar/ed25519-verification-key-2020": "^3.2.0",
     "@digitalbazaar/http-client": "^2.0.1",
     "@digitalbazaar/vc": "^2.1.0",
@@ -44,7 +43,7 @@
     "cross-env": "^7.0.3",
     "crypto-ld": "^6.0.0",
     "did-context": "^3.1.1",
-    "did-veres-one": "14.0.0-beta.3",
+    "did-veres-one": "14.0.0-beta.4",
     "express": "^4.17.2",
     "jsonld-signatures": "^9.3.0",
     "nyc": "^15.1.0",
