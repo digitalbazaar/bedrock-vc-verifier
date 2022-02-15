@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 2.3.0 - 2022-02-TBD
+
+### Changed
+- Refactor documentLoader.
+
 ## 2.2.0 - 2022-02-09
 
 ### Added
