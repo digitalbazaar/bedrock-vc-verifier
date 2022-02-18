@@ -79,6 +79,18 @@ exports.getConfig = async ({id, capabilityAgent}) => {
   return data;
 };
 
+exports.createChallenge = async ({
+  capabilityAgent, capability, verifierId
+}) => {
+  const zcapClient = exports.createZcapClient({capabilityAgent});
+  return zcapClient.write({
+    url: `${verifierId}/challenges`,
+    capability: capability ||
+      `urn:zcap:root:${encodeURIComponent(verifierId)}`,
+    json: {}
+  });
+};
+
 exports.createEdv = async ({
   capabilityAgent, keystoreAgent, keyAgreementKey, hmac, meterId
 }) => {
