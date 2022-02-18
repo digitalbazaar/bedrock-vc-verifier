@@ -1,6 +1,8 @@
-/*
- * Copyright (c) 2016-2020 Digital Bazaar, Inc. All rights reserved.
+/*!
+ * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
  */
+'use strict';
+
 const bedrock = require('bedrock');
 const {getServiceIdentities} = require('bedrock-app-identity');
 require('bedrock-edv-storage');
@@ -11,11 +13,8 @@ require('bedrock-meter');
 require('bedrock-meter-usage-reporter');
 const {handlers} = require('bedrock-meter-http');
 require('bedrock-server');
-const {initializeServiceAgent} = require('bedrock-service-agent');
 require('bedrock-ssm-mongodb');
 require('bedrock-test');
-const {addRoutes} = require('bedrock-service-context-store');
-const {createService} = require('bedrock-service-core');
 require('bedrock-vc-verifier');
 
 const mockData = require('./mocha/mock.data');
