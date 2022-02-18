@@ -1,22 +1,24 @@
-/*!
- * Copyright (c) 2019-2021 Digital Bazaar, Inc. All rights reserved.
+/*
+ * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
 const bedrock = require('bedrock');
-const {getAppIdentity} = require('bedrock-app-identity');
+const {didIo} = require('bedrock-did-io');
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
+const {EdvClient} = require('@digitalbazaar/edv-client');
+const {httpClient} = require('@digitalbazaar/http-client');
+const {KeystoreAgent, KmsClient} = require('@digitalbazaar/webkms-client');
+const {getAppIdentity} = require('bedrock-app-identity');
 const {httpsAgent} = require('bedrock-https-agent');
-const jsigs = require('jsonld-signatures');
-const mockData = require('./mock.data');
 const {ZcapClient} = require('@digitalbazaar/ezcap');
 
-const {_documentLoader: documentLoader} = require('bedrock-vc-verifier');
+const mockData = require('./mock.data');
 
-exports.challenge = 'challengeString';
-exports.domain = 'example.org';
+const edvBaseUrl = `${mockData.baseUrl}/edvs`;
+const kmsBaseUrl = `${mockData.baseUrl}/kms`;
 
-exports.createMeter = async ({controller} = {}) => {
+exports.createMeter = async ({capabilityAgent, serviceType} = {}) => {
   // create signer using the application's capability invocation key
   const {keys: {capabilityInvocationKey}} = getAppIdentity();
 
@@ -25,13 +27,14 @@ exports.createMeter = async ({controller} = {}) => {
     invocationSigner: capabilityInvocationKey.signer(),
     SuiteClass: Ed25519Signature2020
   });
+
   // create a meter
   const meterService = `${bedrock.config.server.baseUri}/meters`;
   let meter = {
-    controller,
+    controller: capabilityAgent.id,
     product: {
-      // mock ID for verifier service product
-      id: 'urn:uuid:275e0194-3da5-11ec-a574-10bf48838a41'
+      // mock ID for service type
+      id: mockData.productIdMap.get(serviceType)
     }
   };
   ({data: {meter}} = await zcapClient.write({url: meterService, json: meter}));
@@ -41,70 +44,176 @@ exports.createMeter = async ({controller} = {}) => {
   return {id: `${meterService}/${id}`};
 };
 
-exports.createInstance = async ({
-  capabilityAgent, ipAllowList, referenceId, meterId
-}) => {
+exports.createConfig = async ({
+  capabilityAgent, ipAllowList, meterId, zcaps
+} = {}) => {
   if(!meterId) {
     // create a meter for the keystore
-    ({id: meterId} = await exports.createMeter(
-      {controller: capabilityAgent.id}));
+    ({id: meterId} = await exports.createMeter({
+      capabilityAgent, serviceType: 'vc-verifier'
+    }));
   }
 
-  // create instance config
-  let config = {
+  // create service object
+  const config = {
     sequence: 0,
     controller: capabilityAgent.id,
     meterId
   };
-  if(referenceId) {
-    config.referenceId = referenceId;
+  if(ipAllowList) {
+    config.ipAllowList = ipAllowList;
   }
+  if(zcaps) {
+    config.zcaps = zcaps;
+  }
+
+  const zcapClient = exports.createZcapClient({capabilityAgent});
+  const url = `${mockData.baseUrl}/verifiers`;
+  const response = await zcapClient.write({url, json: config});
+  return response.data;
+};
+
+exports.getConfig = async ({id, capabilityAgent}) => {
+  const zcapClient = exports.createZcapClient({capabilityAgent});
+  const {data} = await zcapClient.read({url: id});
+  return data;
+};
+
+exports.createEdv = async ({
+  capabilityAgent, keystoreAgent, keyAgreementKey, hmac, meterId
+}) => {
+  if(!meterId) {
+    // create a meter for the keystore
+    ({id: meterId} = await exports.createMeter({
+      capabilityAgent, serviceType: 'edv'
+    }));
+  }
+
+  if(!(keyAgreementKey && hmac) && keystoreAgent) {
+    // create KAK and HMAC keys for edv config
+    ([keyAgreementKey, hmac] = await Promise.all([
+      keystoreAgent.generateKey({type: 'keyAgreement'}),
+      keystoreAgent.generateKey({type: 'hmac'})
+    ]));
+  }
+
+  // create edv
+  const newEdvConfig = {
+    sequence: 0,
+    controller: capabilityAgent.id,
+    keyAgreementKey: {id: keyAgreementKey.id, type: keyAgreementKey.type},
+    hmac: {id: hmac.id, type: hmac.type},
+    meterId
+  };
+
+  const edvConfig = await EdvClient.createEdv({
+    config: newEdvConfig,
+    httpsAgent,
+    invocationSigner: capabilityAgent.getSigner(),
+    url: edvBaseUrl
+  });
+
+  const edvClient = new EdvClient({
+    id: edvConfig.id,
+    keyResolver,
+    keyAgreementKey,
+    hmac,
+    httpsAgent
+  });
+
+  return {edvClient, edvConfig, hmac, keyAgreementKey};
+};
+
+exports.createKeystore = async ({
+  capabilityAgent, ipAllowList, meterId,
+  kmsModule = 'ssm-v1'
+}) => {
+  if(!meterId) {
+    // create a meter for the keystore
+    ({id: meterId} = await exports.createMeter(
+      {capabilityAgent, serviceType: 'webkms'}));
+  }
+
+  // create keystore
+  const config = {
+    sequence: 0,
+    controller: capabilityAgent.id,
+    meterId,
+    kmsModule
+  };
   if(ipAllowList) {
     config.ipAllowList = ipAllowList;
   }
 
-  // create an instance
-  const verifierService = `${bedrock.config.server.baseUri}/verifiers`;
-  const zcapClient = exports.createZcapClient({capabilityAgent});
-  ({data: {config}} = await zcapClient.write(
-    {url: verifierService, json: config}));
-
-  // return full instance ID
-  const {id} = config;
-  return {id: `${verifierService}/${id}`};
+  return KmsClient.createKeystore({
+    url: `${kmsBaseUrl}/keystores`,
+    config,
+    invocationSigner: capabilityAgent.getSigner(),
+    httpsAgent
+  });
 };
 
-exports.createZcapClient = function({capabilityAgent} = {}) {
+exports.createKeystoreAgent = async ({capabilityAgent, ipAllowList}) => {
+  let err;
+  let keystore;
+  try {
+    keystore = await exports.createKeystore({capabilityAgent, ipAllowList});
+  } catch(e) {
+    err = e;
+  }
+  assertNoError(err);
+
+  // create kmsClient only required because we need to use httpsAgent
+  // that accepts self-signed certs used in test suite
+  const kmsClient = new KmsClient({httpsAgent});
+  const keystoreAgent = new KeystoreAgent({
+    capabilityAgent,
+    keystoreId: keystore.id,
+    kmsClient
+  });
+
+  return keystoreAgent;
+};
+
+exports.createZcapClient = ({
+  capabilityAgent, delegationSigner, invocationSigner
+}) => {
+  const signer = capabilityAgent && capabilityAgent.getSigner();
   return new ZcapClient({
     agent: httpsAgent,
-    invocationSigner: capabilityAgent.getSigner(),
+    invocationSigner: invocationSigner || signer,
+    delegationSigner: delegationSigner || signer,
     SuiteClass: Ed25519Signature2020
   });
 };
 
-exports.generateCredential = async function({signingKey, issuer}) {
-  const mockCredential = bedrock.util.clone(mockData.credentials.alpha);
-  mockCredential.issuer = issuer;
-  const {AssertionProofPurpose} = jsigs.purposes;
-  const credential = await jsigs.sign(mockCredential, {
-    documentLoader,
-    suite: new Ed25519Signature2020({key: signingKey}),
-    purpose: new AssertionProofPurpose()
+exports.delegate = async ({
+  capability, controller, invocationTarget, expires, allowedActions,
+  delegator
+}) => {
+  const zcapClient = exports.createZcapClient({capabilityAgent: delegator});
+  expires = expires || (capability && capability.expires) ||
+    new Date(Date.now() + 5000).toISOString().slice(0, -5) + 'Z';
+  return zcapClient.delegate({
+    capability, controller, expires, invocationTarget, allowedActions
   });
-  return {credential};
 };
 
-exports.generatePresentation = async function(
-  {challenge, domain, credentialSigningKey, presentationSigningKey, issuer}) {
-  const mockPresentation = bedrock.util.clone(mockData.presentations.alpha);
-  const {AuthenticationProofPurpose} = jsigs.purposes;
-  const {credential} = await exports.generateCredential(
-    {signingKey: credentialSigningKey, issuer});
-  mockPresentation.verifiableCredential.push(credential);
-  const presentation = await jsigs.sign(mockPresentation, {
-    documentLoader,
-    suite: new Ed25519Signature2020({key: presentationSigningKey}),
-    purpose: new AuthenticationProofPurpose({challenge, domain})
-  });
-  return {presentation};
+exports.revokeDelegatedCapability = async ({
+  serviceObjectId, capabilityToRevoke, invocationSigner
+}) => {
+  const url = `${serviceObjectId}/revocations/` +
+    encodeURIComponent(capabilityToRevoke.id);
+  const zcapClient = exports.createZcapClient({invocationSigner});
+  return zcapClient.write({url, json: capabilityToRevoke});
 };
+
+async function keyResolver({id}) {
+  // support DID-based keys only
+  if(id.startsWith('did:')) {
+    return didIo.get({url: id});
+  }
+  // support HTTP-based keys; currently a requirement for WebKMS
+  const {data} = await httpClient.get(id, {agent: httpsAgent});
+  return data;
+}

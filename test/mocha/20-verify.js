@@ -21,8 +21,11 @@ cryptoLd.use(Ed25519VerificationKey2020);
 // https://www.w3.org/2018/credentials/examples/v1
 const mockCredential = require('./mock-credential');
 
-describe('Interop Verifier API', () => {
-  describe('credentials endpoint', () => {
+describe('Verify APIs', () => {
+  describe('/challenges', () => {
+    // FIXME: implement me
+  });
+  describe('/credentials/verify', () => {
     it('verifies a valid credential', async () => {
       const verifiableCredential = clone(mockCredential);
       let error;
@@ -92,7 +95,7 @@ describe('Interop Verifier API', () => {
     });
   });
 
-  describe('presentations endpoint', () => {
+  describe('/presentations/verify', () => {
     it('verifies a valid presentation', async () => {
       const verifiableCredential = clone(mockCredential);
       const presentation = vc.createPresentation({
