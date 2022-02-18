@@ -75,12 +75,12 @@ function _startServer({app}) {
           'https://www.w3.org/2018/credentials/v1',
           VC_SL_CONTEXT_URL
         ],
-        id: `${BASE_URL}/status/1`,
+        id: `${BASE_URL}/status/748a7d8e-9111-11ec-a934-10bf48838a41`,
         issuer: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
         issuanceDate: '2022-01-10T04:24:12.164Z',
         type: ['VerifiableCredential', 'StatusList2021Credential'],
         credentialSubject: {
-          id: `${BASE_URL}/status/1#list`,
+          id: `${BASE_URL}/status/748a7d8e-9111-11ec-a934-10bf48838a41#list`,
           type: 'RevocationList2021',
           encodedList: encodedList100k
         }
@@ -100,7 +100,7 @@ function _startServer({app}) {
           'example:test': 'foo'
         },
         credentialStatus: {
-          id: `${BASE_URL}/status/1#67342`,
+          id: `${BASE_URL}/status/748a7d8e-9111-11ec-a934-10bf48838a41#67342`,
           type: 'RevocationList2021Status',
           statusListIndex: '67342',
           statusListCredential: slCredential.id
@@ -111,10 +111,12 @@ function _startServer({app}) {
       // Revoked Status List 2021 Credential
       revokedSlCredential = clone(slCredential);
 
-      revokedSlCredential.id = `${BASE_URL}/status/2`,
+      revokedSlCredential.id =
+        `${BASE_URL}/status/8ec30054-9111-11ec-9ab5-10bf48838a41`,
       revokedSlCredential.credentialSubject.encodedList =
         encodedList100KWith50KthRevoked;
-      revokedSlCredential.credentialSubject.id = `${BASE_URL}/status/2#list`;
+      revokedSlCredential.credentialSubject.id =
+        `${BASE_URL}/status/8ec30054-9111-11ec-9ab5-10bf48838a41#list`;
 
       // Revoked Unsigned 2021 Credential
       revokedUnsignedCredential = clone(unsignedCredentialSl2021Type);
@@ -131,12 +133,12 @@ function _startServer({app}) {
           'https://www.w3.org/2018/credentials/v1',
           VC_RL_CONTEXT_URL
         ],
-        id: `${BASE_URL}/status/3`,
+        id: `${BASE_URL}/status/9d5a3fb0-9111-11ec-862d-10bf48838a41`,
         issuer: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
         issuanceDate: '2022-01-10T04:24:12.164Z',
         type: ['VerifiableCredential', 'RevocationList2020Credential'],
         credentialSubject: {
-          id: `${BASE_URL}/status/3#list`,
+          id: `${BASE_URL}/status/9d5a3fb0-9111-11ec-862d-10bf48838a41#list`,
           type: 'RevocationList2020',
           encodedList: encodedList100k
         }
@@ -157,7 +159,7 @@ function _startServer({app}) {
         },
         issuanceDate: '2022-01-11T19:23:24Z',
         credentialStatus: {
-          id: `${BASE_URL}/status/3#67342`,
+          id: `${BASE_URL}/status/9d5a3fb0-9111-11ec-862d-10bf48838a41#67342`,
           type: 'RevocationList2020Status',
           revocationListIndex: '67342',
           revocationListCredential: rlCredential.id
@@ -168,10 +170,12 @@ function _startServer({app}) {
       // Revoked Revocation List 2020 Credential
       revokedRlCredential = clone(rlCredential);
 
-      revokedRlCredential.id = `${BASE_URL}/status/4`,
+      revokedRlCredential.id =
+        `${BASE_URL}/status/a63896b8-9111-11ec-9fd2-10bf48838a41`,
       revokedRlCredential.credentialSubject.encodedList =
         encodedList100KWith50KthRevoked;
-      revokedRlCredential.credentialSubject.id = `${BASE_URL}/status/4#list`;
+      revokedRlCredential.credentialSubject.id =
+        `${BASE_URL}/status/a63896b8-9111-11ec-9fd2-10bf48838a41#list`;
 
       // Revoked Unsigned 2020 Credential
       revokedUnsignedCredential2 = clone(unsignedCredentialRL2020Type);
@@ -191,25 +195,25 @@ const app = express();
 app.use(express.json());
 
 // mount the test routes
-app.get('/status/1',
+app.get('/status/748a7d8e-9111-11ec-a934-10bf48838a41',
   // eslint-disable-next-line no-unused-vars
   (req, res, next) => {
     // responds with a valid status list 2021 type credential
     res.json(slCredential);
   });
-app.get('/status/2',
+app.get('/status/8ec30054-9111-11ec-9ab5-10bf48838a41',
   // eslint-disable-next-line no-unused-vars
   (req, res, next) => {
     // responds with a revoked status list 2021 type credential
     res.json(revokedSlCredential);
   });
-app.get('/status/3',
+app.get('/status/9d5a3fb0-9111-11ec-862d-10bf48838a41',
   // eslint-disable-next-line no-unused-vars
   (req, res, next) => {
     // responds with a valid revocation list 2020 type credential
     res.json(rlCredential);
   });
-app.get('/status/4',
+app.get('/status/a63896b8-9111-11ec-9fd2-10bf48838a41',
   // eslint-disable-next-line no-unused-vars
   (req, res, next) => {
     // responds with a revoked revocation list 2020 type credential
