@@ -3,20 +3,27 @@
  */
 'use strict';
 
-const bedrock = require('bedrock');
-const {config, util: {clone}} = bedrock;
-const {httpClient} = require('@digitalbazaar/http-client');
 const {agent} = require('bedrock-https-agent');
-const vc = require('@digitalbazaar/vc');
-const statusListCtx = require('vc-status-list-context');
-const revocationListCtx = require('vc-revocation-list-context');
-const {_documentLoader: documentLoader} = require('bedrock-vc-verifier');
+const bedrock = require('bedrock');
+const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
+const {documentLoader: brDocLoader} =
+  require('bedrock-jsonld-document-loader');
+const helpers = require('./helpers');
+const {httpClient} = require('@digitalbazaar/http-client');
 const {Ed25519VerificationKey2020} =
   require('@digitalbazaar/ed25519-verification-key-2020');
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const express = require('express');
 const fs = require('fs');
 const https = require('https');
+const mockData = require('./mock.data');
+const vc = require('@digitalbazaar/vc');
+const revocationListCtx = require('vc-revocation-list-context');
+const statusListCtx = require('vc-status-list-context');
+const {util: {clone}} = bedrock;
+
+const {baseUrl} = mockData;
+const serviceType = 'vc-verifier';
 
 const VC_SL_CONTEXT_URL = statusListCtx.constants.CONTEXT_URL_V1;
 const VC_RL_CONTEXT_URL =
@@ -39,12 +46,27 @@ let unsignedCredentialRL2020Type;
 let revokedRlCredential;
 let revokedUnsignedCredential2;
 
+// load docs from test server (e.g., load RL VCs and SL VCs)
+let testServerBaseUrl;
+async function _documentLoader(url) {
+  if(url.startsWith(testServerBaseUrl)) {
+    const response = await httpClient.get(url, {agent});
+    return {
+      contextUrl: null,
+      documentUrl: url,
+      document: response.data
+    };
+  }
+  return brDocLoader(url);
+}
+
 function _startServer({app}) {
   return new Promise(resolve => {
     const server = https.createServer({key, cert}, app);
     server.listen(() => {
       const {port} = server.address();
       const BASE_URL = `https://localhost:${port}`;
+      testServerBaseUrl = BASE_URL;
       console.log(`Test server listening at ${BASE_URL}`);
 
       // Status List 2021 Credential
@@ -201,7 +223,7 @@ after(async () => {
   server.close();
 });
 
-describe.skip('verify credential status', () => {
+describe('verify credential status', () => {
   let keyData;
   let keyPair;
   let suite;
@@ -218,34 +240,89 @@ describe.skip('verify credential status', () => {
     keyPair = await Ed25519VerificationKey2020.from(keyData);
     suite = new Ed25519Signature2020({key: keyPair});
   });
+  let capabilityAgent;
+  let verifierConfig;
+  let verifierId;
+  let rootZcap;
+  const zcaps = {};
+  beforeEach(async () => {
+    const secret = '53ad64ce-8e1d-11ec-bb12-10bf48838a41';
+    const handle = 'test';
+    capabilityAgent = await CapabilityAgent.fromSecret({secret, handle});
+
+    // create keystore for capability agent
+    const keystoreAgent = await helpers.createKeystoreAgent(
+      {capabilityAgent});
+
+    // create EDV for storage (creating hmac and kak in the process)
+    const {
+      edvConfig,
+      hmac,
+      keyAgreementKey
+    } = await helpers.createEdv({capabilityAgent, keystoreAgent});
+
+    // get service agent to delegate to
+    const serviceAgentUrl =
+      `${baseUrl}/service-agents/${encodeURIComponent(serviceType)}`;
+    const {data: serviceAgent} = await httpClient.get(serviceAgentUrl, {
+      agent
+    });
+
+    // delegate edv, hmac, and key agreement key zcaps to service agent
+    const {id: edvId} = edvConfig;
+    zcaps.edv = await helpers.delegate({
+      controller: serviceAgent.id,
+      delegator: capabilityAgent,
+      invocationTarget: edvId
+    });
+    const {keystoreId} = keystoreAgent;
+    zcaps.hmac = await helpers.delegate({
+      capability: `urn:zcap:root:${encodeURIComponent(keystoreId)}`,
+      controller: serviceAgent.id,
+      invocationTarget: hmac.id,
+      delegator: capabilityAgent
+    });
+    zcaps.keyAgreementKey = await helpers.delegate({
+      capability: `urn:zcap:root:${encodeURIComponent(keystoreId)}`,
+      controller: serviceAgent.id,
+      invocationTarget: keyAgreementKey.kmsId,
+      delegator: capabilityAgent
+    });
+
+    // create verifier instance
+    verifierConfig = await helpers.createConfig({capabilityAgent, zcaps});
+    verifierId = verifierConfig.id;
+    rootZcap = `urn:zcap:root:${encodeURIComponent(verifierId)}`;
+  });
   it('should verify "StatusList2021Credential" type', async () => {
     slCredential = await vc.issue({
       credential: slCredential,
-      documentLoader,
+      documentLoader: _documentLoader,
       suite
     });
     const verifiableCredential = await vc.issue({
       credential: unsignedCredentialSl2021Type,
-      documentLoader,
+      documentLoader: _documentLoader,
       suite
     });
     let error;
     let result;
     try {
-      result = await httpClient.post(
-        `${config.server.baseUri}/verifier/credentials`, {
-          agent,
-          json: {
-            options: {
-              checks: ['proof', 'credentialStatus'],
-            },
-            verifiableCredential,
-          }
-        });
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/credentials/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            checks: ['proof', 'credentialStatus'],
+          },
+          verifiableCredential
+        }
+      });
     } catch(e) {
       error = e;
     }
-    should.not.exist(error);
+    assertNoError(error);
     should.exist(result.data.verified);
     result.data.verified.should.be.a('boolean');
     result.data.verified.should.equal(true);
@@ -265,27 +342,28 @@ describe.skip('verify credential status', () => {
     async () => {
       revokedSlCredential = await vc.issue({
         credential: revokedSlCredential,
-        documentLoader,
+        documentLoader: _documentLoader,
         suite
       });
       const verifiableCredential = await vc.issue({
         credential: revokedUnsignedCredential,
-        documentLoader,
+        documentLoader: _documentLoader,
         suite
       });
       let error;
       let result;
       try {
-        result = await httpClient.post(
-          `${config.server.baseUri}/verifier/credentials`, {
-            agent,
-            json: {
-              options: {
-                checks: ['credentialStatus'],
-              },
-              verifiableCredential,
-            }
-          });
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/credentials/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              checks: ['credentialStatus'],
+            },
+            verifiableCredential
+          }
+        });
       } catch(e) {
         error = e;
       }
@@ -296,7 +374,7 @@ describe.skip('verify credential status', () => {
       const {checks, error: {message: errorMsg}} = error.data;
       checks.should.be.an('array');
       checks.should.have.length(1);
-      errorMsg.should.equal('The credential has been revoked.');
+      errorMsg.should.equal('The credential failed a status check.');
       error.data.statusResult.verified.should.equal(false);
       const [{check}] = checks;
       check.should.be.an('array');
@@ -311,27 +389,28 @@ describe.skip('verify credential status', () => {
   it('should verify "RevocationList2020Credential" type', async () => {
     rlCredential = await vc.issue({
       credential: rlCredential,
-      documentLoader,
+      documentLoader: _documentLoader,
       suite
     });
     const verifiableCredential = await vc.issue({
       credential: unsignedCredentialRL2020Type,
-      documentLoader,
+      documentLoader: _documentLoader,
       suite
     });
     let error;
     let result;
     try {
-      result = await httpClient.post(
-        `${config.server.baseUri}/verifier/credentials`, {
-          agent,
-          json: {
-            options: {
-              checks: ['proof', 'credentialStatus'],
-            },
-            verifiableCredential,
-          }
-        });
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/credentials/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            checks: ['proof', 'credentialStatus'],
+          },
+          verifiableCredential
+        }
+      });
     } catch(e) {
       error = e;
     }
@@ -355,27 +434,28 @@ describe.skip('verify credential status', () => {
     async () => {
       revokedRlCredential = await vc.issue({
         credential: revokedRlCredential,
-        documentLoader,
+        documentLoader: _documentLoader,
         suite
       });
       const verifiableCredential = await vc.issue({
         credential: revokedUnsignedCredential2,
-        documentLoader,
+        documentLoader: _documentLoader,
         suite
       });
       let error;
       let result;
       try {
-        result = await httpClient.post(
-          `${config.server.baseUri}/verifier/credentials`, {
-            agent,
-            json: {
-              options: {
-                checks: ['credentialStatus'],
-              },
-              verifiableCredential,
-            }
-          });
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/credentials/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              checks: ['credentialStatus'],
+            },
+            verifiableCredential
+          }
+        });
       } catch(e) {
         error = e;
       }
@@ -386,7 +466,7 @@ describe.skip('verify credential status', () => {
       const {checks, error: {message: errorMsg}} = error.data;
       checks.should.be.an('array');
       checks.should.have.length(1);
-      errorMsg.should.equal('The credential has been revoked.');
+      errorMsg.should.equal('The credential failed a status check.');
       error.data.statusResult.verified.should.equal(false);
       const [{check}] = checks;
       check.should.be.an('array');

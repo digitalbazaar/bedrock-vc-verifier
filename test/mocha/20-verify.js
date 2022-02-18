@@ -14,7 +14,7 @@ const helpers = require('./helpers');
 const {httpClient} = require('@digitalbazaar/http-client');
 const vc = require('@digitalbazaar/vc');
 const mockData = require('./mock.data');
-const {config, util: {clone}} = bedrock;
+const {util: {clone}} = bedrock;
 
 const {baseUrl} = mockData;
 const serviceType = 'vc-verifier';
