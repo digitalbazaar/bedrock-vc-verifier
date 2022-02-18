@@ -1,57 +1,63 @@
 /*!
  * Copyright (c) 2022 Digital Bazaar, Inc. All rights reserved.
  */
-const sequence = {
-  title: 'sequence',
-  type: 'integer',
-  minimum: 0,
-  maximum: Number.MAX_SAFE_INTEGER - 1
+const context = {
+  title: '@context',
+  anyOf: [{
+    type: 'string'
+  }, {
+    type: 'array',
+    minItems: 1,
+    items: {
+      type: ['string']
+    }
+  }]
 };
 
-export const contextBody = {
-  title: 'JSON-LD Context Record',
+export const createChallengeBody = {
+  title: 'Create Challenge Body',
   type: 'object',
-  required: ['id', 'context'],
+  additionalProperties: false,
+  // body must be empty
+  properties: {}
+};
+
+export const verifyCredentialBody = {
+  title: 'Verify Credential Body',
+  type: 'object',
+  required: ['verifiableCredential'],
   additionalProperties: false,
   properties: {
-    id: {
-      title: 'Context ID',
-      type: 'string'
+    options: {
+      type: 'object'
     },
-    context: {
+    verifiableCredential: {
       type: 'object',
       additionalProperties: true,
       required: ['@context'],
       properties: {
-        '@context': {
-          title: '@context',
-          anyOf: [{
-            type: 'string'
-          }, {
-            type: 'object'
-          }, {
-            type: 'array',
-            minItems: 1,
-            items: {
-              type: ['string', 'object']
-            }
-          }]
-        }
+        '@context': context
       }
     }
   }
 };
-export const createContextBody = {
-  ...contextBody,
-  title: 'createContextBody'
-};
 
-export const updateContextBody = {
-  ...contextBody,
-  required: ['id', 'context', 'sequence'],
+export const verifyPresentationBody = {
+  title: 'Verify Presentation Body',
+  type: 'object',
+  required: ['verifiablePresentation'],
+  additionalProperties: false,
   properties: {
-    ...contextBody.properties,
-    sequence
-  },
-  title: 'updateContextBody'
+    options: {
+      type: 'object'
+    },
+    verifiablePresentation: {
+      type: 'object',
+      additionalProperties: true,
+      required: ['@context'],
+      properties: {
+        '@context': context
+      }
+    }
+  }
 };
