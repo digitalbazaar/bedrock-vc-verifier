@@ -7,6 +7,8 @@ const {agent} = require('bedrock-https-agent');
 const bedrock = require('bedrock');
 const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
 const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
+const {documentLoader: brDocLoader} =
+  require('bedrock-jsonld-document-loader');
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const helpers = require('./helpers');
 const {httpClient} = require('@digitalbazaar/http-client');
@@ -21,9 +23,11 @@ const serviceType = 'vc-verifier';
 // https://www.w3.org/2018/credentials/examples/v1
 const mockCredential = require('./mock-credential');
 
-describe('Verify APIs', () => {
+describe.only('verify APIs', () => {
   let capabilityAgent;
   let verifierConfig;
+  let verifierId;
+  let rootZcap;
   const zcaps = {};
   beforeEach(async () => {
     const secret = '53ad64ce-8e1d-11ec-bb12-10bf48838a41';
@@ -71,18 +75,15 @@ describe('Verify APIs', () => {
 
     // create verifier instance
     verifierConfig = await helpers.createConfig({capabilityAgent, zcaps});
+    verifierId = verifierConfig.id;
+    rootZcap = `urn:zcap:root:${encodeURIComponent(verifierId)}`;
   });
   describe('/challenges', () => {
     it('create a challenge', async () => {
-      const url = `${verifierConfig.id}/challenges`;
-      const rootZcap =
-        `urn:zcap:root:${encodeURIComponent(verifierConfig.id)}`;
-
       let err;
       let result;
       try {
-        const zcapClient = helpers.createZcapClient({capabilityAgent});
-        result = await zcapClient.write({url, capability: rootZcap, json: {}});
+        result = await helpers.createChallenge({capabilityAgent, verifierId});
       } catch(e) {
         err = e;
       }
@@ -94,25 +95,26 @@ describe('Verify APIs', () => {
     });
   });
   describe('/credentials/verify', () => {
-    it('verifies a valid credential', async () => {
+    it.only('verifies a valid credential', async () => {
       const verifiableCredential = clone(mockCredential);
       let error;
       let result;
       try {
-        result = await httpClient.post(
-          `${config.server.baseUri}/verifier/credentials`, {
-            agent,
-            json: {
-              options: {
-                checks: ['proof'],
-              },
-              verifiableCredential,
-            }
-          });
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/credentials/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential
+          }
+        });
       } catch(e) {
         error = e;
       }
-      should.not.exist(error);
+      assertNoError(error);
       should.exist(result.data.verified);
       result.data.verified.should.be.a('boolean');
       result.data.verified.should.equal(true);
@@ -139,16 +141,17 @@ describe('Verify APIs', () => {
         'Bachelor of Science in Nursing';
 
       try {
-        result = await httpClient.post(
-          `${config.server.baseUri}/verifier/credentials`, {
-            agent,
-            json: {
-              options: {
-                checks: ['proof'],
-              },
-              verifiableCredential: badCredential
-            }
-          });
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierConfig.id}/credentials/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential: badCredential
+          }
+        });
       } catch(e) {
         error = e;
       }
@@ -179,12 +182,15 @@ describe('Verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
+      // get challenge from verifier
+      const {challenge} = await helpers.createChallenge(
+        {capabilityAgent, verifierId: verifierConfig.id});
+
       await vc.signPresentation({
         presentation,
         suite,
         challenge,
-        documentLoader
+        documentLoader: brDocLoader
       });
 
       let error;
@@ -199,15 +205,16 @@ describe('Verify APIs', () => {
       };
 
       try {
-        result = await httpClient.post(
-          `${config.server.baseUri}/verifier/presentations`, {
-            agent,
-            json: payload
-          });
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierConfig.id}/presentations/verify`,
+          capability: rootZcap,
+          json: payload
+        });
       } catch(e) {
         error = e;
       }
-      should.not.exist(error);
+      assertNoError(error);
       should.exist(result.data.checks);
       const {checks} = result.data;
       checks.should.be.an('array');
@@ -231,6 +238,48 @@ describe('Verify APIs', () => {
       credentialResult.verified.should.be.a('boolean');
       credentialResult.verified.should.equal(true);
     });
+    it('returns an error if bad challenge is specified', async () => {
+      const verifiableCredential = clone(mockCredential);
+      const presentation = vc.createPresentation({
+        holder: 'foo',
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential
+      });
+      const {
+        methodFor
+      } = await didKeyDriver.generate();
+
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+
+      const suite = new Ed25519Signature2020({key: signingKey});
+
+      // expired / bad challenge
+      const challenge = 'z1A9b6RjuUzVWC3VcvsFX5fPb';
+      await vc.signPresentation({
+        presentation, suite, challenge, documentLoader: brDocLoader
+      });
+
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierConfig.id}/presentations/verify`,
+          capability: rootZcap,
+          json: {presentation}
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      should.exist(error.data);
+      should.not.exist(result);
+      error.data.should.be.an('object');
+      error.data.verified.should.be.a('boolean');
+      error.data.verified.should.equal(false);
+      error.data.error.message.should.equal('"options.challenge" is required.');
+      error.data.error.name.should.equal('TypeError');
+    });
     it('returns an error if challenge is not specified', async () => {
       const verifiableCredential = clone(mockCredential);
       const presentation = vc.createPresentation({
@@ -246,19 +295,23 @@ describe('Verify APIs', () => {
 
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
+      // get challenge from verifier
+      const {challenge} = await helpers.createChallenge(
+        {capabilityAgent, verifierId: verifierConfig.id});
+
       await vc.signPresentation({
-        presentation, suite, challenge, documentLoader
+        presentation, suite, challenge, documentLoader: brDocLoader
       });
 
       let error;
       let result;
       try {
-        result = await httpClient.post(
-          `${config.server.baseUri}/verifier/presentations`, {
-            agent,
-            json: {presentation}
-          });
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierConfig.id}/presentations/verify`,
+          capability: rootZcap,
+          json: {presentation}
+        });
       } catch(e) {
         error = e;
       }
@@ -290,9 +343,12 @@ describe('Verify APIs', () => {
 
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const challenge = 'acdbba77-9b5f-4079-887b-97e7eda06081';
+      // get challenge from verifier
+      const {challenge} = await helpers.createChallenge(
+        {capabilityAgent, verifierId: verifierConfig.id});
+
       await vc.signPresentation({
-        presentation, suite, challenge, documentLoader
+        presentation, suite, challenge, documentLoader: brDocLoader
       });
 
       let error;
@@ -305,11 +361,12 @@ describe('Verify APIs', () => {
         verifiablePresentation: presentation,
       };
       try {
-        result = await httpClient.post(
-          `${config.server.baseUri}/verifier/presentations`, {
-            agent,
-            json: payload
-          });
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierConfig.id}/presentations/verify`,
+          capability: rootZcap,
+          json: payload
+        });
       } catch(e) {
         error = e;
       }
