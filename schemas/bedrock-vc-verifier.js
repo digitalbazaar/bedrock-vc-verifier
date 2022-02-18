@@ -3,15 +3,11 @@
  */
 const context = {
   title: '@context',
-  anyOf: [{
-    type: 'string'
-  }, {
-    type: 'array',
-    minItems: 1,
-    items: {
-      type: ['string']
-    }
-  }]
+  type: 'array',
+  minItems: 1,
+  items: {
+    type: ['string', 'object']
+  }
 };
 
 export const createChallengeBody = {
