@@ -41,6 +41,7 @@
     "bedrock-vc-revocation-list-context": "^1.0.0",
     "bedrock-vc-status-list-context": "^1.0.0",
     "bedrock-vc-verifier": "file:..",
+    "bedrock-validation": "^5.5.0",
     "bedrock-veres-one-context": "^12.0.0",
     "bedrock-views": "^7.1.0",
     "credentials-context": "^2.0.0",

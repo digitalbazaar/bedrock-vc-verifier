@@ -22,6 +22,8 @@
     "@digitalbazaar/ed25519-verification-key-2018": "^3.1.2",
     "@digitalbazaar/ed25519-verification-key-2020": "^3.2.0",
     "@digitalbazaar/vc": "^2.1.0",
+    "base58-universal": "^1.0.0",
+    "bnid": "^2.1.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "crypto-ld": "^6.0.0",
@@ -37,14 +39,15 @@
     "bedrock-did-io": "^5.0.0",
     "bedrock-express": "^6.3.0",
     "bedrock-jsonld-document-loader": "^1.2.2",
-    "bedrock-rest": "^3.0.0",
+    "bedrock-mongodb": "^8.4.0",
     "bedrock-security-context": "^5.0.0",
     "bedrock-service-core": "digitalbazaar/bedrock-service-core#initial",
     "bedrock-service-agent": "digitalbazaar/bedrock-service-agent#initial",
     "bedrock-service-context-store": "digitalbazaar/bedrock-service-context-store#initial",
     "bedrock-vc-status-list-context": "^1.0.0",
     "bedrock-vc-revocation-list-context": "^1.0.0",
-    "bedrock-veres-one-context": "^12.0.0"
+    "bedrock-veres-one-context": "^12.0.0",
+    "bedrock-validation": "^5.5.0"
   },
   "devDependencies": {
     "eslint": "^7.25.0",
