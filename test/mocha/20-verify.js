@@ -95,7 +95,7 @@ describe.only('verify APIs', () => {
     });
   });
   describe('/credentials/verify', () => {
-    it.only('verifies a valid credential', async () => {
+    it('verifies a valid credential', async () => {
       const verifiableCredential = clone(mockCredential);
       let error;
       let result;
@@ -167,7 +167,12 @@ describe.only('verify APIs', () => {
   });
 
   describe('/presentations/verify', () => {
-    it('verifies a valid presentation', async () => {
+    it.only('verifies a valid presentation', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
       const verifiableCredential = clone(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'did:test:foo',
@@ -175,16 +180,9 @@ describe.only('verify APIs', () => {
         verifiableCredential
       });
 
-      const {
-        methodFor
-      } = await didKeyDriver.generate();
-
-      const signingKey = methodFor({purpose: 'assertionMethod'});
-      const suite = new Ed25519Signature2020({key: signingKey});
-
       // get challenge from verifier
-      const {challenge} = await helpers.createChallenge(
-        {capabilityAgent, verifierId: verifierConfig.id});
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
 
       await vc.signPresentation({
         presentation,
@@ -239,19 +237,17 @@ describe.only('verify APIs', () => {
       credentialResult.verified.should.equal(true);
     });
     it('returns an error if bad challenge is specified', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
       const verifiableCredential = clone(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'foo',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
         verifiableCredential
       });
-      const {
-        methodFor
-      } = await didKeyDriver.generate();
-
-      const signingKey = methodFor({purpose: 'assertionMethod'});
-
-      const suite = new Ed25519Signature2020({key: signingKey});
 
       // expired / bad challenge
       const challenge = 'z1A9b6RjuUzVWC3VcvsFX5fPb';
@@ -281,23 +277,21 @@ describe.only('verify APIs', () => {
       error.data.error.name.should.equal('TypeError');
     });
     it('returns an error if challenge is not specified', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
       const verifiableCredential = clone(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'foo',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
         verifiableCredential
       });
-      const {
-        methodFor
-      } = await didKeyDriver.generate();
-
-      const signingKey = methodFor({purpose: 'assertionMethod'});
-
-      const suite = new Ed25519Signature2020({key: signingKey});
 
       // get challenge from verifier
-      const {challenge} = await helpers.createChallenge(
-        {capabilityAgent, verifierId: verifierConfig.id});
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
 
       await vc.signPresentation({
         presentation, suite, challenge, documentLoader: brDocLoader
@@ -325,27 +319,23 @@ describe.only('verify APIs', () => {
       error.data.error.name.should.equal('TypeError');
     });
     it('does not verify a presentation with a bad credential', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
       const badCredential = clone(mockCredential);
       // change the degree name
       badCredential.credentialSubject.degree.name =
         'Bachelor of Science in Nursing';
-
       const presentation = vc.createPresentation({
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
-        verifiableCredential: badCredential,
+        verifiableCredential: badCredential
       });
 
-      const {
-        methodFor
-      } = await didKeyDriver.generate();
-
-      const signingKey = methodFor({purpose: 'assertionMethod'});
-
-      const suite = new Ed25519Signature2020({key: signingKey});
-
       // get challenge from verifier
-      const {challenge} = await helpers.createChallenge(
-        {capabilityAgent, verifierId: verifierConfig.id});
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
 
       await vc.signPresentation({
         presentation, suite, challenge, documentLoader: brDocLoader
