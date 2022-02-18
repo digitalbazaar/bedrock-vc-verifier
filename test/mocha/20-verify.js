@@ -1,29 +1,97 @@
 /*!
- * Copyright (c) 2020 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
-const {config, util: {clone}} = require('bedrock');
-const {CryptoLD} = require('crypto-ld');
+const {agent} = require('bedrock-https-agent');
+const bedrock = require('bedrock');
+const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
 const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
-const {Ed25519VerificationKey2020} = require(
-  '@digitalbazaar/ed25519-verification-key-2020');
+const helpers = require('./helpers');
 const {httpClient} = require('@digitalbazaar/http-client');
-const {agent} = require('bedrock-https-agent');
-const {_documentLoader: documentLoader} = require('bedrock-vc-verifier');
 const vc = require('@digitalbazaar/vc');
+const mockData = require('./mock.data');
+const {config, util: {clone}} = bedrock;
 
-const cryptoLd = new CryptoLD();
-cryptoLd.use(Ed25519VerificationKey2020);
+const {baseUrl} = mockData;
+const serviceType = 'vc-verifier';
 
 // NOTE: using embedded context in mockCredential:
 // https://www.w3.org/2018/credentials/examples/v1
 const mockCredential = require('./mock-credential');
 
 describe('Verify APIs', () => {
+  let capabilityAgent;
+  let verifierConfig;
+  const zcaps = {};
+  beforeEach(async () => {
+    const secret = '53ad64ce-8e1d-11ec-bb12-10bf48838a41';
+    const handle = 'test';
+    capabilityAgent = await CapabilityAgent.fromSecret({secret, handle});
+
+    // create keystore for capability agent
+    const keystoreAgent = await helpers.createKeystoreAgent(
+      {capabilityAgent});
+
+    // create EDV for storage (creating hmac and kak in the process)
+    const {
+      edvConfig,
+      hmac,
+      keyAgreementKey
+    } = await helpers.createEdv({capabilityAgent, keystoreAgent});
+
+    // get service agent to delegate to
+    const serviceAgentUrl =
+      `${baseUrl}/service-agents/${encodeURIComponent(serviceType)}`;
+    const {data: serviceAgent} = await httpClient.get(serviceAgentUrl, {
+      agent
+    });
+
+    // delegate edv, hmac, and key agreement key zcaps to service agent
+    const {id: edvId} = edvConfig;
+    zcaps.edv = await helpers.delegate({
+      controller: serviceAgent.id,
+      delegator: capabilityAgent,
+      invocationTarget: edvId
+    });
+    const {keystoreId} = keystoreAgent;
+    zcaps.hmac = await helpers.delegate({
+      capability: `urn:zcap:root:${encodeURIComponent(keystoreId)}`,
+      controller: serviceAgent.id,
+      invocationTarget: hmac.id,
+      delegator: capabilityAgent
+    });
+    zcaps.keyAgreementKey = await helpers.delegate({
+      capability: `urn:zcap:root:${encodeURIComponent(keystoreId)}`,
+      controller: serviceAgent.id,
+      invocationTarget: keyAgreementKey.kmsId,
+      delegator: capabilityAgent
+    });
+
+    // create verifier instance
+    verifierConfig = await helpers.createConfig({capabilityAgent, zcaps});
+  });
   describe('/challenges', () => {
-    // FIXME: implement me
+    it('create a challenge', async () => {
+      const url = `${verifierConfig.id}/challenges`;
+      const rootZcap =
+        `urn:zcap:root:${encodeURIComponent(verifierConfig.id)}`;
+
+      let err;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({url, capability: rootZcap, json: {}});
+      } catch(e) {
+        err = e;
+      }
+      assertNoError(err);
+      should.exist(result.data);
+      result.status.should.equal(200);
+      result.data.should.have.keys(['challenge']);
+      result.data.challenge.should.be.a('string');
+    });
   });
   describe('/credentials/verify', () => {
     it('verifies a valid credential', async () => {

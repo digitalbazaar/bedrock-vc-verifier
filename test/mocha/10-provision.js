@@ -15,7 +15,7 @@ const mockData = require('./mock.data');
 const {baseUrl} = mockData;
 const serviceType = 'vc-verifier';
 
-describe.only('provision API', () => {
+describe('provision API', () => {
   let capabilityAgent;
   const zcaps = {};
   beforeEach(async () => {
