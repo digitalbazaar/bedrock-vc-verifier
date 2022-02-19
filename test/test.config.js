@@ -1,6 +1,8 @@
 /*!
  * Copyright (c) 2012-2022 Digital Bazaar, Inc. All rights reserved.
  */
+'use strict';
+
 const {config} = require('bedrock');
 const path = require('path');
 require('bedrock-vc-verifier');
