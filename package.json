@@ -47,8 +47,11 @@
     "bedrock-validation": "^5.5.0"
   },
   "devDependencies": {
-    "eslint": "^7.25.0",
-    "eslint-config-digitalbazaar": "^2.8.0"
+    "eslint": "^7.32.0",
+    "eslint-config-digitalbazaar": "^2.8.0",
+    "eslint-plugin-jsdoc": "^28.6.1",
+    "jsdoc": "^3.6.4",
+    "jsdoc-to-markdown": "^6.0.1"
   },
   "scripts": {
     "lint": "eslint ."
