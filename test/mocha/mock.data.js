@@ -4,9 +4,6 @@
 'use strict';
 
 const {config} = require('bedrock');
-const {
-  constants: {CREDENTIALS_CONTEXT_V1_URL}
-} = require('credentials-context');
 
 const mock = {};
 module.exports = mock;
