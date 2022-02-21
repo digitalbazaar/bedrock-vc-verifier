@@ -142,7 +142,7 @@ describe('verify APIs', () => {
       try {
         const zcapClient = helpers.createZcapClient({capabilityAgent});
         result = await zcapClient.write({
-          url: `${verifierConfig.id}/credentials/verify`,
+          url: `${verifierId}/credentials/verify`,
           capability: rootZcap,
           json: {
             options: {
@@ -195,7 +195,7 @@ describe('verify APIs', () => {
       try {
         const zcapClient = helpers.createZcapClient({capabilityAgent});
         result = await zcapClient.write({
-          url: `${verifierConfig.id}/presentations/verify`,
+          url: `${verifierId}/presentations/verify`,
           capability: rootZcap,
           json: {
             options: {
@@ -257,7 +257,7 @@ describe('verify APIs', () => {
       try {
         const zcapClient = helpers.createZcapClient({capabilityAgent});
         result = await zcapClient.write({
-          url: `${verifierConfig.id}/presentations/verify`,
+          url: `${verifierId}/presentations/verify`,
           capability: rootZcap,
           json: {
             options: {
@@ -305,7 +305,7 @@ describe('verify APIs', () => {
       try {
         const zcapClient = helpers.createZcapClient({capabilityAgent});
         result = await zcapClient.write({
-          url: `${verifierConfig.id}/presentations/verify`,
+          url: `${verifierId}/presentations/verify`,
           capability: rootZcap,
           json: {
             options: {
@@ -355,7 +355,7 @@ describe('verify APIs', () => {
       try {
         const zcapClient = helpers.createZcapClient({capabilityAgent});
         result = await zcapClient.write({
-          url: `${verifierConfig.id}/presentations/verify`,
+          url: `${verifierId}/presentations/verify`,
           capability: rootZcap,
           json: {
             options: {
