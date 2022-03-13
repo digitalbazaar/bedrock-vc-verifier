@@ -22,6 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [lint]
+    services:
+      mongodb:
+        image: mongo:4.2
+        ports:
+          - 27017:27017
     strategy:
       matrix:
         node-version: [12.x, 14.x]
@@ -45,6 +50,11 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
+    services:
+      mongodb:
+        image: mongo:4.2
+        ports:
+          - 27017:27017
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}

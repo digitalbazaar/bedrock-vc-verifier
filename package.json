@@ -25,7 +25,6 @@
     "bnid": "^2.1.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "crypto-ld": "^6.0.0",
     "esm": "^3.2.25",
     "vc-revocation-list": "^3.0.0"
   },
