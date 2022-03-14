@@ -1,5 +1,17 @@
 # bedrock-vc-verifier ChangeLog
 
+## 5.2.0 - 2022-03-TBD
+
+### Removed
+- Remove unused dependency `crypto-ld@6.0`.
+- Remove unused dependencies `veres-one-context`, `did-veres-one`, `crypto-ld`,
+  `did-context` and `bedrock-views` from test.
+
+### Added
+- Add missing dependencies `@digitalbazaar/webkms-client@10.0` and
+  `@digitalbazaar/edv-client@13.0` in test.
+- Add coverage action in github workflows.
+
 ## 5.1.0 - 2022-03-12
 
 ### Changed
