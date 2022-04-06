@@ -7,9 +7,11 @@ import {agent} from '@bedrock/https-agent';
 import {createRequire} from 'module';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
 import express from 'express';
+import {fileURLToPath} from 'url';
 import fs from 'fs';
 import https from 'https';
 import {mockData} from './mock.data.js';
+import path from 'path';
 const require = createRequire(import.meta.url);
 const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
@@ -21,6 +23,7 @@ const statusListCtx = require('@digitalbazaar/vc-status-list-context');
 const vc = require('@digitalbazaar/vc');
 
 const {util: {clone}} = bedrock;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const {baseUrl} = mockData;
 const serviceType = 'vc-verifier';
