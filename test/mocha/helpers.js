@@ -217,7 +217,7 @@ export async function revokeDelegatedCapability({
     encodeURIComponent(capabilityToRevoke.id);
   const zcapClient = createZcapClient({invocationSigner});
   return zcapClient.write({url, json: capabilityToRevoke});
-};
+}
 
 async function keyResolver({id}) {
   // support DID-based keys only
