@@ -19,9 +19,9 @@ jobs:
     - name: Run eslint
       run: npm run lint
   test-node:
+    needs: [lint]
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [lint]
     services:
       mongodb:
         image: mongo:4.2
@@ -29,7 +29,7 @@ jobs:
           - 27017:27017
     strategy:
       matrix:
-        node-version: [12.x, 14.x]
+        node-version: [14.x]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -37,6 +37,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: |
+        npm install
         cd test
         npm install
     - name: Run test with Node.js ${{ matrix.node-version }}
@@ -45,16 +46,16 @@ jobs:
         npm test
   coverage:
     needs: [test-node]
-    timeout-minutes: 10
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
+    timeout-minutes: 10
     services:
       mongodb:
         image: mongo:4.2
         ports:
           - 27017:27017
+    strategy:
+      matrix:
+        node-version: [14.x]
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -62,6 +63,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: |
+        npm install
         cd test
         npm install
     - name: Generate coverage report
