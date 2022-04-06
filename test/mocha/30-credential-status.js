@@ -1,25 +1,25 @@
 /*!
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
-'use strict';
-
-const {agent} = require('bedrock-https-agent');
-const bedrock = require('bedrock');
+import * as bedrock from '@bedrock/core';
+import * as helpers from './helpers.js';
+import {agent} from '@bedrock/https-agent';
+import {createRequire} from 'module';
+import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
+import express from 'express';
+import fs from 'fs';
+import https from 'https';
+import {mockData} from './mock.data.js';
+const require = createRequire(import.meta.url);
 const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
-const {documentLoader: brDocLoader} =
-  require('bedrock-jsonld-document-loader');
-const helpers = require('./helpers');
-const {httpClient} = require('@digitalbazaar/http-client');
+const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const {Ed25519VerificationKey2020} =
   require('@digitalbazaar/ed25519-verification-key-2020');
-const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
-const express = require('express');
-const fs = require('fs');
-const https = require('https');
-const mockData = require('./mock.data');
-const vc = require('@digitalbazaar/vc');
+const {httpClient} = require('@digitalbazaar/http-client');
 const revocationListCtx = require('vc-revocation-list-context');
 const statusListCtx = require('@digitalbazaar/vc-status-list-context');
+const vc = require('@digitalbazaar/vc');
+
 const {util: {clone}} = bedrock;
 
 const {baseUrl} = mockData;

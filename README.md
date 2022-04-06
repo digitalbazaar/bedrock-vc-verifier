@@ -25,14 +25,14 @@ TBD
 
 ## Install
 
-- Node.js 12+ is required.
+- Node.js 14+ is required.
 
 ### NPM
 
 To install via NPM:
 
 ```
-npm install --save bedrock-vc-verifier
+npm install --save @bedrock/vc-verifier
 ```
 
 ### Development
@@ -47,10 +47,10 @@ npm install
 
 ## Usage
 
-In `lib/index.js` (or `main.js`, as appropriate):
+In `lib/index.js`:
 
 ```js
-require('bedrock-vc-verifier');
+import '@bedrock/vc-verifier';
 ```
 
 ### Verifier HTTP API
@@ -65,7 +65,7 @@ Example request:
 {
   "presentation": {},
   "challenge": "...",
-  "domain": "issuer.exmaple.com"
+  "domain": "issuer.example.com"
 }
 ```
 
