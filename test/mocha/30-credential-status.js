@@ -105,6 +105,7 @@ function _startServer({app}) {
         credentialStatus: {
           id: `${BASE_URL}/status/748a7d8e-9111-11ec-a934-10bf48838a41#67342`,
           type: 'StatusList2021Entry',
+          statusPurpose: 'revocation',
           statusListIndex: '67342',
           statusListCredential: slCredential.id
         },
