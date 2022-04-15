@@ -3,7 +3,8 @@
 ## 7.0.0 - 2022-TBD
 
 ### Changed
-- **BREAKING**: Update `@digitalbazaar/vc-status-list` and `@bedrock/vc-status-list-context` to v3.0.
+- **BREAKING**: Update `@digitalbazaar/vc-status-list` and
+  `@bedrock/vc-status-list-context` to v3.0.
 
 ## 6.0.0 - 2022-04-06
 
