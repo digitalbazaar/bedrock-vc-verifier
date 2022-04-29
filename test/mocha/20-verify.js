@@ -1,20 +1,18 @@
 /*!
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import * as bedrock from '@bedrock/core';
 import * as helpers from './helpers.js';
 import {agent} from '@bedrock/https-agent';
-import {createRequire} from 'module';
+import {createRequire} from 'node:module';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
+import {httpClient} from '@digitalbazaar/http-client';
+import {klona} from 'klona';
 import {mockData} from './mock.data.js';
 const require = createRequire(import.meta.url);
 const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
 const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
-const {httpClient} = require('@digitalbazaar/http-client');
 const vc = require('@digitalbazaar/vc');
-
-const {util: {clone}} = bedrock;
 
 const {baseUrl} = mockData;
 const serviceType = 'vc-verifier';
@@ -96,7 +94,7 @@ describe('verify APIs', () => {
   });
   describe('/credentials/verify', () => {
     it('verifies a valid credential', async () => {
-      const verifiableCredential = clone(mockCredential);
+      const verifiableCredential = klona(mockCredential);
       let error;
       let result;
       try {
@@ -132,7 +130,7 @@ describe('verify APIs', () => {
       r.verified.should.equal(true);
     });
     it('does not verify an invalid credential', async () => {
-      const badCredential = clone(mockCredential);
+      const badCredential = klona(mockCredential);
       // change the degree name
       badCredential.credentialSubject.degree.name =
         'Bachelor of Science in Nursing';
@@ -172,7 +170,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const verifiableCredential = clone(mockCredential);
+      const verifiableCredential = klona(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'did:test:foo',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -238,7 +236,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const verifiableCredential = clone(mockCredential);
+      const verifiableCredential = klona(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'foo',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -285,7 +283,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const verifiableCredential = clone(mockCredential);
+      const verifiableCredential = klona(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'foo',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -333,7 +331,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const badCredential = clone(mockCredential);
+      const badCredential = klona(mockCredential);
       // change the degree name
       badCredential.credentialSubject.degree.name =
         'Bachelor of Science in Nursing';

@@ -1,28 +1,27 @@
 /*!
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import * as bedrock from '@bedrock/core';
 import * as helpers from './helpers.js';
 import {agent} from '@bedrock/https-agent';
-import {createRequire} from 'module';
+import {createRequire} from 'node:module';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
 import express from 'express';
-import {fileURLToPath} from 'url';
-import fs from 'fs';
-import https from 'https';
+import {fileURLToPath} from 'node:url';
+import fs from 'node:fs';
+import {httpClient} from '@digitalbazaar/http-client';
+import https from 'node:https';
+import {klona} from 'klona';
 import {mockData} from './mock.data.js';
-import path from 'path';
+import path from 'node:path';
 const require = createRequire(import.meta.url);
 const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
 const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
 const {Ed25519VerificationKey2020} =
   require('@digitalbazaar/ed25519-verification-key-2020');
-const {httpClient} = require('@digitalbazaar/http-client');
 const revocationListCtx = require('vc-revocation-list-context');
 const statusListCtx = require('@digitalbazaar/vc-status-list-context');
 const vc = require('@digitalbazaar/vc');
 
-const {util: {clone}} = bedrock;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const {baseUrl} = mockData;
@@ -113,7 +112,7 @@ function _startServer({app}) {
       };
 
       // Revoked Status List 2021 Credential
-      revokedSlCredential = clone(slCredential);
+      revokedSlCredential = klona(slCredential);
 
       revokedSlCredential.id =
         `${BASE_URL}/status/8ec30054-9111-11ec-9ab5-10bf48838a41`,
@@ -123,7 +122,7 @@ function _startServer({app}) {
         `${BASE_URL}/status/8ec30054-9111-11ec-9ab5-10bf48838a41#list`;
 
       // Revoked Unsigned 2021 Credential
-      revokedUnsignedCredential = clone(unsignedCredentialSl2021Type);
+      revokedUnsignedCredential = klona(unsignedCredentialSl2021Type);
       revokedUnsignedCredential.credentialStatus.id =
         `${revokedSlCredential.id}#50000`;
       revokedUnsignedCredential.credentialStatus.statusListIndex = 50000;
@@ -172,7 +171,7 @@ function _startServer({app}) {
       };
 
       // Revoked Revocation List 2020 Credential
-      revokedRlCredential = clone(rlCredential);
+      revokedRlCredential = klona(rlCredential);
 
       revokedRlCredential.id =
         `${BASE_URL}/status/a63896b8-9111-11ec-9fd2-10bf48838a41`,
@@ -182,7 +181,7 @@ function _startServer({app}) {
         `${BASE_URL}/status/a63896b8-9111-11ec-9fd2-10bf48838a41#list`;
 
       // Revoked Unsigned 2020 Credential
-      revokedUnsignedCredential2 = clone(unsignedCredentialRL2020Type);
+      revokedUnsignedCredential2 = klona(unsignedCredentialRL2020Type);
       revokedUnsignedCredential2.credentialStatus.id =
         `${revokedRlCredential.id}#50000`;
       revokedUnsignedCredential2.credentialStatus.revocationListIndex = 50000;
