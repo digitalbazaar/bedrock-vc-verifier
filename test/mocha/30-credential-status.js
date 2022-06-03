@@ -505,8 +505,8 @@ describe('verify credential status', () => {
     error.data.verified.should.equal(false);
     const {error: {cause: errorCause}} = error.data;
     errorCause.should.equal(
-      'The status purpose "revocation" of status list credential does not ' +
-      'match the status purpose "suspension" of the credential.');
+      'The status purpose "revocation" of the status list credential ' +
+      'does not match the status purpose "suspension" in the credential.');
   });
   it('should fail to verify a revoked "StatusList2021Credential" type',
     async () => {
