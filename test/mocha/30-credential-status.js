@@ -116,7 +116,7 @@ function _startServer({app}) {
         issuer: slCredentialRevocation.issuer,
       };
 
-      // Status List 2021 Credential with statusPurpose `revocation`
+      // Status List 2021 Credential with statusPurpose `suspension`
       slCredentialSuspension = {
         '@context': [
           'https://www.w3.org/2018/credentials/v1',
@@ -153,8 +153,6 @@ function _startServer({app}) {
           type: 'StatusList2021Entry',
           statusPurpose: 'suspension',
           statusListIndex: '67342',
-          // intentionally point the statusListCredential to a sl credential
-          // with status purpose revocation.
           statusListCredential: slCredentialSuspension.id
         },
         issuer: slCredentialSuspension.issuer,
