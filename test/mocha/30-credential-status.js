@@ -39,8 +39,9 @@ const encodedList100KWith50KthRevoked =
 const key = fs.readFileSync(__dirname + '/key.pem');
 const cert = fs.readFileSync(__dirname + '/cert.pem');
 
-let slCredential;
-let unsignedCredentialSl2021Type;
+let slCredentialRevocation;
+let unsignedCredentialSl2021TypeRevocation;
+let unsignedCredentialSl2021WithUnmatchingStatusPurpose;
 let revokedSlCredential;
 let revokedUnsignedCredential;
 let rlCredential;
@@ -71,8 +72,8 @@ function _startServer({app}) {
       testServerBaseUrl = BASE_URL;
       console.log(`Test server listening at ${BASE_URL}`);
 
-      // Status List 2021 Credential
-      slCredential = {
+      // Status List 2021 Credential with statusPurpose `revocation`
+      slCredentialRevocation = {
         '@context': [
           'https://www.w3.org/2018/credentials/v1',
           VC_SL_CONTEXT_URL
@@ -84,12 +85,14 @@ function _startServer({app}) {
         credentialSubject: {
           id: `${BASE_URL}/status/748a7d8e-9111-11ec-a934-10bf48838a41#list`,
           type: 'StatusList2021',
+          statusPurpose: 'revocation',
           encodedList: encodedList100k
         }
       };
 
-      // Unsigned 2021 Credential
-      unsignedCredentialSl2021Type = {
+      // Unsigned 2021 Credential with "credentialStatus.statusPurpose"
+      // `revocation`
+      unsignedCredentialSl2021TypeRevocation = {
         '@context': [
           'https://www.w3.org/2018/credentials/v1',
           VC_SL_CONTEXT_URL,
@@ -106,13 +109,40 @@ function _startServer({app}) {
           type: 'StatusList2021Entry',
           statusPurpose: 'revocation',
           statusListIndex: '67342',
-          statusListCredential: slCredential.id
+          statusListCredential: slCredentialRevocation.id
         },
-        issuer: slCredential.issuer,
+        issuer: slCredentialRevocation.issuer,
+      };
+
+      // Unsigned 2021 Credential with unmatching status purpose
+      unsignedCredentialSl2021WithUnmatchingStatusPurpose = {
+        '@context': [
+          'https://www.w3.org/2018/credentials/v1',
+          VC_SL_CONTEXT_URL,
+          'https://w3id.org/security/suites/ed25519-2020/v1'
+        ],
+        id: 'urn:uuid:a0418a78-7924-11ea-8a23-10bf48838a41',
+        type: ['VerifiableCredential', 'example:TestCredential'],
+        credentialSubject: {
+          id: 'urn:uuid:4886029a-7925-11ea-9274-10bf48838a41',
+          'example:test': 'foo'
+        },
+        credentialStatus: {
+          id: `${BASE_URL}/status/748a7d8e-9111-11ec-a934-10bf48838a41#67342`,
+          type: 'StatusList2021Entry',
+          // intentionally set status purpose that does not match status purpose
+          // of sl credential that it fetches.
+          statusPurpose: 'suspension',
+          statusListIndex: '67342',
+          // intentionally point `statusListCredential` to a sl credential
+          // with status purpose `revocation`.
+          statusListCredential: slCredentialRevocation.id
+        },
+        issuer: slCredentialRevocation.issuer,
       };
 
       // Revoked Status List 2021 Credential
-      revokedSlCredential = klona(slCredential);
+      revokedSlCredential = klona(slCredentialRevocation);
 
       revokedSlCredential.id =
         `${BASE_URL}/status/8ec30054-9111-11ec-9ab5-10bf48838a41`,
@@ -122,7 +152,7 @@ function _startServer({app}) {
         `${BASE_URL}/status/8ec30054-9111-11ec-9ab5-10bf48838a41#list`;
 
       // Revoked Unsigned 2021 Credential
-      revokedUnsignedCredential = klona(unsignedCredentialSl2021Type);
+      revokedUnsignedCredential = klona(unsignedCredentialSl2021TypeRevocation);
       revokedUnsignedCredential.credentialStatus.id =
         `${revokedSlCredential.id}#50000`;
       revokedUnsignedCredential.credentialStatus.statusListIndex = 50000;
@@ -202,7 +232,7 @@ app.get('/status/748a7d8e-9111-11ec-a934-10bf48838a41',
   // eslint-disable-next-line no-unused-vars
   (req, res, next) => {
     // responds with a valid status list 2021 type credential
-    res.json(slCredential);
+    res.json(slCredentialRevocation);
   });
 app.get('/status/8ec30054-9111-11ec-9ab5-10bf48838a41',
   // eslint-disable-next-line no-unused-vars
@@ -301,14 +331,15 @@ describe('verify credential status', () => {
     verifierId = verifierConfig.id;
     rootZcap = `urn:zcap:root:${encodeURIComponent(verifierId)}`;
   });
-  it('should verify "StatusList2021Credential" type', async () => {
-    slCredential = await vc.issue({
-      credential: slCredential,
+  it('should verify "StatusList2021Credential" type with "statusPurpose" ' +
+    'revocation', async () => {
+    slCredentialRevocation = await vc.issue({
+      credential: slCredentialRevocation,
       documentLoader: _documentLoader,
       suite
     });
     const verifiableCredential = await vc.issue({
-      credential: unsignedCredentialSl2021Type,
+      credential: unsignedCredentialSl2021TypeRevocation,
       documentLoader: _documentLoader,
       suite
     });
@@ -344,6 +375,43 @@ describe('verify credential status', () => {
     const [r] = result.data.results;
     r.verified.should.be.a('boolean');
     r.verified.should.equal(true);
+  });
+  it('should throw error if "statusPurpose" of the slCredential does not ' +
+    'match the "statusPurpose" of the credentialStatus', async () => {
+    slCredentialRevocation = await vc.issue({
+      credential: slCredentialRevocation,
+      documentLoader: _documentLoader,
+      suite
+    });
+    const verifiableCredential = await vc.issue({
+      credential: unsignedCredentialSl2021WithUnmatchingStatusPurpose,
+      documentLoader: _documentLoader,
+      suite
+    });
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/credentials/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            checks: ['proof', 'credentialStatus'],
+          },
+          verifiableCredential
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    should.exist(error);
+    should.not.exist(result);
+    error.data.verified.should.equal(false);
+    const {error: {cause: errorCause}} = error.data;
+    errorCause.should.equal(
+      'The status purpose "revocation" of status list credential does not ' +
+      'match the status purpose "suspension" of the credential.');
   });
   it('should fail to verify a revoked "StatusList2021Credential" type',
     async () => {
