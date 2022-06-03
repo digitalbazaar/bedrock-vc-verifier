@@ -41,6 +41,8 @@ const cert = fs.readFileSync(__dirname + '/cert.pem');
 
 let slCredentialRevocation;
 let unsignedCredentialSl2021TypeRevocation;
+let slCredentialSuspension;
+let unsignedCredentialSl2021TypeSuspension;
 let unsignedCredentialSl2021WithUnmatchingStatusPurpose;
 let revokedSlCredential;
 let revokedUnsignedCredential;
@@ -112,6 +114,50 @@ function _startServer({app}) {
           statusListCredential: slCredentialRevocation.id
         },
         issuer: slCredentialRevocation.issuer,
+      };
+
+      // Status List 2021 Credential with statusPurpose `revocation`
+      slCredentialSuspension = {
+        '@context': [
+          'https://www.w3.org/2018/credentials/v1',
+          VC_SL_CONTEXT_URL
+        ],
+        id: `${BASE_URL}/status/5d3e7a97-1121-11ec-9b38-10bf48838a41`,
+        issuer: 'did:key:z6Mktpn6cXks1PBKLMgZH2VaahvCtBMF6K8eCa7HzrnuYLZv',
+        issuanceDate: '2022-01-10T04:24:12.164Z',
+        type: ['VerifiableCredential', 'StatusList2021Credential'],
+        credentialSubject: {
+          id: `${BASE_URL}/status/5d3e7a97-1121-11ec-9b38-10bf48838a41#list`,
+          type: 'StatusList2021',
+          statusPurpose: 'suspension',
+          encodedList: encodedList100k
+        }
+      };
+
+      // Unsigned 2021 Credential with "credentialStatus.statusPurpose"
+      // `suspension`
+      unsignedCredentialSl2021TypeSuspension = {
+        '@context': [
+          'https://www.w3.org/2018/credentials/v1',
+          VC_SL_CONTEXT_URL,
+          'https://w3id.org/security/suites/ed25519-2020/v1'
+        ],
+        id: 'urn:uuid:a0418a78-7924-11ea-8a23-10bf48838a41',
+        type: ['VerifiableCredential', 'example:TestCredential'],
+        credentialSubject: {
+          id: 'urn:uuid:4886029a-7925-11ea-9274-10bf48838a41',
+          'example:test': 'foo'
+        },
+        credentialStatus: {
+          id: `${BASE_URL}/status/5d3e7a97-1121-11ec-9b38-10bf48838a41#67342`,
+          type: 'StatusList2021Entry',
+          statusPurpose: 'suspension',
+          statusListIndex: '67342',
+          // intentionally point the statusListCredential to a sl credential
+          // with status purpose revocation.
+          statusListCredential: slCredentialSuspension.id
+        },
+        issuer: slCredentialSuspension.issuer,
       };
 
       // Unsigned 2021 Credential with unmatching status purpose
@@ -234,6 +280,12 @@ app.get('/status/748a7d8e-9111-11ec-a934-10bf48838a41',
     // responds with a valid status list 2021 type credential
     res.json(slCredentialRevocation);
   });
+app.get('/status/5d3e7a97-1121-11ec-9b38-10bf48838a41',
+  // eslint-disable-next-line no-unused-vars
+  (req, res, next) => {
+    // responds with a valid status list 2021 type credential
+    res.json(slCredentialSuspension);
+  });
 app.get('/status/8ec30054-9111-11ec-9ab5-10bf48838a41',
   // eslint-disable-next-line no-unused-vars
   (req, res, next) => {
@@ -340,6 +392,51 @@ describe('verify credential status', () => {
     });
     const verifiableCredential = await vc.issue({
       credential: unsignedCredentialSl2021TypeRevocation,
+      documentLoader: _documentLoader,
+      suite
+    });
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/credentials/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            checks: ['proof', 'credentialStatus'],
+          },
+          verifiableCredential
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    assertNoError(error);
+    should.exist(result.data.verified);
+    result.data.verified.should.be.a('boolean');
+    result.data.verified.should.equal(true);
+    const {checks} = result.data;
+    checks.should.be.an('array');
+    checks.should.have.length(2);
+    checks.should.be.an('array');
+    checks.should.eql(['proof', 'credentialStatus']);
+    should.exist(result.data.results);
+    result.data.results.should.be.an('array');
+    result.data.results.should.have.length(1);
+    const [r] = result.data.results;
+    r.verified.should.be.a('boolean');
+    r.verified.should.equal(true);
+  });
+  it('should verify "StatusList2021Credential" type with "statusPurpose" ' +
+    'suspension', async () => {
+    slCredentialSuspension = await vc.issue({
+      credential: slCredentialSuspension,
+      documentLoader: _documentLoader,
+      suite
+    });
+    const verifiableCredential = await vc.issue({
+      credential: unsignedCredentialSl2021TypeSuspension,
       documentLoader: _documentLoader,
       suite
     });
