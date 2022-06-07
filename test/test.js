@@ -1,6 +1,8 @@
 /*!
  * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import './polyfills.js';
+
 import * as bedrock from '@bedrock/core';
 import '@bedrock/ssm-mongodb';
 import '@bedrock/kms';

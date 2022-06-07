@@ -3,9 +3,15 @@
 ## 11.0.0 - 2022-06-05
 
 ### Changed
-- **BREAKING** Use `@digitalbazaar/vc-status-list` v4.0.  If `statusPurpose`
-  in credential does not match the `statusPurpose` of status list credential,
-  an error will be thrown.
+- Update dependenices.
+- **BREAKING** Use `@digitalbazaar/vc-status-list` v4.0. If `statusPurpose` in
+  credential does not match the `statusPurpose` of status list credential, an
+  error will be thrown.
+- **BREAKING**: Update peer dependencies.
+  - `@bedrock/did-io@9`
+  - `@bedrock/service-core@6`
+- **BREAKING**: Require Web Crypto API. Node.js 14 users need to install an
+  appropriate polyfill.
 
 ## 10.0.0 - 2022-05-17
 

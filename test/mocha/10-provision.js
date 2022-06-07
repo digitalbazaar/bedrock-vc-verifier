@@ -5,12 +5,10 @@ import * as bedrock from '@bedrock/core';
 import * as helpers from './helpers.js';
 import {agent} from '@bedrock/https-agent';
 import {createContextDocumentLoader} from '@bedrock/service-context-store';
-import {createRequire} from 'node:module';
 import {documentStores} from '@bedrock/service-agent';
 import {httpClient} from '@digitalbazaar/http-client';
 import {mockData} from './mock.data.js';
-const require = createRequire(import.meta.url);
-const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
+import {CapabilityAgent} from '@digitalbazaar/webkms-client';
 
 const {baseUrl} = mockData;
 const serviceType = 'vc-verifier';

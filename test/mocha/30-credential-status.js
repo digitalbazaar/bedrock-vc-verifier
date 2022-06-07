@@ -2,6 +2,7 @@
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import * as helpers from './helpers.js';
+import * as vc from '@digitalbazaar/vc';
 import {agent} from '@bedrock/https-agent';
 import {createRequire} from 'node:module';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
@@ -13,14 +14,14 @@ import https from 'node:https';
 import {klona} from 'klona';
 import {mockData} from './mock.data.js';
 import path from 'node:path';
+import {CapabilityAgent} from '@digitalbazaar/webkms-client';
+import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
+import {
+  Ed25519VerificationKey2020
+} from '@digitalbazaar/ed25519-verification-key-2020';
 const require = createRequire(import.meta.url);
-const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
-const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
-const {Ed25519VerificationKey2020} =
-  require('@digitalbazaar/ed25519-verification-key-2020');
 const revocationListCtx = require('vc-revocation-list-context');
 const statusListCtx = require('@digitalbazaar/vc-status-list-context');
-const vc = require('@digitalbazaar/vc');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

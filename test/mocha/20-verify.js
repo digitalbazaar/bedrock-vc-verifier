@@ -2,24 +2,26 @@
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import * as helpers from './helpers.js';
+import * as vc from '@digitalbazaar/vc';
 import {agent} from '@bedrock/https-agent';
 import {createRequire} from 'node:module';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
 import {httpClient} from '@digitalbazaar/http-client';
 import {klona} from 'klona';
 import {mockData} from './mock.data.js';
+import {CapabilityAgent} from '@digitalbazaar/webkms-client';
+import {driver as _didKeyDriver} from '@digitalbazaar/did-method-key';
+import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
+
 const require = createRequire(import.meta.url);
-const {CapabilityAgent} = require('@digitalbazaar/webkms-client');
-const didKeyDriver = require('@digitalbazaar/did-method-key').driver();
-const {Ed25519Signature2020} = require('@digitalbazaar/ed25519-signature-2020');
-const vc = require('@digitalbazaar/vc');
 
 const {baseUrl} = mockData;
 const serviceType = 'vc-verifier';
+const didKeyDriver = _didKeyDriver();
 
 // NOTE: using embedded context in mockCredential:
 // https://www.w3.org/2018/credentials/examples/v1
-const mockCredential = require('./mock-credential');
+const mockCredential = require('./mock-credential.json');
 
 describe('verify APIs', () => {
   let capabilityAgent;
