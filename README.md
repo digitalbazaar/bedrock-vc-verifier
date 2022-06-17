@@ -1,4 +1,4 @@
-# Bedrock VC Verifier API module _(bedrock-vc-verifier)_
+# Bedrock VC Verifier API module _(@bedrock/vc-verifier)_
 
 [![Build Status](https://img.shields.io/github/workflow/status/digitalbazaar/bedrock-vc-verifier/Bedrock%20Node.js%20CI)](https://github.com/digitalbazaar/bedrock-vc-verifier/actions?query=workflow%3A%22Bedrock+Node.js+CI%22)
 [![NPM Version](https://img.shields.io/npm/v/bedrock-vc-verifier.svg)](https://npm.im/bedrock-vc-verifier)
