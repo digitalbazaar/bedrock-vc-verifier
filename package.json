@@ -4,6 +4,10 @@
   "type": "module",
   "description": "Bedrock VC Verifier",
   "main": "./lib/index.js",
+  "files": [
+    "lib/**/*.js",
+    "schemas/**/*.js"
+  ],
   "scripts": {
     "lint": "eslint ."
   },

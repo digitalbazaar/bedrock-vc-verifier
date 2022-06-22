@@ -12,6 +12,7 @@
   - `@bedrock/service-core@6`
 - **BREAKING**: Require Web Crypto API. Node.js 14 users need to install an
   appropriate polyfill.
+- Use `package.json` `files` field.
 - Lint module.
 
 ## 10.0.0 - 2022-05-17
