@@ -58,7 +58,6 @@
     "c8": "^7.11.3",
     "cross-env": "^7.0.3",
     "express": "^4.18.1",
-    "isomorphic-webcrypto": "^2.3.8",
     "vc-revocation-list-context": "^1.0.0"
   },
   "c8": {

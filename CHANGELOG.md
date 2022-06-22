@@ -3,6 +3,7 @@
 ## 11.0.0 - 2022-06-05
 
 ### Changed
+- **BREAKING**: Require Node.js >=16.
 - Update dependenices.
 - **BREAKING** Use `@digitalbazaar/vc-status-list` v4.0. If `statusPurpose` in
   credential does not match the `statusPurpose` of status list credential, an
@@ -10,8 +11,6 @@
 - **BREAKING**: Update peer dependencies.
   - `@bedrock/did-io@9`
   - `@bedrock/service-core@6`
-- **BREAKING**: Require Web Crypto API. Node.js 14 users need to install an
-  appropriate polyfill.
 - Use `package.json` `files` field.
 - Lint module.
 
