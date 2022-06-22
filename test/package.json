@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "test": "node --preserve-symlinks test.js test",
-    "coverage": "cross-env NODE_ENV=test c8 --reporter=lcov --reporter=text-summary npm test",
-    "coverage-ci": "cross-env NODE_ENV=test c8 --reporter=lcovonly npm test",
+    "coverage": "cross-env NODE_ENV=test c8 npm test",
+    "coverage-ci": "cross-env NODE_ENV=test c8 --reporter=lcovonly --reporter=text-summary --reporter=text npm test",
     "coverage-report": "c8 report"
   },
   "author": {
@@ -67,6 +67,11 @@
     ],
     "exclude": [
       "node_modules/@bedrock/vc-verifier/node_modules/**"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary",
+      "text"
     ]
   }
 }
