@@ -3,15 +3,16 @@
  */
 import * as helpers from './helpers.js';
 import * as vc from '@digitalbazaar/vc';
+import {driver as _didKeyDriver} from '@digitalbazaar/did-method-key';
 import {agent} from '@bedrock/https-agent';
-import {createRequire} from 'node:module';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
+import {CapabilityAgent} from '@digitalbazaar/webkms-client';
+import {createRequire} from 'node:module';
+import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {httpClient} from '@digitalbazaar/http-client';
 import {klona} from 'klona';
+
 import {mockData} from './mock.data.js';
-import {CapabilityAgent} from '@digitalbazaar/webkms-client';
-import {driver as _didKeyDriver} from '@digitalbazaar/did-method-key';
-import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 
 const require = createRequire(import.meta.url);
 
