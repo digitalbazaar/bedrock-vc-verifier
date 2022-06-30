@@ -11,6 +11,8 @@
     thrown.
 - **BREAKING**: Update peer dependencies.
   - `@bedrock/did-io@9`
+  - `@bedrock/service-agent@6`
+  - `@bedrock/service-context-store@8`
   - `@bedrock/service-core@6`
 - Use `package.json` `files` field.
 - Lint module.
