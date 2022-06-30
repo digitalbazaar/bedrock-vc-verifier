@@ -4,10 +4,11 @@
 
 ### Changed
 - **BREAKING**: Require Node.js >=16.
-- Update dependenices.
-- **BREAKING** Use `@digitalbazaar/vc-status-list` v4.0. If `statusPurpose` in
-  credential does not match the `statusPurpose` of status list credential, an
-  error will be thrown.
+- **BREAKING**: Update dependenices.
+  - `@digitalbazaar/vc@4`: `expirationDate` now checked.
+  - `@digitalbazaar/vc-status-list@4`: If `statusPurpose` in credential does
+    not match the `statusPurpose` of status list credential, an error will be
+    thrown.
 - **BREAKING**: Update peer dependencies.
   - `@bedrock/did-io@9`
   - `@bedrock/service-core@6`
