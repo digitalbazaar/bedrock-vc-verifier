@@ -408,6 +408,339 @@ describe('verify APIs', () => {
       credentialResult.verified.should.be.a('boolean');
       credentialResult.verified.should.equal(true);
     });
+    it('verifies a valid presentation w/oauth2 w/root scope', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
+      const verifiableCredential = klona(mockCredential);
+      const presentation = vc.createPresentation({
+        holder: 'did:test:foo',
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential
+      });
+
+      // get challenge from verifier
+      const configId = oauth2VerifierConfig.id;
+      const accessToken = await helpers.getOAuth2AccessToken(
+        {configId, action: 'write', target: '/challenges'});
+      const {data: {challenge}} = await helpers.createChallenge(
+        {verifierId: configId, accessToken});
+
+      await vc.signPresentation({
+        presentation,
+        suite,
+        challenge,
+        documentLoader: brDocLoader
+      });
+
+      let error;
+      let result;
+      try {
+        const url = `${configId}/presentations/verify`;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          {configId, action: 'write', target: '/'});
+        result = await httpClient.post(url, {
+          agent,
+          headers: {authorization: `Bearer ${accessToken}`},
+          json: {
+            options: {
+              challenge,
+              checks: ['proof'],
+            },
+            verifiablePresentation: presentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('proof');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      should.exist(result.data.presentationResult);
+      result.data.presentationResult.should.be.an('object');
+      should.exist(result.data.presentationResult.verified);
+      result.data.presentationResult.verified.should.be.a('boolean');
+      result.data.presentationResult.verified.should.equal(true);
+      should.exist(result.data.credentialResults);
+      const {data: {credentialResults}} = result;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(true);
+    });
+    it('verifies a valid presentation w/oauth2 w/vps scope', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
+      const verifiableCredential = klona(mockCredential);
+      const presentation = vc.createPresentation({
+        holder: 'did:test:foo',
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential
+      });
+
+      // get challenge from verifier
+      const configId = oauth2VerifierConfig.id;
+      const accessToken = await helpers.getOAuth2AccessToken(
+        {configId, action: 'write', target: '/challenges'});
+      const {data: {challenge}} = await helpers.createChallenge(
+        {verifierId: configId, accessToken});
+
+      await vc.signPresentation({
+        presentation,
+        suite,
+        challenge,
+        documentLoader: brDocLoader
+      });
+
+      let error;
+      let result;
+      try {
+        const url = `${configId}/presentations/verify`;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          {configId, action: 'write', target: '/presentations'});
+        result = await httpClient.post(url, {
+          agent,
+          headers: {authorization: `Bearer ${accessToken}`},
+          json: {
+            options: {
+              challenge,
+              checks: ['proof'],
+            },
+            verifiablePresentation: presentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('proof');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      should.exist(result.data.presentationResult);
+      result.data.presentationResult.should.be.an('object');
+      should.exist(result.data.presentationResult.verified);
+      result.data.presentationResult.verified.should.be.a('boolean');
+      result.data.presentationResult.verified.should.equal(true);
+      should.exist(result.data.credentialResults);
+      const {data: {credentialResults}} = result;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(true);
+    });
+    it('verifies a valid presentation w/oauth2 w/targeted scope', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
+      const verifiableCredential = klona(mockCredential);
+      const presentation = vc.createPresentation({
+        holder: 'did:test:foo',
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential
+      });
+
+      // get challenge from verifier
+      const configId = oauth2VerifierConfig.id;
+      const accessToken = await helpers.getOAuth2AccessToken(
+        {configId, action: 'write', target: '/challenges'});
+      const {data: {challenge}} = await helpers.createChallenge(
+        {verifierId: configId, accessToken});
+
+      await vc.signPresentation({
+        presentation,
+        suite,
+        challenge,
+        documentLoader: brDocLoader
+      });
+
+      let error;
+      let result;
+      try {
+        const url = `${configId}/presentations/verify`;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          {configId, action: 'write', target: '/presentations/verify'});
+        result = await httpClient.post(url, {
+          agent,
+          headers: {authorization: `Bearer ${accessToken}`},
+          json: {
+            options: {
+              challenge,
+              checks: ['proof'],
+            },
+            verifiablePresentation: presentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('proof');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      should.exist(result.data.presentationResult);
+      result.data.presentationResult.should.be.an('object');
+      should.exist(result.data.presentationResult.verified);
+      result.data.presentationResult.verified.should.be.a('boolean');
+      result.data.presentationResult.verified.should.equal(true);
+      should.exist(result.data.credentialResults);
+      const {data: {credentialResults}} = result;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(true);
+    });
+    it('fails to verify a valid presentation w/bad action scope', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
+      const verifiableCredential = klona(mockCredential);
+      const presentation = vc.createPresentation({
+        holder: 'did:test:foo',
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential
+      });
+
+      // get challenge from verifier
+      const configId = oauth2VerifierConfig.id;
+      const accessToken = await helpers.getOAuth2AccessToken(
+        {configId, action: 'write', target: '/challenges'});
+      const {data: {challenge}} = await helpers.createChallenge(
+        {verifierId: configId, accessToken});
+
+      await vc.signPresentation({
+        presentation,
+        suite,
+        challenge,
+        documentLoader: brDocLoader
+      });
+
+      let error;
+      let result;
+      try {
+        const url = `${configId}/presentations/verify`;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          // wrong action: `read`
+          {configId, action: 'read', target: '/'});
+        result = await httpClient.post(url, {
+          agent,
+          headers: {authorization: `Bearer ${accessToken}`},
+          json: {
+            options: {
+              challenge,
+              checks: ['proof'],
+            },
+            verifiablePresentation: presentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      should.not.exist(result);
+      error.status.should.equal(403);
+      error.data.type.should.equal('NotAllowedError');
+      should.exist(error.data.cause);
+      should.exist(error.data.cause.details);
+      should.exist(error.data.cause.details.code);
+      error.data.cause.details.code.should.equal(
+        'ERR_JWT_CLAIM_VALIDATION_FAILED');
+      should.exist(error.data.cause.details.claim);
+      error.data.cause.details.claim.should.equal('scope');
+    });
+    it('fails to verify a valid presentation w/bad path scope', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
+      const verifiableCredential = klona(mockCredential);
+      const presentation = vc.createPresentation({
+        holder: 'did:test:foo',
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential
+      });
+
+      // get challenge from verifier
+      const configId = oauth2VerifierConfig.id;
+      const accessToken = await helpers.getOAuth2AccessToken(
+        {configId, action: 'write', target: '/challenges'});
+      const {data: {challenge}} = await helpers.createChallenge(
+        {verifierId: configId, accessToken});
+
+      await vc.signPresentation({
+        presentation,
+        suite,
+        challenge,
+        documentLoader: brDocLoader
+      });
+
+      let error;
+      let result;
+      try {
+        const url = `${configId}/presentations/verify`;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          // wrong path: `/foo`
+          {configId, action: 'write', target: '/foo'});
+        result = await httpClient.post(url, {
+          agent,
+          headers: {authorization: `Bearer ${accessToken}`},
+          json: {
+            options: {
+              challenge,
+              checks: ['proof'],
+            },
+            verifiablePresentation: presentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      should.not.exist(result);
+      error.status.should.equal(403);
+      error.data.type.should.equal('NotAllowedError');
+      should.exist(error.data.cause);
+      should.exist(error.data.cause.details);
+      should.exist(error.data.cause.details.code);
+      error.data.cause.details.code.should.equal(
+        'ERR_JWT_CLAIM_VALIDATION_FAILED');
+      should.exist(error.data.cause.details.claim);
+      error.data.cause.details.claim.should.equal('scope');
+    });
     it('returns an error if bad challenge is specified', async () => {
       // get signing key
       const {methodFor} = await didKeyDriver.generate();
