@@ -29,6 +29,7 @@ describe('verify APIs', () => {
   let verifierConfig;
   let verifierId;
   let rootZcap;
+  let oauth2VerifierConfig;
   const zcaps = {};
   beforeEach(async () => {
     const secret = '53ad64ce-8e1d-11ec-bb12-10bf48838a41';
@@ -78,6 +79,10 @@ describe('verify APIs', () => {
     verifierConfig = await helpers.createConfig({capabilityAgent, zcaps});
     verifierId = verifierConfig.id;
     rootZcap = `urn:zcap:root:${encodeURIComponent(verifierId)}`;
+
+    // create verifier instance w/oauth2-based authz
+    oauth2VerifierConfig = await helpers.createConfig(
+      {capabilityAgent, zcaps, oauth2: true});
   });
   describe('/challenges', () => {
     it('create a challenge', async () => {
@@ -131,6 +136,158 @@ describe('verify APIs', () => {
       const [r] = result.data.results;
       r.verified.should.be.a('boolean');
       r.verified.should.equal(true);
+    });
+    it('verifies a valid credential w/oauth2 w/root scope', async () => {
+      const verifiableCredential = klona(mockCredential);
+      let error;
+      let result;
+      try {
+        const configId = oauth2VerifierConfig.id;
+        const url = `${configId}/credentials/verify`;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          {configId, action: 'write', target: '/'});
+        result = await httpClient.post(url, {
+          agent,
+          headers: {authorization: `Bearer ${accessToken}`},
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      const [check] = checks;
+      check.should.be.a('string');
+      check.should.equal('proof');
+      should.exist(result.data.results);
+      result.data.results.should.be.an('array');
+      result.data.results.should.have.length(1);
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    });
+    it('verifies a valid credential w/oauth2 w/credentials scope', async () => {
+      const verifiableCredential = klona(mockCredential);
+      let error;
+      let result;
+      try {
+        const configId = oauth2VerifierConfig.id;
+        const url = `${configId}/credentials/verify`;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          {configId, action: 'write', target: '/credentials'});
+        result = await httpClient.post(url, {
+          agent,
+          headers: {authorization: `Bearer ${accessToken}`},
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      const [check] = checks;
+      check.should.be.a('string');
+      check.should.equal('proof');
+      should.exist(result.data.results);
+      result.data.results.should.be.an('array');
+      result.data.results.should.have.length(1);
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    });
+    it('verifies a valid credential w/oauth2 w/targeted scope', async () => {
+      const verifiableCredential = klona(mockCredential);
+      let error;
+      let result;
+      try {
+        const configId = oauth2VerifierConfig.id;
+        const url = `${configId}/credentials/verify`;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          {configId, action: 'write', target: '/credentials/verify'});
+        result = await httpClient.post(url, {
+          agent,
+          headers: {authorization: `Bearer ${accessToken}`},
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      const [check] = checks;
+      check.should.be.a('string');
+      check.should.equal('proof');
+      should.exist(result.data.results);
+      result.data.results.should.be.an('array');
+      result.data.results.should.have.length(1);
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    });
+    it('fails to verify a valid credential w/bad oauth2 scope', async () => {
+      const verifiableCredential = klona(mockCredential);
+      let error;
+      let result;
+      try {
+        const configId = oauth2VerifierConfig.id;
+        const url = `${configId}/credentials/verify`;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          // wrong action: `read`
+          {configId, action: 'read', target: '/credentials/verify'});
+        result = await httpClient.post(url, {
+          agent,
+          headers: {authorization: `Bearer ${accessToken}`},
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      should.not.exist(result);
+      error.status.should.equal(403);
+      error.data.type.should.equal('NotAllowedError');
+      should.exist(error.data.cause);
+      should.exist(error.data.cause.details);
+      should.exist(error.data.cause.details.code);
+      error.data.cause.details.code.should.equal(
+        'ERR_JWT_CLAIM_VALIDATION_FAILED');
+      should.exist(error.data.cause.details.claim);
+      error.data.cause.details.claim.should.equal('scope');
     });
     it('does not verify an invalid credential', async () => {
       const badCredential = klona(mockCredential);
