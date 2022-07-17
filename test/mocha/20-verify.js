@@ -99,6 +99,24 @@ describe('verify APIs', () => {
       result.data.should.have.keys(['challenge']);
       result.data.challenge.should.be.a('string');
     });
+    it('create a challenge w/oauth2', async () => {
+      let err;
+      let result;
+      try {
+        const configId = oauth2VerifierConfig.id;
+        const accessToken = await helpers.getOAuth2AccessToken(
+          {configId, action: 'write', target: '/challenges'});
+        result = await helpers.createChallenge(
+          {verifierId: configId, accessToken});
+      } catch(e) {
+        err = e;
+      }
+      assertNoError(err);
+      should.exist(result.data);
+      result.status.should.equal(200);
+      result.data.should.have.keys(['challenge']);
+      result.data.challenge.should.be.a('string');
+    });
   });
   describe('/credentials/verify', () => {
     it('verifies a valid credential', async () => {

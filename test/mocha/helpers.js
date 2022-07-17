@@ -87,9 +87,7 @@ export async function getConfig({id, capabilityAgent, accessToken}) {
     // do OAuth2
     const {data} = await httpClient.get(id, {
       agent: httpsAgent,
-      headers: {
-        authorization: `Bearer ${accessToken}`
-      }
+      headers: {authorization: `Bearer ${accessToken}`}
     });
     return data;
   }
@@ -121,8 +119,18 @@ export async function getOAuth2AccessToken({
 }
 
 export async function createChallenge({
-  capabilityAgent, capability, verifierId
+  capabilityAgent, capability, verifierId, accessToken
 }) {
+  if(accessToken) {
+    // do OAuth2
+    const url = `${verifierId}/challenges`;
+    return httpClient.post(url, {
+      agent: httpsAgent,
+      headers: {authorization: `Bearer ${accessToken}`},
+      json: {}
+    });
+  }
+  // do zcap
   const zcapClient = createZcapClient({capabilityAgent});
   return zcapClient.write({
     url: `${verifierId}/challenges`,
