@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 12.3.0 -
+
+### Changed
+- Allow json `req.body` to be more than just objects or arrays.
+
 ## 12.2.0 - 2022-09-21
 
 ### Added
