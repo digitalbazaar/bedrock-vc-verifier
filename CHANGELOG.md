@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 13.0.1 - 2022-10-xx
+
+### Fixed
+- Update `@digitalbazaar/ed25519-signature-*` dependencies.
+
 ## 13.0.0 - 2022-10-23
 
 ### Changed
