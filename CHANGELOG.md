@@ -3,7 +3,8 @@
 ## 13.0.1 - 2022-10-xx
 
 ### Fixed
-- Update `@digitalbazaar/ed25519-signature-*` dependencies.
+- Update `@digitalbazaar/ed25519-signature-*` and `@digitalbazaar/vc*`
+  dependencies.
 
 ## 13.0.0 - 2022-10-23
 
