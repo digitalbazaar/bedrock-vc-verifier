@@ -764,7 +764,7 @@ describe('verify APIs', () => {
 
       const verifiableCredential = klona(mockCredential);
       const presentation = vc.createPresentation({
-        holder: 'foo',
+        holder: 'urn:uuid:c8d4f2d0-11ea-4603-8b8b-fb24fa6b29c0',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
         verifiableCredential
       });
@@ -812,7 +812,7 @@ describe('verify APIs', () => {
 
       const verifiableCredential = klona(mockCredential);
       const presentation = vc.createPresentation({
-        holder: 'foo',
+        holder: 'urn:uuid:c8d4f2d0-11ea-4603-8b8b-fb24fa6b29c0',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
         verifiableCredential
       });
