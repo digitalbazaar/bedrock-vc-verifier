@@ -786,7 +786,8 @@ describe('verify APIs', () => {
           json: {
             options: {
               challenge,
-              checks: ['proof'],
+              // check challenge via verifier challenge management
+              checks: ['proof', 'challenge'],
             },
             verifiablePresentation: presentation
           }
@@ -803,6 +804,70 @@ describe('verify APIs', () => {
       error.data.error.message.should.equal(
         'Invalid or expired challenge.');
       error.data.error.name.should.equal('DataError');
+    });
+    it('should pass if unmanaged challenge is specified', async () => {
+      // get signing key
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+
+      const verifiableCredential = klona(mockCredential);
+      const presentation = vc.createPresentation({
+        holder: 'urn:uuid:c8d4f2d0-11ea-4603-8b8b-fb24fa6b29c0',
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential
+      });
+
+      // unmanaged challenge
+      const challenge = '677bb7db-3e60-45c2-b3a0-e61e88b0b5d4';
+
+      await vc.signPresentation({
+        presentation, suite, challenge, documentLoader: brDocLoader
+      });
+
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/presentations/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              challenge,
+              // do not include `challenge` in checks to do local challenge
+              // management
+              checks: ['proof'],
+            },
+            verifiablePresentation: presentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('proof');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      should.exist(result.data.presentationResult);
+      result.data.presentationResult.should.be.an('object');
+      should.exist(result.data.presentationResult.verified);
+      result.data.presentationResult.verified.should.be.a('boolean');
+      result.data.presentationResult.verified.should.equal(true);
+      should.exist(result.data.credentialResults);
+      const {data: {credentialResults}} = result;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(true);
     });
     it('returns an error if challenge is not specified', async () => {
       // get signing key
