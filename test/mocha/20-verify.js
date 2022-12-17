@@ -23,6 +23,7 @@ const didKeyDriver = _didKeyDriver();
 // NOTE: using embedded context in mockCredentials:
 // https://www.w3.org/2018/credentials/examples/v1
 const mockCredentials = require('./mock-credentials.json');
+const mockExpiredCredential = require('./mock-expired-credential.json');
 
 describe('verify APIs', () => {
   let capabilityAgent;
@@ -345,6 +346,34 @@ describe('verify APIs', () => {
       error.data.verified.should.equal(false);
       error.data.error.name.should.equal('VerificationError');
       error.data.error.errors[0].message.should.equal('Invalid signature.');
+    });
+    it('does not verify an expired credential', async () => {
+      const expiredCredential = klona(mockExpiredCredential);
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/credentials/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential: expiredCredential
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      should.not.exist(result);
+      should.exist(error.data);
+      error.data.should.be.an('object');
+      error.data.verified.should.be.a('boolean');
+      error.data.verified.should.equal(false);
+      error.data.error.name.should.equal('VerificationError');
+      error.data.error.message.should.equal('Credential has expired.');
     });
   });
 
