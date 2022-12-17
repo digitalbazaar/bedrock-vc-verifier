@@ -1,5 +1,11 @@
 # bedrock-vc-verifier ChangeLog
 
+## 14.1.0 - 2022-12-dd
+
+### Added
+- Ensure verification errors, such as expired credential errors, are
+  serializable.
+
 ## 14.0.0 - 2022-11-03
 
 ### Changed
