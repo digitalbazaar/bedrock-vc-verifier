@@ -1,7 +1,7 @@
 /*!
  * Copyright (c) 2012-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {config} from '@bedrock/core';
+import {config, events} from '@bedrock/core';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import '@bedrock/app-identity';
@@ -38,3 +38,5 @@ config['app-identity'].seeds.services['vc-verifier'] = {
 
 // use local KMS for testing
 config['service-agent'].kms.baseUrl = 'https://localhost:18443/kms';
+// set up express to set did:web didDocuments
+config.express.static.push({route: 'well-known', path: './.well-known'});

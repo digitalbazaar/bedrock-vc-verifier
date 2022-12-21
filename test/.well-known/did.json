@@ -1,0 +1,36 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    "https://w3id.org/security/suites/ed25519-2020/v1",
+    "https://w3id.org/security/suites/x25519-2020/v1"
+  ],
+  "id": "did:web:localhost%3A18443",
+  "verificationMethod": [
+    {
+      "id": "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm",
+      "type": "Ed25519VerificationKey2020",
+      "controller": "did:web:localhost%3A18443",
+      "publicKeyMultibase": "z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+    }
+  ],
+  "authentication": [
+    "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+  ],
+  "assertionMethod": [
+    "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+  ],
+  "capabilityDelegation": [
+    "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+  ],
+  "capabilityInvocation": [
+    "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+  ],
+  "keyAgreement": [
+    {
+      "id": "did:web:localhost%3A18443#z6LSkeGVgqsMcW5YwtoKcULfV3RhL1x19q3jm1PivsCtS6tY",
+      "type": "X25519KeyAgreementKey2020",
+      "controller": "did:web:localhost%3A18443",
+      "publicKeyMultibase": "z6LSkeGVgqsMcW5YwtoKcULfV3RhL1x19q3jm1PivsCtS6tY"
+    }
+  ]
+}
