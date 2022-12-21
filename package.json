@@ -50,7 +50,7 @@
     "@bedrock/credentials-context": "digitalbazaar/bedrock-credentials-context#update-vc-2.0",
     "@bedrock/data-integrity-context": "^3.0.0",
     "@bedrock/did-context": "^5.0.0",
-    "@bedrock/did-io": "^10.2.0",
+    "@bedrock/did-io": "^10.3.0",
     "@bedrock/express": "^8.0.0",
     "@bedrock/https-agent": "^4.0.0",
     "@bedrock/jsonld-document-loader": "^4.0.0",
