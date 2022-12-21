@@ -7,30 +7,30 @@
   "id": "did:web:localhost%3A18443:test:dids",
   "verificationMethod": [
     {
-      "id": "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE",
+      "id": "did:web:localhost%3A18443:test:dids#z6MkptqgciUTwQm2afXMD9YJ3ZAazkAqxbvCBQHawFCwRPMm",
       "type": "Ed25519VerificationKey2020",
       "controller": "did:web:localhost%3A18443:test:dids",
-      "publicKeyMultibase": "z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
+      "publicKeyMultibase": "z6MkptqgciUTwQm2afXMD9YJ3ZAazkAqxbvCBQHawFCwRPMm"
     }
   ],
   "authentication": [
-    "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
+    "did:web:localhost%3A18443:test:dids#z6MkptqgciUTwQm2afXMD9YJ3ZAazkAqxbvCBQHawFCwRPMm"
   ],
   "assertionMethod": [
-    "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
+    "did:web:localhost%3A18443:test:dids#z6MkptqgciUTwQm2afXMD9YJ3ZAazkAqxbvCBQHawFCwRPMm"
   ],
   "capabilityDelegation": [
-    "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
+    "did:web:localhost%3A18443:test:dids#z6MkptqgciUTwQm2afXMD9YJ3ZAazkAqxbvCBQHawFCwRPMm"
   ],
   "capabilityInvocation": [
-    "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
+    "did:web:localhost%3A18443:test:dids#z6MkptqgciUTwQm2afXMD9YJ3ZAazkAqxbvCBQHawFCwRPMm"
   ],
   "keyAgreement": [
     {
-      "id": "did:web:localhost%3A18443:test:dids#z6LSdA99uZ8wisw4eDGWTkPdsX9HD3JtxwocMWNuEQd8Azsm",
+      "id": "did:web:localhost%3A18443:test:dids#z6LScvfa6DkpL2QigFN4aUFpQdYFYv4NN7P2ycKRM4RMeFV1",
       "type": "X25519KeyAgreementKey2020",
       "controller": "did:web:localhost%3A18443:test:dids",
-      "publicKeyMultibase": "z6LSdA99uZ8wisw4eDGWTkPdsX9HD3JtxwocMWNuEQd8Azsm"
+      "publicKeyMultibase": "z6LScvfa6DkpL2QigFN4aUFpQdYFYv4NN7P2ycKRM4RMeFV1"
     }
   ]
 }
