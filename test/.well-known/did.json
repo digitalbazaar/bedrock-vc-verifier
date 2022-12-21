@@ -4,33 +4,33 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://w3id.org/security/suites/x25519-2020/v1"
   ],
-  "id": "did:web:localhost%3A18443",
+  "id": "did:web:localhost%3A18443:test:dids",
   "verificationMethod": [
     {
-      "id": "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm",
+      "id": "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE",
       "type": "Ed25519VerificationKey2020",
-      "controller": "did:web:localhost%3A18443",
-      "publicKeyMultibase": "z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+      "controller": "did:web:localhost%3A18443:test:dids",
+      "publicKeyMultibase": "z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
     }
   ],
   "authentication": [
-    "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+    "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
   ],
   "assertionMethod": [
-    "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+    "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
   ],
   "capabilityDelegation": [
-    "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+    "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
   ],
   "capabilityInvocation": [
-    "did:web:localhost%3A18443#z6MkooNVMiCeqdmFvU2g2F4fhiw4MbfJgzRaVkE2PpfrFQkm"
+    "did:web:localhost%3A18443:test:dids#z6Mkv2YzMyDGqx7PzJLAhDKipyMgmvQry6Fw25sXMmWbHfDE"
   ],
   "keyAgreement": [
     {
-      "id": "did:web:localhost%3A18443#z6LSkeGVgqsMcW5YwtoKcULfV3RhL1x19q3jm1PivsCtS6tY",
+      "id": "did:web:localhost%3A18443:test:dids#z6LSdA99uZ8wisw4eDGWTkPdsX9HD3JtxwocMWNuEQd8Azsm",
       "type": "X25519KeyAgreementKey2020",
-      "controller": "did:web:localhost%3A18443",
-      "publicKeyMultibase": "z6LSkeGVgqsMcW5YwtoKcULfV3RhL1x19q3jm1PivsCtS6tY"
+      "controller": "did:web:localhost%3A18443:test:dids",
+      "publicKeyMultibase": "z6LSdA99uZ8wisw4eDGWTkPdsX9HD3JtxwocMWNuEQd8Azsm"
     }
   ]
 }
