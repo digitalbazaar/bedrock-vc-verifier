@@ -128,6 +128,7 @@ describe('verify APIs', () => {
   });
   describe('/credentials/verify', () => {
     for(const mockCredential of mockCredentials) {
+      const {method} = helpers.getDidParts({did: mockCredential.issuer});
       let description;
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
@@ -142,6 +143,7 @@ describe('verify APIs', () => {
       } else {
         description = `${type}`;
       }
+      description += `, DID method ${method}`;
       describe(description, () => {
         it('verifies a valid credential', async () => {
           let verifiableCredential = klona(mockCredential);

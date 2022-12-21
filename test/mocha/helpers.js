@@ -309,3 +309,9 @@ export function getEcdsaAlgorithms({credential, presentation} = {}) {
   });
   return ecdsaAlgorithms;
 }
+
+export function getDidParts({did}) {
+  const [scheme, method] = did.split(':');
+  return {scheme, method};
+}
+
