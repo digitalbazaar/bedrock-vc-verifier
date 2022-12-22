@@ -4,6 +4,7 @@
 
 ### Added
 - Add support for using a configured external DID resolver.
+- Add support for `did:web` DIDs via `@bedrock/did-io@10.3`.
 
 ## 19.1.0 - 2024-01-25
 
