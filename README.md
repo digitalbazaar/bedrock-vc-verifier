@@ -107,6 +107,22 @@ Example request:
 }
 ```
 
+### Did Web Support
+Support for dids using the `did:web:domain` format can be configured using:
+
+```js
+import {config} from '@bedrock/core';
+import {Ed25519VerificationKey2018} from '@digitalbazaar/ed25519-verification-key-2018';
+
+config['vc-verifier'].methods.web = {
+  allowList: ['only-allow-this-domain:4644'],
+  fetchOptions: {size: 456000, agent: unsafeAgent},
+  verificationSuite: Ed25519VerificationKey2018
+}
+```
+
+You can see the full [options for `did-method-web` here.](https://github.com/digitalbazaar/did-method-web/blob/main/README.md)
+
 ## Contribute
 
 See [the contribute file](https://github.com/digitalbazaar/bedrock/blob/master/CONTRIBUTING.md)!
