@@ -1,9 +1,9 @@
 /*!
  * Copyright (c) 2012-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {agent} from '@bedrock/https-agent';
 import {config} from '@bedrock/core';
 import {fileURLToPath} from 'node:url';
-import https from 'node:https';
 import path from 'node:path';
 import '@bedrock/app-identity';
 import '@bedrock/https-agent';
@@ -39,7 +39,6 @@ config['app-identity'].seeds.services['vc-verifier'] = {
 
 // use local KMS for testing
 config['service-agent'].kms.baseUrl = 'https://localhost:18443/kms';
-const agent = new https.Agent({rejectUnauthorized: false});
 config['vc-verifier'].methods.web.fetchOptions = {agent};
 // set up express to set did:web didDocuments
 config.express.static.push({route: '/test/dids', path: './.well-known'});
