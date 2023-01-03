@@ -115,12 +115,11 @@ import {config} from '@bedrock/core';
 import {Ed25519VerificationKey2018} from '@digitalbazaar/ed25519-verification-key-2018';
 
 config['vc-verifier'].methods.web = {
-  allowList: ['only-allow-this-domain:4644'],
   fetchOptions: {size: 456000, agent: unsafeAgent},
   verificationSuite: Ed25519VerificationKey2018
 }
 ```
-
+Please be careful as these settings are global and will be applied to all verifiers.
 You can see the full [options for `did-method-web` here.](https://github.com/digitalbazaar/did-method-web/blob/main/README.md)
 
 ## Contribute
