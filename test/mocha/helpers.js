@@ -278,3 +278,8 @@ async function keyResolver({id}) {
   const {data} = await httpClient.get(id, {agent: httpsAgent});
   return data;
 }
+
+export function getDidParts({did}) {
+  const [scheme, method] = did.split(':');
+  return {scheme, method};
+}

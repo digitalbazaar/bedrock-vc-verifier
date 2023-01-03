@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 14.2.0 -
+
+### Added
+- Add support for `@digitalbazaar/did-method-web`
+
 ## 14.1.0 - 2022-12-17
 
 ### Added
