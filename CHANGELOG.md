@@ -1,5 +1,11 @@
 # bedrock-vc-verifier ChangeLog
 
+## 15.0.0 - 2023-01-dd
+
+### Changed
+- **BREAKING**: Use little-endian bit order for all bitstrings with revocation
+  and status lists. This change is incompatible with previous deployments.
+
 ## 14.1.0 - 2022-12-17
 
 ### Added
