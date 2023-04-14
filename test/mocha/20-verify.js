@@ -121,7 +121,14 @@ describe('verify APIs', () => {
   });
   describe('/credentials/verify', () => {
     for(const mockCredential of mockCredentials) {
-      describe(mockCredential.proof.type, () => {
+      let description;
+      const {type, cryptosuite} = mockCredential.proof;
+      if(cryptosuite) {
+        description = `${type} - ${cryptosuite}`;
+      } else {
+        description = `${type}`;
+      }
+      describe(description, () => {
         it('verifies a valid credential', async () => {
           const verifiableCredential = klona(mockCredential);
           let error;
