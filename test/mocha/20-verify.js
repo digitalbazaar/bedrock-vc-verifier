@@ -386,8 +386,15 @@ describe('verify APIs', () => {
 
   describe('/presentations/verify', () => {
     for(const mockCredential of mockCredentials) {
-      describe(mockCredential.proof.type, () => {
-        it('verifies a valid presentation', async () => {
+      let description;
+      const {type, cryptosuite} = mockCredential.proof;
+      if(cryptosuite) {
+        description = `${type} - ${cryptosuite}`;
+      } else {
+        description = `${type}`;
+      }
+      describe(description, () => {
+        it(description, async () => {
           // get signing key
           const {methodFor} = await didKeyDriver.generate();
           const signingKey = methodFor({purpose: 'assertionMethod'});
