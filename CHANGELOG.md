@@ -1,9 +1,12 @@
 # bedrock-vc-verifier ChangeLog
 
-## 15.1.0 - 2023-TBD
+## 16.0.0 - 2023-TBD
 
 ### Added
 - Add `ecdsa-2019` to supported suites.
+
+### Changed
+- **BREAKING**: Update peerdep `@bedrock/did-io` to v10.0.
 
 ## 15.0.0 - 2023-01-08
 
