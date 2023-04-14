@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 15.1.0 - 2023-TBD
+
+### Added
+- Add `ecdsa-2019` to supported suites.
+
 ## 15.0.0 - 2023-01-08
 
 ### Changed
