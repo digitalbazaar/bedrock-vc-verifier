@@ -394,7 +394,7 @@ describe('verify APIs', () => {
         description = `${type}`;
       }
       describe(description, () => {
-        it(description, async () => {
+        it('verifies a valid presentation', async () => {
           // get signing key
           const {methodFor} = await didKeyDriver.generate();
           const signingKey = methodFor({purpose: 'assertionMethod'});
