@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 18.1.0 - 2023-08-TBD
+
+### Added
+- Add support for verifying signatures that uses `ECDSA P-384` key type.
+
 ## 18.0.0 - 2023-09-21
 
 ### Changed
