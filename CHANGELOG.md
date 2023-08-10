@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 17.0.0 - 2023-08-TBD
+
+### Changed
+- **BREAKING**: Drop support for Node.js 16.
+
 ## 16.0.1 - 2023-04-18
 
 ### Fixed
