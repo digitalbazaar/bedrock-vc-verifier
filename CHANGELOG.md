@@ -4,6 +4,20 @@
 
 ### Changed
 - Use `@digitalbazaar/vc@6`.
+- **BREAKING**: Update peer deps:
+  - Use `@bedrock/credentials-context@4`. This version requires Node.js 18+.
+  - Use `@bedrock/data-integrity-context@2`. This version requires Node.js 18+.
+  - Use `@bedrock/did-context@5`. This version requires Node.js 18+.
+  - Use `@bedrock/jsonld-document-loader@4`. This version requires Node.js 18+.
+  - Use `@bedrock/multikey-context@2`. This version requires Node.js 18+.
+  - Use `@bedrock/security-context@8`. This version requires Node.js 18+.
+  - Use `@bedrock/service-agent@8`. This version requires Node.js 18+.
+  - Use `@bedrock/service-context-store@11`. This version requires Node.js 18+.
+  - Use `@bedrock/service-core@9`. This version requires Node.js 18+.
+  - Use `@bedrock/vc-revocation-list-context@4`. This version requires
+    Node.js 18+.
+  - Use `@bedrock/vc-status-list-context@5`. This version requires Node.js 18+.
+  - Use `@bedrock/veres-one-context@15`. This version requires Node.js 18+.
 
 ## 17.0.0 - 2023-08-16
 
