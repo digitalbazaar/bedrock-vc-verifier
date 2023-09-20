@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 18.0.0 - 2023-09-xx
+
+### Changed
+- Use `@digitalbazaar/vc@6`.
+
 ## 17.0.0 - 2023-08-16
 
 ### Changed
