@@ -18,6 +18,7 @@
     Node.js 18+.
   - Use `@bedrock/vc-status-list-context@5`. This version requires Node.js 18+.
   - Use `@bedrock/veres-one-context@15`. This version requires Node.js 18+.
+- Update test deps.
 
 ## 17.0.0 - 2023-08-16
 
