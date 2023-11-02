@@ -17,6 +17,11 @@ import {mockData} from './mock.data.js';
 const edvBaseUrl = `${mockData.baseUrl}/edvs`;
 const kmsBaseUrl = `${mockData.baseUrl}/kms`;
 
+const SUPPORTED_ECDSA_KEY_TYPES = new Map([
+  ['zDna', 'P-256'],
+  ['z82L', 'P-384']
+]);
+
 const FIVE_MINUTES = 1000 * 60 * 5;
 
 export async function createMeter({capabilityAgent, serviceType} = {}) {
@@ -277,4 +282,27 @@ async function keyResolver({id}) {
   // support HTTP-based keys; currently a requirement for WebKMS
   const {data} = await httpClient.get(id, {agent: httpsAgent});
   return data;
+}
+
+export function getEcdsaKeyTypes({credential, presentation} = {}) {
+  let vc = presentation ? presentation.verifiableCredential : credential;
+  vc = Array.isArray(vc) ? vc : [vc];
+  const ecdsaKeyTypes = [];
+  vc.forEach(credential => {
+    const proofs = Array.isArray(credential.proof) ? credential.proof :
+      [credential.proof];
+    for(const proof of proofs) {
+      if(proof.cryptosuite === 'ecdsa-2019') {
+        const {verificationMethod} = proof;
+        const multibaseMultikeyHeader =
+          verificationMethod.substring('did:key:'.length).slice(0, 4);
+        const ecdsaKeyType =
+          SUPPORTED_ECDSA_KEY_TYPES.get(multibaseMultikeyHeader);
+        if(!ecdsaKeyTypes.includes(ecdsaKeyType)) {
+          ecdsaKeyTypes.push(ecdsaKeyType);
+        }
+      }
+    }
+  });
+  return ecdsaKeyTypes;
 }
