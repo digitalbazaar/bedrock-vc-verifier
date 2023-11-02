@@ -9,7 +9,6 @@ import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
 import {CapabilityAgent} from '@digitalbazaar/webkms-client';
 import {createRequire} from 'node:module';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
-import {getEcdsaKeyTypes} from '@bedrock/vc-verifier/lib/helpers.js';
 import {httpClient} from '@digitalbazaar/http-client';
 import {klona} from 'klona';
 
@@ -126,7 +125,9 @@ describe('verify APIs', () => {
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
         if(cryptosuite === 'ecdsa-2019') {
-          const keyType = getEcdsaKeyTypes({credential: mockCredential})[0];
+          const keyType = helpers.getEcdsaKeyTypes({
+            credential: mockCredential
+          })[0];
           description = `${type} - ${cryptosuite}, keytype: ${keyType}`;
         } else {
           description = `${type} - ${cryptosuite}`;
@@ -135,7 +136,7 @@ describe('verify APIs', () => {
         description = `${type}`;
       }
       describe(description, () => {
-        it('verifies a valid credential', async () => {
+        it.only('verifies a valid credential', async () => {
           const verifiableCredential = klona(mockCredential);
           let error;
           let result;
@@ -396,7 +397,9 @@ describe('verify APIs', () => {
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
         if(cryptosuite === 'ecdsa-2019') {
-          const keyType = getEcdsaKeyTypes({credential: mockCredential})[0];
+          const keyType = helpers.getEcdsaKeyTypes({
+            credential: mockCredential
+          })[0];
           description = `${type} - ${cryptosuite}, keytype: ${keyType}`;
         } else {
           description = `${type} - ${cryptosuite}`;
