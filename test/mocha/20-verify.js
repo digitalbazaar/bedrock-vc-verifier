@@ -125,7 +125,7 @@ describe('verify APIs', () => {
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
         if(cryptosuite === 'ecdsa-2019') {
-          const keyType = helpers.getEcdsaKeyTypes({
+          const keyType = helpers.getEcdsaAlgorithms({
             credential: mockCredential
           })[0];
           description = `${type} - ${cryptosuite}, keytype: ${keyType}`;
@@ -397,7 +397,7 @@ describe('verify APIs', () => {
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
         if(cryptosuite === 'ecdsa-2019') {
-          const keyType = helpers.getEcdsaKeyTypes({
+          const keyType = helpers.getEcdsaAlgorithms({
             credential: mockCredential
           })[0];
           description = `${type} - ${cryptosuite}, keytype: ${keyType}`;
