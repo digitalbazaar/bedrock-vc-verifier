@@ -17,7 +17,7 @@ import {mockData} from './mock.data.js';
 const edvBaseUrl = `${mockData.baseUrl}/edvs`;
 const kmsBaseUrl = `${mockData.baseUrl}/kms`;
 
-const SUPPORTED_ECDSA_KEY_TYPES = new Map([
+const SUPPORTED_ECDSA_ALGORITHMS = new Map([
   ['zDna', 'P-256'],
   ['z82L', 'P-384']
 ]);
@@ -284,10 +284,10 @@ async function keyResolver({id}) {
   return data;
 }
 
-export function getEcdsaKeyTypes({credential, presentation} = {}) {
+export function getEcdsaAlgorithms({credential, presentation} = {}) {
   let vc = presentation ? presentation.verifiableCredential : credential;
   vc = Array.isArray(vc) ? vc : [vc];
-  const ecdsaKeyTypes = [];
+  const ecdsaAlgorithms = [];
   vc.forEach(credential => {
     const proofs = Array.isArray(credential.proof) ? credential.proof :
       [credential.proof];
@@ -296,13 +296,13 @@ export function getEcdsaKeyTypes({credential, presentation} = {}) {
         const {verificationMethod} = proof;
         const multibaseMultikeyHeader =
           verificationMethod.substring('did:key:'.length).slice(0, 4);
-        const ecdsaKeyType =
-          SUPPORTED_ECDSA_KEY_TYPES.get(multibaseMultikeyHeader);
-        if(!ecdsaKeyTypes.includes(ecdsaKeyType)) {
-          ecdsaKeyTypes.push(ecdsaKeyType);
+        const ecdsaAlgorithm =
+          SUPPORTED_ECDSA_ALGORITHMS.get(multibaseMultikeyHeader);
+        if(!ecdsaAlgorithms.includes(ecdsaAlgorithm)) {
+          ecdsaAlgorithms.push(ecdsaAlgorithm);
         }
       }
     }
   });
-  return ecdsaKeyTypes;
+  return ecdsaAlgorithms;
 }
