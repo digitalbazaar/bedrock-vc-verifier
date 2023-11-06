@@ -136,7 +136,7 @@ describe('verify APIs', () => {
         description = `${type}`;
       }
       describe(description, () => {
-        it.only('verifies a valid credential', async () => {
+        it('verifies a valid credential', async () => {
           const verifiableCredential = klona(mockCredential);
           let error;
           let result;
