@@ -396,7 +396,10 @@ describe('verify APIs', () => {
       let description;
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
-        if(cryptosuite === 'ecdsa-2019') {
+        if(
+          cryptosuite === 'ecdsa-2019' || cryptosuite === 'ecdsa-rdfc-2019' ||
+          cryptosuite === 'ecdsa-sd-2023'
+        ) {
           const keyType = helpers.getEcdsaAlgorithms({
             credential: mockCredential
           })[0];

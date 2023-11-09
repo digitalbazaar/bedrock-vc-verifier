@@ -292,7 +292,11 @@ export function getEcdsaAlgorithms({credential, presentation} = {}) {
     const proofs = Array.isArray(credential.proof) ? credential.proof :
       [credential.proof];
     for(const proof of proofs) {
-      if(proof.cryptosuite === 'ecdsa-2019') {
+      if(
+        proof.cryptosuite === 'ecdsa-2019' ||
+        proof.cryptosuite === 'ecdsa-rdfc-2019' ||
+        proof.cryptosuite === 'ecdsa-sd-2023'
+      ) {
         const {verificationMethod} = proof;
         const multibaseMultikeyHeader =
           verificationMethod.substring('did:key:'.length).slice(0, 4);
