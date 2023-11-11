@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/digitalbazaar/bedrock-vc-verifier",
   "dependencies": {
-    "@digitalbazaar/data-integrity": "digitalbazaar/data-integrity#update-context",
+    "@digitalbazaar/data-integrity": "digitalbazaar/data-integrity#add-legacy-context-support",
     "@digitalbazaar/ecdsa-rdfc-2019-cryptosuite": "digitalbazaar/ecdsa-rdfc-2019-cryptosuite#update-name-and-tests",
     "@digitalbazaar/ecdsa-sd-2023-cryptosuite": "digitalbazaar/ecdsa-sd-2023-cryptosuite#use-context-v2",
     "@digitalbazaar/eddsa-rdfc-2022-cryptosuite": "digitalbazaar/eddsa-rdfc-2022-cryptosuite#update-name-and-test",
