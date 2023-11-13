@@ -14,10 +14,6 @@
   use of legacy context and updates default context URL to
   `https://w3id.org/security/data-integrity/v2`.
 
-### Removed
-- Removed unused test deps `@bedrock/ledger-context@24.0` and
-  `@bedrock/oauth2-verifier@2.0`.
-
 ## 18.1.0 - 2023-11-06
 
 ### Added
