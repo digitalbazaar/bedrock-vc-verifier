@@ -143,7 +143,7 @@ describe('verify APIs', () => {
         description = `${type}`;
       }
       describe(description, () => {
-        it.only('verifies a valid credential', async () => {
+        it('verifies a valid credential', async () => {
           let verifiableCredential = klona(mockCredential);
           if(cryptosuite === 'ecdsa-sd-2023') {
             const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
