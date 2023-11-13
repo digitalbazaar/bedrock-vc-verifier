@@ -1,5 +1,23 @@
 # bedrock-vc-verifier ChangeLog
 
+## 19.0.0 - 2023-11-TBD
+
+### Added
+- Add support for verifying vcs with `ecdsa-sd-2023`, `ecdsa-rdfc-2019` and
+  `eddsa-rdfc-2022` signatures.
+- Add missing peer dep `@bedrock/app-identity` v4.0.
+
+### Changed
+- **BREAKING**: Update `@bedrock/data-integrity-context` peer dep to v3.0 that
+  uses `@digitalbazaar/data-integrity@2.0`.
+- Use `@digitalbazaar/data-integrity@2.0`. Adds `legacyContext` flag to allow
+  use of legacy context and updates default context URL to
+  `https://w3id.org/security/data-integrity/v2`.
+
+### Removed
+- Removed unused test deps `@bedrock/ledger-context@24.0` and
+  `@bedrock/oauth2-verifier@2.0`.
+
 ## 18.1.0 - 2023-11-06
 
 ### Added
