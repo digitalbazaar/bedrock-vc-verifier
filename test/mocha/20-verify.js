@@ -7,9 +7,14 @@ import {driver as _didKeyDriver} from '@digitalbazaar/did-method-key';
 import {agent} from '@bedrock/https-agent';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
 import {CapabilityAgent} from '@digitalbazaar/webkms-client';
+import {
+  createDiscloseCryptosuite as createEcdsaSd2023DiscloseCryptosuite
+} from '@digitalbazaar/ecdsa-sd-2023-cryptosuite';
 import {createRequire} from 'node:module';
+import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {httpClient} from '@digitalbazaar/http-client';
+import jsigs from 'jsonld-signatures';
 import {klona} from 'klona';
 
 import {mockData} from './mock.data.js';
@@ -24,6 +29,8 @@ const didKeyDriver = _didKeyDriver();
 // https://www.w3.org/2018/credentials/examples/v1
 const mockCredentials = require('./mock-credentials.json');
 const mockExpiredCredential = require('./mock-expired-credential.json');
+
+const {purposes: {AssertionProofPurpose}} = jsigs;
 
 describe('verify APIs', () => {
   let capabilityAgent;
@@ -136,8 +143,22 @@ describe('verify APIs', () => {
         description = `${type}`;
       }
       describe(description, () => {
-        it('verifies a valid credential', async () => {
-          const verifiableCredential = klona(mockCredential);
+        it.only('verifies a valid credential', async () => {
+          let verifiableCredential = klona(mockCredential);
+          if(cryptosuite === 'ecdsa-sd-2023') {
+            const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
+              selectivePointers: [
+                '/credentialSubject/id'
+              ]
+            });
+            const suite = new DataIntegrityProof({cryptosuite});
+            const revealed = await jsigs.derive(verifiableCredential, {
+              suite,
+              purpose: new AssertionProofPurpose(),
+              documentLoader: brDocLoader
+            });
+            verifiableCredential = revealed;
+          }
           let error;
           let result;
           try {
@@ -417,7 +438,21 @@ describe('verify APIs', () => {
           const signingKey = methodFor({purpose: 'assertionMethod'});
           const suite = new Ed25519Signature2020({key: signingKey});
 
-          const verifiableCredential = klona(mockCredential);
+          let verifiableCredential = klona(mockCredential);
+          if(cryptosuite === 'ecdsa-sd-2023') {
+            const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
+              selectivePointers: [
+                '/credentialSubject/id'
+              ]
+            });
+            const suite = new DataIntegrityProof({cryptosuite});
+            const revealed = await jsigs.derive(verifiableCredential, {
+              suite,
+              purpose: new AssertionProofPurpose(),
+              documentLoader: brDocLoader
+            });
+            verifiableCredential = revealed;
+          }
           const presentation = vc.createPresentation({
             holder: 'did:test:foo',
             id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
