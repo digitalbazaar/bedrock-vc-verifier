@@ -25,14 +25,14 @@
   },
   "homepage": "https://github.com/digitalbazaar/bedrock-vc-verifier",
   "dependencies": {
-    "@digitalbazaar/data-integrity": "digitalbazaar/data-integrity#add-legacy-context-support",
+    "@digitalbazaar/data-integrity": "digitalbazaar/data-integrity#update-context",
+    "@digitalbazaar/ecdsa-2019-cryptosuite": "^2.0.0",
     "@digitalbazaar/ecdsa-rdfc-2019-cryptosuite": "digitalbazaar/ecdsa-rdfc-2019-cryptosuite#update-name-and-tests",
     "@digitalbazaar/ecdsa-sd-2023-cryptosuite": "digitalbazaar/ecdsa-sd-2023-cryptosuite#use-context-v2",
-    "@digitalbazaar/eddsa-rdfc-2022-cryptosuite": "digitalbazaar/eddsa-rdfc-2022-cryptosuite#update-name-and-test",
-    "@digitalbazaar/ecdsa-2019-cryptosuite": "^2.0.0",
     "@digitalbazaar/ed25519-signature-2018": "^4.0.0",
     "@digitalbazaar/ed25519-signature-2020": "^5.0.0",
     "@digitalbazaar/eddsa-2022-cryptosuite": "^1.0.0",
+    "@digitalbazaar/eddsa-rdfc-2022-cryptosuite": "digitalbazaar/eddsa-rdfc-2022-cryptosuite#update-name-and-test",
     "@digitalbazaar/vc": "^6.0.0",
     "@digitalbazaar/vc-revocation-list": "^6.0.0",
     "@digitalbazaar/vc-status-list": "^7.0.0",
@@ -43,6 +43,7 @@
     "serialize-error": "^11.0.0"
   },
   "peerDependencies": {
+    "@bedrock/app-identity": "^4.0.0",
     "@bedrock/core": "^6.0.1",
     "@bedrock/credentials-context": "^4.0.0",
     "@bedrock/data-integrity-context": "digitalbazaar/bedrock-data-integrity-context#use-data-integrity-v2-context",
