@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 19.0.0 - 2023-11-TBD
+## 19.0.0 - 2023-11-14
 
 ### Added
 - Add support for verifying vcs with `ecdsa-sd-2023`, `ecdsa-rdfc-2019` and
