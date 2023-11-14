@@ -14,7 +14,6 @@ import {createRequire} from 'node:module';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {httpClient} from '@digitalbazaar/http-client';
-import jsigs from 'jsonld-signatures';
 import {klona} from 'klona';
 
 import {mockData} from './mock.data.js';
@@ -29,8 +28,6 @@ const didKeyDriver = _didKeyDriver();
 // https://www.w3.org/2018/credentials/examples/v1
 const mockCredentials = require('./mock-credentials.json');
 const mockExpiredCredential = require('./mock-expired-credential.json');
-
-const {purposes: {AssertionProofPurpose}} = jsigs;
 
 describe('verify APIs', () => {
   let capabilityAgent;
@@ -152,12 +149,12 @@ describe('verify APIs', () => {
               ]
             });
             const suite = new DataIntegrityProof({cryptosuite});
-            const revealed = await jsigs.derive(verifiableCredential, {
+            const derivedVC = await vc.derive({
+              verifiableCredential,
               suite,
-              purpose: new AssertionProofPurpose(),
               documentLoader: brDocLoader
             });
-            verifiableCredential = revealed;
+            verifiableCredential = derivedVC;
           }
           let error;
           let result;
@@ -446,12 +443,12 @@ describe('verify APIs', () => {
               ]
             });
             const suite = new DataIntegrityProof({cryptosuite});
-            const revealed = await jsigs.derive(verifiableCredential, {
+            const derivedVC = await vc.derive({
+              verifiableCredential,
               suite,
-              purpose: new AssertionProofPurpose(),
               documentLoader: brDocLoader
             });
-            verifiableCredential = revealed;
+            verifiableCredential = derivedVC;
           }
           const presentation = vc.createPresentation({
             holder: 'did:test:foo',
