@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2020-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import * as helpers from './helpers.js';
 import * as vc from '@digitalbazaar/vc';
@@ -7,6 +7,9 @@ import {driver as _didKeyDriver} from '@digitalbazaar/did-method-key';
 import {agent} from '@bedrock/https-agent';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
 import {CapabilityAgent} from '@digitalbazaar/webkms-client';
+import {
+  createDiscloseCryptosuite as createBbs2023DiscloseCryptosuite
+} from '@digitalbazaar/bbs-2023-cryptosuite';
 import {
   createDiscloseCryptosuite as createEcdsaSd2023DiscloseCryptosuite
 } from '@digitalbazaar/ecdsa-sd-2023-cryptosuite';
@@ -144,6 +147,19 @@ describe('verify APIs', () => {
           let verifiableCredential = klona(mockCredential);
           if(cryptosuite === 'ecdsa-sd-2023') {
             const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
+              selectivePointers: [
+                '/credentialSubject/id'
+              ]
+            });
+            const suite = new DataIntegrityProof({cryptosuite});
+            const derivedVC = await vc.derive({
+              verifiableCredential,
+              suite,
+              documentLoader: brDocLoader
+            });
+            verifiableCredential = derivedVC;
+          } else if(cryptosuite === 'bbs-2023') {
+            const cryptosuite = createBbs2023DiscloseCryptosuite({
               selectivePointers: [
                 '/credentialSubject/id'
               ]
@@ -438,6 +454,19 @@ describe('verify APIs', () => {
           let verifiableCredential = klona(mockCredential);
           if(cryptosuite === 'ecdsa-sd-2023') {
             const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
+              selectivePointers: [
+                '/credentialSubject/id'
+              ]
+            });
+            const suite = new DataIntegrityProof({cryptosuite});
+            const derivedVC = await vc.derive({
+              verifiableCredential,
+              suite,
+              documentLoader: brDocLoader
+            });
+            verifiableCredential = derivedVC;
+          } else if(cryptosuite === 'bbs-2023') {
+            const cryptosuite = createBbs2023DiscloseCryptosuite({
               selectivePointers: [
                 '/credentialSubject/id'
               ]

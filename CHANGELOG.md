@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 19.1.0 - 2024-01-dd
+
+### Changed
+- Use `@bedrock/did-io@10.2` to enable resolution of BBS-based `did:key` DIDs.
+
 ## 19.0.0 - 2023-11-14
 
 ### Added
