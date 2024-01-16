@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/digitalbazaar/bedrock-vc-verifier",
   "dependencies": {
+    "@digitalbazaar/bbs-2023-cryptosuite": "^1.0.0",
     "@digitalbazaar/data-integrity": "^2.0.0",
     "@digitalbazaar/ecdsa-2019-cryptosuite": "^2.0.0",
     "@digitalbazaar/ecdsa-rdfc-2019-cryptosuite": "^1.0.1",
@@ -48,7 +49,7 @@
     "@bedrock/credentials-context": "^4.0.0",
     "@bedrock/data-integrity-context": "^3.0.0",
     "@bedrock/did-context": "^5.0.0",
-    "@bedrock/did-io": "^10.1.0",
+    "@bedrock/did-io": "^10.2.0",
     "@bedrock/express": "^8.0.0",
     "@bedrock/https-agent": "^4.0.0",
     "@bedrock/jsonld-document-loader": "^4.0.0",
