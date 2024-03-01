@@ -46,7 +46,7 @@
   "peerDependencies": {
     "@bedrock/app-identity": "^4.0.0",
     "@bedrock/core": "^6.0.1",
-    "@bedrock/credentials-context": "^4.0.0",
+    "@bedrock/credentials-context": "digitalbazaar/bedrock-credentials-context#update-vc-2.0",
     "@bedrock/data-integrity-context": "^3.0.0",
     "@bedrock/did-context": "^5.0.0",
     "@bedrock/did-io": "^10.2.0",
@@ -61,7 +61,7 @@
     "@bedrock/service-core": "^9.0.0",
     "@bedrock/validation": "^7.0.0",
     "@bedrock/vc-revocation-list-context": "^4.0.0",
-    "@bedrock/vc-status-list-context": "^5.0.0",
+    "@bedrock/vc-status-list-context": "digitalbazaar/bedrock-vc-status-list-context#bitstring-status-list",
     "@bedrock/veres-one-context": "^15.0.0"
   },
   "devDependencies": {

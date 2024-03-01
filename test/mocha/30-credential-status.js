@@ -2,6 +2,7 @@
  * Copyright (c) 2019-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import * as helpers from './helpers.js';
+import * as statusListCtx from '@digitalbazaar/vc-status-list-context';
 import * as vc from '@digitalbazaar/vc';
 import {agent} from '@bedrock/https-agent';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
@@ -18,9 +19,9 @@ import {httpClient} from '@digitalbazaar/http-client';
 import https from 'node:https';
 import {klona} from 'klona';
 import path from 'node:path';
+
 const require = createRequire(import.meta.url);
 const revocationListCtx = require('vc-revocation-list-context');
-const statusListCtx = require('@digitalbazaar/vc-status-list-context');
 
 import {mockData} from './mock.data.js';
 
