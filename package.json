@@ -41,6 +41,7 @@
     "bnid": "^3.0.0",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
+    "klona": "^2.0.6",
     "serialize-error": "^11.0.0"
   },
   "peerDependencies": {
