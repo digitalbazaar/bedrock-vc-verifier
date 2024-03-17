@@ -21,9 +21,11 @@ export const verifyOptions = {
       type: 'object',
       required: ['url'],
       additionalProperties: false,
-      url: {
-        type: 'string',
-        pattern: '^https://[^.]+.[^.]+'
+      properties: {
+        url: {
+          type: 'string',
+          pattern: '^https://[^.]+.[^.]+'
+        }
       }
     }
   }
