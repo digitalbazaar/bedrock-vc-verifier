@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2022-2024 Digital Bazaar, Inc. All rights reserved.
  */
 const context = {
   title: '@context',
@@ -7,6 +7,25 @@ const context = {
   minItems: 1,
   items: {
     type: ['string', 'object']
+  }
+};
+
+export const verifyOptions = {
+  title: 'Verify Options',
+  type: 'object',
+  required: ['didResolver'],
+  additionalProperties: false,
+  properties: {
+    didResolver: {
+      title: 'DID Resolver',
+      type: 'object',
+      required: ['url'],
+      additionalProperties: false,
+      url: {
+        type: 'string',
+        pattern: '^https://[^.]+.[^.]+'
+      }
+    }
   }
 };
 
