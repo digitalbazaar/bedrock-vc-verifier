@@ -86,7 +86,7 @@ describe('did resolver option', () => {
       verifyOptions: {
         didResolver: {
           // use mocked universal DID resolver on own server
-          url: baseUrl
+          url: `${baseUrl}/1.0/identifiers`
         }
       }
     };
