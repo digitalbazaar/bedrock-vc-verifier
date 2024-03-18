@@ -158,9 +158,7 @@ describe('did resolver option', () => {
             });
           } catch(e) {
             error = e;
-            console.log('error', error.message);
           }
-          //process.exit(1);
           assertNoError(error);
           should.exist(result.data.verified);
           result.data.verified.should.be.a('boolean');

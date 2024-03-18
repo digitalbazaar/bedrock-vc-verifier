@@ -54,8 +54,15 @@ bedrock.events.on('bedrock-express.configure.routes', async app => {
   app.get('/1.0/identifiers/:did', asyncHandler(async (req, res) => {
     const {did: url} = req.params;
     // resolve via did-io
-    const document = await didIo.get({url});
-    res.json(document);
+    const didDocument = await didIo.get({url});
+    res.json({
+      '@context': 'https://w3id.org/did-resolution/v1',
+      didDocument,
+      didDocumentMetadata: {},
+      didResolutionMetadata: {
+        contentType: 'application/did+ld+json'
+      }
+    });
   }));
 });
 
