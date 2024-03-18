@@ -1,7 +1,9 @@
 /*!
- * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import * as bedrock from '@bedrock/core';
+import {asyncHandler} from '@bedrock/express';
+import {didIo} from '@bedrock/did-io';
 import {getServiceIdentities} from '@bedrock/app-identity';
 import {handlers} from '@bedrock/meter-http';
 import '@bedrock/edv-storage';
@@ -45,6 +47,16 @@ bedrock.events.on('bedrock-express.configure.routes', app => {
   app.get('/oauth2/jwks', (req, res) => {
     res.json(mockData.jwks);
   });
+});
+
+// mock universal DID resolver
+bedrock.events.on('bedrock-express.configure.routes', async app => {
+  app.get('/1.0/identifiers/:did', asyncHandler(async (req, res) => {
+    const {did: url} = req.params;
+    // resolve via did-io
+    const document = await didIo.get({url});
+    res.json(document);
+  }));
 });
 
 import '@bedrock/test';
