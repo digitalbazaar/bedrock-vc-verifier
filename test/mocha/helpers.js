@@ -51,7 +51,7 @@ export async function createMeter({capabilityAgent, serviceType} = {}) {
 }
 
 export async function createConfig({
-  capabilityAgent, ipAllowList, meterId, zcaps, oauth2 = false
+  capabilityAgent, ipAllowList, meterId, zcaps, configOptions, oauth2 = false
 } = {}) {
   if(!meterId) {
     // create a meter for the keystore
@@ -64,7 +64,8 @@ export async function createConfig({
   const config = {
     sequence: 0,
     controller: capabilityAgent.id,
-    meterId
+    meterId,
+    ...configOptions
   };
   if(ipAllowList) {
     config.ipAllowList = ipAllowList;
