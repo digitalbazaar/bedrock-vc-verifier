@@ -40,4 +40,4 @@ config['app-identity'].seeds.services['vc-verifier'] = {
 config['service-agent'].kms.baseUrl = 'https://localhost:18443/kms';
 
 // set up express to serve `did:web` DID documents
-config.express.static.push({route: '/test/dids', path: './.well-known'});
+config.express.static.push({route: '/test/dids', path: './dids'});
