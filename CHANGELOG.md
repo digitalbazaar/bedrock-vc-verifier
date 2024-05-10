@@ -5,6 +5,8 @@
 ### Added
 - Add support for using a configured external DID resolver.
 - Add support for `did:web` DIDs via `@bedrock/did-io@10.3`.
+- Add support for `documentLoader` options when configuring a
+  verifier instance, with an option for disabling remote context loading.
 
 ## 19.1.0 - 2024-01-25
 
