@@ -13,7 +13,11 @@ const context = {
 export const verifyOptions = {
   title: 'Verify Options',
   type: 'object',
-  required: ['didResolver'],
+  oneOf: [{
+    required: ['didResolver']
+  }, {
+    required: ['documentLoader']
+  }],
   additionalProperties: false,
   properties: {
     didResolver: {
@@ -25,6 +29,17 @@ export const verifyOptions = {
         url: {
           type: 'string',
           pattern: '^https://[^.]+.[^.]+'
+        }
+      }
+    },
+    documentLoader: {
+      title: 'Document Loader',
+      type: 'object',
+      required: ['allowRemoteContexts'],
+      additionalProperties: false,
+      properties: {
+        allowRemoteContexts: {
+          type: 'boolean'
         }
       }
     }
