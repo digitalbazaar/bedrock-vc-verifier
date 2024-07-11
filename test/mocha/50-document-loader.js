@@ -31,7 +31,7 @@ const didKeyDriver = _didKeyDriver();
 // https://www.w3.org/2018/credentials/examples/v1
 const mockCredentials = require('./mock-credentials.json');
 
-describe.only('document loader option', () => {
+describe('document loader option', () => {
   let capabilityAgent;
   let verifierConfig;
   let verifierId;
