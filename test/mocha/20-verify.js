@@ -211,6 +211,51 @@ describe('verify APIs', () => {
       });
     }
     const [mockCredential] = mockCredentials;
+    it('verifies a VC-JWT enveloped credential', async () => {
+      let verifiableCredential = klona(mockCredential);
+      delete verifiableCredential.proof;
+      // for simplicity, sign with existing capability agent
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await helpers.envelopeCredential({
+        verifiableCredential,
+        signer
+      });
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/credentials/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      const [check] = checks;
+      check.should.be.a('string');
+      check.should.equal('proof');
+      should.exist(result.data.results);
+      result.data.results.should.be.an('array');
+      result.data.results.should.have.length(1);
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    });
     it('verifies a valid credential w/oauth2 w/root scope', async () => {
       const verifiableCredential = klona(mockCredential);
       let error;
