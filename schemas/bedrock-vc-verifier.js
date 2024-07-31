@@ -195,12 +195,41 @@ export const verifyCredentialBody = {
       type: 'object'
     },
     verifiableCredential: {
-      type: 'object',
-      additionalProperties: true,
-      required: ['@context'],
-      properties: {
-        '@context': vcContext
-      }
+      anyOf: [{
+        // VerifiableCredential
+        type: 'object',
+        additionalProperties: true,
+        required: ['@context'],
+        properties: {
+          '@context': vcContext
+        }
+      }, {
+        // EnvelopedVerifiableCredential
+        type: 'object',
+        additionalProperties: false,
+        required: ['@context', 'id', 'type'],
+        properties: {
+          '@context': {
+            anyOf: [{
+              const: VC_CONTEXT_2
+            }, {
+              type: 'array',
+              minItems: 1,
+              maxItems: 1,
+              // the first context must be the VC context
+              items: [{
+                const: VC_CONTEXT_2
+              }]
+            }]
+          },
+          id: {
+            type: 'string'
+          },
+          type: {
+            const: 'EnvelopedVerifiableCredential'
+          }
+        }
+      }]
     }
   }
 };
