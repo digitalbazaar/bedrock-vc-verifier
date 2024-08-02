@@ -3,7 +3,6 @@ module.exports = {
     mocha: true
   },
   globals: {
-    assertNoError: true,
     should: true
   }
 };
