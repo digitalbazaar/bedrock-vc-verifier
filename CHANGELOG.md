@@ -1,12 +1,35 @@
 # bedrock-vc-verifier ChangeLog
 
-## 19.2.0 - 2024-mm-dd
+## 20.0.0 - 2024-mm-dd
 
 ### Added
 - Add support for using a configured external DID resolver.
 - Add support for `did:web` DIDs via `@bedrock/did-io@10.3`.
 - Add support for `documentLoader` options when configuring a
   verifier instance, with an option for disabling remote context loading.
+
+### Changed
+- **BREAKING**: Update peer dependencies.
+  - `@bedrock/core@6.1.3`
+  - `@bedrock/credentials-context@5.0.2`
+  - `@bedrock/data-integrity-context@4.0.3`
+  - `@bedrock/did-context@6.0.0`
+  - `@bedrock/express@8.3.1`
+  - `@bedrock/https-agent@4.1.0`
+  - `@bedrock/jsonld-document-loader@5.1.0`
+  - `@bedrock/mongodb@10.2.0`
+  - `@bedrock/multikey-context@3.0.0`
+  - `@bedrock/security-context@9.0.0`
+  - `@bedrock/service-agent@9.0.2`
+  - `@bedrock/service-context-store@12.0.0`
+  - `@bedrock/service-core@10.0.0`
+  - `@bedrock/validation@7.1.0`
+  - `@bedrock/vc-revocation-list-context@5.0.0`
+  - `@bedrock/vc-status-list-context@6.0.2`
+  - `@bedrock/veres-one-context@16.0.0`
+- Update to `@digitalbazaar/vc@7`.
+  - Adds VC 2.0 support.
+- Update minor, test, and dev dependencies.
 
 ## 19.1.0 - 2024-01-25
 
