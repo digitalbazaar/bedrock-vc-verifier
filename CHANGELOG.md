@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 20.0.0 - 2024-mm-dd
+## 20.0.0 - 2024-08-02
 
 ### Added
 - Add support for using a configured external DID resolver.
