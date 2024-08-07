@@ -81,10 +81,21 @@ function verifiableCredential() {
 const envelopedVerifiableCredential = {
   title: 'Enveloped Verifiable Credential',
   type: 'object',
-  additionalProperties: true,
+  additionalProperties: false,
+  required: ['@context', 'id', 'type'],
   properties: {
     '@context': {
-      const: VC_CONTEXT_2
+      anyOf: [{
+        const: VC_CONTEXT_2
+      }, {
+        type: 'array',
+        minItems: 1,
+        maxItems: 1,
+        // the first context must be the VC context
+        items: [{
+          const: VC_CONTEXT_2
+        }]
+      }]
     },
     id: {
       type: 'string'
@@ -92,12 +103,7 @@ const envelopedVerifiableCredential = {
     type: {
       const: 'EnvelopedVerifiableCredential'
     }
-  },
-  required: [
-    '@context',
-    'id',
-    'type'
-  ]
+  }
 };
 
 export function verifiablePresentation() {
@@ -140,6 +146,34 @@ export function verifiablePresentation() {
     }
   };
 }
+
+const envelopedVerifiablePresentation = {
+  title: 'Enveloped Verifiable Presentation',
+  type: 'object',
+  additionalProperties: false,
+  required: ['@context', 'id', 'type'],
+  properties: {
+    '@context': {
+      anyOf: [{
+        const: VC_CONTEXT_2
+      }, {
+        type: 'array',
+        minItems: 1,
+        maxItems: 1,
+        // the first context must be the VC context
+        items: [{
+          const: VC_CONTEXT_2
+        }]
+      }]
+    },
+    id: {
+      type: 'string'
+    },
+    type: {
+      const: 'EnvelopedVerifiablePresentation'
+    }
+  }
+};
 
 export const verifyOptions = {
   title: 'Verify Options',
@@ -185,71 +219,42 @@ export const createChallengeBody = {
   properties: {}
 };
 
-export const verifyCredentialBody = {
-  title: 'Verify Credential Body',
-  type: 'object',
-  required: ['verifiableCredential'],
-  additionalProperties: false,
-  properties: {
-    options: {
-      type: 'object'
-    },
-    verifiableCredential: {
-      anyOf: [{
-        // VerifiableCredential
-        type: 'object',
-        additionalProperties: true,
-        required: ['@context'],
-        properties: {
-          '@context': vcContext
-        }
-      }, {
-        // EnvelopedVerifiableCredential
-        type: 'object',
-        additionalProperties: false,
-        required: ['@context', 'id', 'type'],
-        properties: {
-          '@context': {
-            anyOf: [{
-              const: VC_CONTEXT_2
-            }, {
-              type: 'array',
-              minItems: 1,
-              maxItems: 1,
-              // the first context must be the VC context
-              items: [{
-                const: VC_CONTEXT_2
-              }]
-            }]
-          },
-          id: {
-            type: 'string'
-          },
-          type: {
-            const: 'EnvelopedVerifiableCredential'
-          }
-        }
-      }]
-    }
-  }
-};
-
-export const verifyPresentationBody = {
-  title: 'Verify Presentation Body',
-  type: 'object',
-  required: ['verifiablePresentation'],
-  additionalProperties: false,
-  properties: {
-    options: {
-      type: 'object'
-    },
-    verifiablePresentation: {
-      type: 'object',
-      additionalProperties: true,
-      required: ['@context'],
-      properties: {
-        '@context': vcContext
+export function verifyCredentialBody() {
+  return {
+    title: 'Verify Credential Body',
+    type: 'object',
+    required: ['verifiableCredential'],
+    additionalProperties: false,
+    properties: {
+      options: {
+        type: 'object'
+      },
+      verifiableCredential: {
+        anyOf: [
+          verifiableCredential(),
+          envelopedVerifiableCredential
+        ]
       }
     }
-  }
-};
+  };
+}
+
+export function verifyPresentationBody() {
+  return {
+    title: 'Verify Presentation Body',
+    type: 'object',
+    required: ['verifiablePresentation'],
+    additionalProperties: false,
+    properties: {
+      options: {
+        type: 'object'
+      },
+      verifiablePresentation: {
+        anyOf: [
+          verifiablePresentation(),
+          envelopedVerifiablePresentation
+        ]
+      }
+    }
+  };
+}
