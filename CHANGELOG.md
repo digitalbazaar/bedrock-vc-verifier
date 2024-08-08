@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 20.1.1 - 2024-08-dd
+## 20.1.1 - 2024-08-08
 
 ### Fixed
 - Ensure a DI-protected VP that contains at least one enveloped VC can be
