@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 20.1.2 - 2024-08-dd
+## 20.1.2 - 2024-08-08
 
 ### Fixed
 - Fix in-place modification (creates a clone instead) of VC/VP properties
