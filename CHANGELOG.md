@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 20.1.0 - 2024-08-dd
+## 20.1.0 - 2024-08-07
 
 ### Added
 - Add feature to verify VC-JWT-enveloped credentials and presentations. These
