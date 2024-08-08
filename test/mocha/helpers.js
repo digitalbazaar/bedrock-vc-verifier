@@ -391,7 +391,7 @@ export async function envelopeCredential({
 }
 
 export async function envelopePresentation({
-  verifiablePresentation, signer, options = {}
+  verifiablePresentation, challenge, domain, signer, options = {}
 } = {}) {
   /* Example:
   {
@@ -400,6 +400,8 @@ export async function envelopePresentation({
   }.
   {
     "iss": <verifiablePresentation.holder>,
+    "aud": <verifiablePresentation.domain>,
+    "nonce": <verifiablePresentation.nonce>,
     "jti": <verifiablePresentation.id>
     "nbf": <verifiablePresentation.[validFrom]>
     "exp": <verifiablePresentation.[validUntil]>
@@ -409,7 +411,9 @@ export async function envelopePresentation({
   const {id, holder, validFrom, validUntil} = verifiablePresentation;
 
   const payload = {
-    iss: holder?.id ?? holder
+    iss: holder?.id ?? holder,
+    aud: domain,
+    nonce: challenge
   };
 
   if(id !== undefined) {
