@@ -144,7 +144,7 @@ describe('verify APIs', () => {
         description = `${type}`;
       }
       description += `, DID method ${method}`;
-      describe.skip(description, () => {
+      describe(description, () => {
         it('verifies a valid credential', async () => {
           let verifiableCredential = klona(mockCredential);
           if(cryptosuite === 'ecdsa-sd-2023') {
