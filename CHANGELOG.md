@@ -1,5 +1,17 @@
 # bedrock-vc-verifier ChangeLog
 
+## 20.1.0 - 2024-08-dd
+
+### Added
+- Add feature to verify VC-JWT-enveloped credentials and presentations. These
+  credentials and presentations must be sent using an VC 2.x
+  `EnvelopedVerifiableCredential` or `EnvelopedVerifiablePresentation` to the
+  appropriate VC API endpoint. For presentations, any VCs inside the
+  presentation can be provided using `EnvelopedVerifiableCredential` or, if a
+  the `EnvelopedVerifiablePresentation` envelopes a 1.1 VP, the VCs can
+  be expressed directly as strings to allow for interoperability with
+  VC-JWT 1.1.
+
 ## 20.0.0 - 2024-08-02
 
 ### Added
