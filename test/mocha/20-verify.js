@@ -32,6 +32,8 @@ const didKeyDriver = _didKeyDriver();
 const mockCredentials = require('./mock-credentials.json');
 const mockExpiredCredential = require('./mock-expired-credential.json');
 
+const VC_CONTEXT_1 = 'https://www.w3.org/2018/credentials/v1';
+
 describe('verify APIs', () => {
   let capabilityAgent;
   let verifierConfig;
@@ -650,6 +652,84 @@ describe('verify APIs', () => {
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137'
       });
       presentation.verifiableCredential = verifiableCredential;
+
+      // get challenge from verifier
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
+
+      const domain = 'rp.example';
+      const envelopedPresentation = await helpers.envelopePresentation({
+        verifiablePresentation: presentation,
+        challenge,
+        domain,
+        signer
+      });
+
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/presentations/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              challenge,
+              domain,
+              checks: ['proof'],
+            },
+            verifiablePresentation: envelopedPresentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('proof');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      should.exist(result.data.presentationResult);
+      result.data.presentationResult.should.be.an('object');
+      should.exist(result.data.presentationResult.verified);
+      result.data.presentationResult.verified.should.be.a('boolean');
+      result.data.presentationResult.verified.should.equal(true);
+      should.exist(result.data.credentialResults);
+      const {data: {credentialResults}} = result;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(true);
+    });
+    it('verifies a VC-JWT 1.1 enveloped presentation', async () => {
+      let verifiableCredential = klona(mockCredential);
+      delete verifiableCredential.proof;
+      // for simplicity, sign with existing capability agent
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await helpers.envelopeCredential({
+        verifiableCredential,
+        signer
+      });
+
+      const presentation = vc.createPresentation({
+        holder: capabilityAgent.id,
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137'
+      });
+      presentation.verifiableCredential = verifiableCredential;
+      // force VC-JWT 1.1 mode with `verifiableCredential` as a string
+      presentation['@context'] = [VC_CONTEXT_1];
+      const credentialJwt = verifiableCredential.id.slice(
+        'data:application/jwt,'.length);
+      presentation.verifiableCredential = [credentialJwt];
 
       // get challenge from verifier
       const {data: {challenge}} = await helpers.createChallenge(
