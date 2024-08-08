@@ -1,6 +1,6 @@
 {
   "name": "@bedrock/vc-verifier",
-  "version": "20.1.2",
+  "version": "20.1.3-0",
   "type": "module",
   "description": "Bedrock VC Verifier",
   "main": "./lib/index.js",
