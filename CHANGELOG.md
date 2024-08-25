@@ -5,6 +5,7 @@
 ### Fixed
 - Throw better error if JWT verification method cannot be retrieved
   from `kid` URL.
+- Improve verification method controller check error.
 
 ## 21.0.0 - 2024-08-19
 
