@@ -1,5 +1,11 @@
 # bedrock-vc-verifier ChangeLog
 
+## 21.0.1 - 2024-08-dd
+
+### Fixed
+- Throw better error if JWT verification method cannot be retrieved
+  from `kid` URL.
+
 ## 21.0.0 - 2024-08-19
 
 ### Changed
