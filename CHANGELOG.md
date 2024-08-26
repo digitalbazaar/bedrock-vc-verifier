@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 21.0.2 - 2024-08-dd
+## 21.0.2 - 2024-08-26
 
 ### Fixed
 - Use `@digitalbazaar/ecdsa-rdfc-2019@1.1.1` to get P-384 proof fix.
