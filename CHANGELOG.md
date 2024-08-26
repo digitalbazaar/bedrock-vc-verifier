@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 21.0.3 - 2024-08-dd
+## 21.0.3 - 2024-08-26
 
 ### Fixed
 - Use latest cryptosuite dependencies to get bug fixes.
