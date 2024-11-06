@@ -235,6 +235,18 @@ export function verifyCredentialBody() {
           envelopedVerifiableCredential
         ]
       }
+      // FIXME: add `returnCredential`
+      // FIXME: add `returnProblemDetails`
+      /*
+{
+  "verified": false,
+  "document": verifiableCredential,
+  "mediaType": "application/vc",
+  "controller": issuer,
+  "controllerDocument": didDocument,
+  "warnings": [ProblemDetails],
+  "errors": [ProblemDetails]
+}*/
     }
   };
 }
