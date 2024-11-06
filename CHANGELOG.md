@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 21.1.0 - 2024-11-dd
+
+### Added
+- Support checking `BitstringStatusList` credential status checks.
+
 ## 21.0.3 - 2024-08-26
 
 ### Fixed
