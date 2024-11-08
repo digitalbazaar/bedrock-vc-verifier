@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 21.2.0 - 2024-11-xx
+## 21.2.0 - 2024-11-08
 
 ### Added
 - Add support for verifying vcs with `ecdsa-jcs-2019` and `eddsa-jcs-2022`
