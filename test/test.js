@@ -6,6 +6,7 @@ import {asyncHandler} from '@bedrock/express';
 import {didIo} from '@bedrock/did-io';
 import {getServiceIdentities} from '@bedrock/app-identity';
 import {handlers} from '@bedrock/meter-http';
+import {jsonLdDocumentLoader} from '@bedrock/jsonld-document-loader';
 import '@bedrock/edv-storage';
 import '@bedrock/https-agent';
 import '@bedrock/kms';
@@ -15,6 +16,15 @@ import '@bedrock/meter-usage-reporter';
 import '@bedrock/server';
 import '@bedrock/ssm-mongodb';
 import '@bedrock/vc-verifier';
+
+const contexts = new Map([
+  ['https://www.w3.org/ns/credentials/examples/v2', {
+    '@context': {
+      '@vocab': 'https://www.w3.org/ns/credentials/examples#'
+    }
+  }]
+]);
+jsonLdDocumentLoader.addDocuments({documents: contexts});
 
 import {mockData} from './mocha/mock.data.js';
 

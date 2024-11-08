@@ -219,7 +219,7 @@ describe('did resolver option', () => {
       if(cryptosuite) {
         if(
           cryptosuite === 'ecdsa-2019' || cryptosuite === 'ecdsa-rdfc-2019' ||
-          cryptosuite === 'ecdsa-sd-2023'
+          cryptosuite === 'ecdsa-jcs-2019' || cryptosuite === 'ecdsa-sd-2023'
         ) {
           const keyType = helpers.getEcdsaAlgorithms({
             credential: mockCredential

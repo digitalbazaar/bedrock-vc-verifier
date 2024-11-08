@@ -301,6 +301,7 @@ export function getEcdsaAlgorithms({credential, presentation} = {}) {
     for(const proof of proofs) {
       if(proof.cryptosuite === 'ecdsa-2019' ||
         proof.cryptosuite === 'ecdsa-rdfc-2019' ||
+        proof.cryptosuite === 'ecdsa-jcs-2019' ||
         proof.cryptosuite === 'ecdsa-sd-2023') {
         const {verificationMethod} = proof;
         const multibaseMultikeyHeader =
