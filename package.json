@@ -59,7 +59,7 @@
     "@bedrock/did-io": "^10.3.1",
     "@bedrock/express": "^8.3.1",
     "@bedrock/https-agent": "^4.1.0",
-    "@bedrock/jsonld-document-loader": "^5.1.0",
+    "@bedrock/jsonld-document-loader": "digitalbazaar/bedrock-jsonld-document-loader#parse-json-on-status-200",
     "@bedrock/mongodb": "^10.2.0",
     "@bedrock/multikey-context": "^3.0.0",
     "@bedrock/security-context": "^9.0.0",
