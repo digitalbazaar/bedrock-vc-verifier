@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2019-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import * as bedrock from '@bedrock/core';
 import * as helpers from './helpers.js';
@@ -171,7 +171,7 @@ describe('provision API', () => {
       should.not.exist(result);
       err.data.type.should.equal('ValidationError');
       err.data.message.should.equal(
-        'A validation error occured in the \'createConfigBody\' validator.');
+        'A validation error occurred in the \'createConfigBody\' validator.');
     });
   });
 
@@ -706,7 +706,7 @@ describe('provision API', () => {
       should.not.exist(result);
       err.data.type.should.equal('ValidationError');
       err.data.message.should.equal(
-        'A validation error occured in the \'Delegated ZCAP\' validator.');
+        'A validation error occurred in the \'Delegated ZCAP\' validator.');
     });
     it('revokes a zcap', async () => {
       const config = await helpers.createConfig({capabilityAgent, zcaps});
@@ -822,7 +822,7 @@ describe('provision API', () => {
       should.not.exist(result);
       err.data.type.should.equal('ValidationError');
       err.data.message.should.equal(
-        'A validation error occured in the \'createContextBody\' validator.');
+        'A validation error occurred in the \'createContextBody\' validator.');
     });
     it('updates a context', async () => {
       const config = await helpers.createConfig({capabilityAgent, zcaps});
