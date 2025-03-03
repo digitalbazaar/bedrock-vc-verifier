@@ -1,5 +1,11 @@
 # bedrock-vc-verifier ChangeLog
 
+## 21.2.1 - 2025-mm-dd
+
+### Fixed
+- Return passed `record` instead of resulting record from mongodb calls to
+  enable using newer mongodb driver.
+
 ## 21.2.0 - 2024-11-08
 
 ### Added
