@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 21.2.1 - 2025-mm-dd
+## 21.2.1 - 2025-03-03
 
 ### Fixed
 - Return passed `record` instead of resulting record from mongodb calls to
