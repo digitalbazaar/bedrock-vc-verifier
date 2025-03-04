@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 21.2.2 - 2025-mm-dd
+## 21.2.2 - 2025-03-04
 
 ### Fixed
 - Remove unused `background` option from mongodb index creation.
