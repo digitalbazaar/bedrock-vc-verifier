@@ -4,6 +4,8 @@
 
 ### Fixed
 - Do not pass `writeOptions` in database calls.
+- Pass `includeResultMetadata: true` to `findOneAndUpdate` to ensure meta data
+  is always returned.
 
 ## 21.2.2 - 2025-03-04
 
