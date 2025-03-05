@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 21.2.3 - 2025-mm-dd
+## 21.2.3 - 2025-03-04
 
 ### Fixed
 - Do not pass `writeOptions` in database calls.
