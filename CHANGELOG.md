@@ -1,5 +1,39 @@
 # bedrock-vc-verifier ChangeLog
 
+## 22.0.0 - 2025-03-xx
+
+### Changed
+- Update dependencies.
+  - `@digitalbazaar/data-integrity@2.5.0`.
+  - `@digitalbazaar/ecdsa-multikey@1.8.0`.
+  - `@digitalbazaar/ecdsa-rdfc-2019-cryptosuite@1.2.0`.
+  - `@digitalbazaar/ed25519-multikey@1.3.1`.
+  - `@digitalbazaar/ed25519-signature-2018@4.1.0`.
+  - `@digitalbazaar/eddsa-rdfc-2022-cryptosuite@1.2.0`.
+  - `@digitalbazaar/vc@7.1.2`.
+  - `@digitalbazaar/vc-bitstring-status-list@2.0.1`.
+  - `@digitalbazaar/vc-status-list@8.0.1`.
+  - `body-parser@1.20.3`.
+  - `jose@6.0.10`.
+  - `serialize-error@12.0.0`.
+- Update peer dependencies.
+  - `@bedrock/core@6.3.0`.
+  - `@bedrock/credentials-context@5.0.3`.
+  - `@bedrock/did-io@10.4.0`.
+  - `@bedrock/jsonld-document-loader@5.2.0`.
+  - **BREAKING**: `@bedrock/mongodb@11`.
+    - Use MongoDB driver 6.x and update error names and details.
+    - See changelog for details.
+  - **BREAKING**: `@bedrock/service-agent@10`.
+    - Updated for `@bedrock/mongodb@11`.
+  - **BREAKING**: `@bedrock/service-context-store@13`.
+    - Updated for `@bedrock/mongodb@11`.
+  - **BREAKING**: `@bedrock/service-core@11`.
+    - Updated for `@bedrock/mongodb@11`.
+  - `@bedrock/validation@7.1.1`.
+- Update dev dependencies.
+- Update test dependencies.
+
 ## 21.2.3 - 2025-03-04
 
 ### Fixed
