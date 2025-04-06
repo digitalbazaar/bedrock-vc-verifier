@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 22.1.0 - 2025-mm-dd
+
+### Added
+- Add support for `ecdsa-xi-2023` cryptosuite.
+
 ## 22.0.0 - 2025-03-18
 
 ### Changed
