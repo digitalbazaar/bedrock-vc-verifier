@@ -71,6 +71,7 @@
     "@bedrock/service-context-store": "^13.1.0",
     "@bedrock/service-core": "^11.0.0",
     "@bedrock/validation": "^7.1.1",
+    "@bedrock/vc-barcodes-context": "^1.0.0",
     "@bedrock/vc-revocation-list-context": "^5.0.0",
     "@bedrock/vc-status-list-context": "^6.0.3",
     "@bedrock/veres-one-context": "^16.0.0"
