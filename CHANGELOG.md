@@ -4,6 +4,14 @@
 
 ### Added
 - Add support for `ecdsa-xi-2023` cryptosuite.
+- Add support for verifying VCBs:
+  - VCB must be expressed as an `EnvelopedVerifiableCredential`.
+  - Vanilla QR VCBs can be verified; no support yet for QR VCBs with extra
+    information.
+  - PDF417 VCBs that include an AAMVA DL or ID card can be verified,
+    including with extra information.
+    - Only PDF417s issued using either the test vector/invalid issuer
+      identifier number `000000` or the by the US state of CA `636014`.
 
 ## 22.0.0 - 2025-03-18
 

@@ -18,6 +18,7 @@ import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {httpClient} from '@digitalbazaar/http-client';
 import {klona} from 'klona';
+import {util} from '@digitalbazaar/vpqr';
 
 import {mockData} from './mock.data.js';
 
@@ -303,21 +304,105 @@ describe('verify APIs', () => {
       r.verified.should.be.a('boolean');
       r.verified.should.equal(true);
     });
-    it.skip('verifies a QR code VCB', async () => {
+    it('verifies a QR code VCB', async () => {
       let verifiableCredential = klona(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
       signer.algorithm = 'Ed25519';
       verifiableCredential.issuer = capabilityAgent.id;
-      verifiableCredential = await helpers.envelopeCredential({
-        verifiableCredential,
-        signer
+      verifiableCredential = await vc.issue({
+        credential: verifiableCredential,
+        documentLoader: brDocLoader,
+        suite: new Ed25519Signature2020({signer})
       });
+      // generate vanilla VCB
+      const {payload} = await util.toQrCode({
+        header: 'VC1-',
+        jsonldDocument: verifiableCredential,
+        documentLoader: brDocLoader,
+        qrMultibaseEncoding: 'R',
+        diagnose: null
+      });
+      const envelopedVerifiableCredential = {
+        '@context': 'https://www.w3.org/ns/credentials/v2',
+        id: `data:application/vcb;barcode=qr_code,${payload}`,
+        type: 'EnvelopedVerifiableCredential'
+      };
       let error;
       let result;
       try {
         const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/credentials/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential: envelopedVerifiableCredential
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      const [check] = checks;
+      check.should.be.a('string');
+      check.should.equal('proof');
+      should.exist(result.data.results);
+      result.data.results.should.be.an('array');
+      result.data.results.should.have.length(1);
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    });
+    it.skip('verifies a QR code VCB w/extra information', async () => {
+      // add required CBOR-LD registry entry
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      /* eslint-disable */
+      const registryEntry = [
+        {
+          type: "context",
+          table:
+          {
+            "https://www.w3.org/ns/credentials/v2": 32768,
+            "https://w3id.org/vc-barcodes/v1": 32769,
+            "https://w3id.org/utopia/v2": 32770
+          }
+        },
+        {
+          type: "https://w3id.org/security#cryptosuiteString",
+          table:
+          {
+            "ecdsa-rdfc-2019": 1,
+            "ecdsa-sd-2023": 2,
+            "eddsa-rdfc-2022": 3,
+            "ecdsa-xi-2023": 4
+          }
+        }
+      ];
+      /* eslint-enable */
+      await zcapClient.write({
+        url: `${verifierId}/cborld-registry-entries`,
+        json: {id: `urn:cborld:registry-entry:100`, registryEntry},
+        capability: rootZcap
+      });
+
+      const verifiableCredential = {
+        '@context': 'https://www.w3.org/ns/credentials/v2',
+        id: `data:application/vcb;barcode=qr_code,${mockData.vcbs.qr_code}`,
+        type: 'EnvelopedVerifiableCredential'
+      };
+      let error;
+      let result;
+      try {
         result = await zcapClient.write({
           url: `${verifierId}/credentials/verify`,
           capability: rootZcap,
@@ -348,21 +433,47 @@ describe('verify APIs', () => {
       r.verified.should.be.a('boolean');
       r.verified.should.equal(true);
     });
-    it.skip('verifies a PDF417 VCB', async () => {
-      let verifiableCredential = klona(mockCredential);
-      delete verifiableCredential.proof;
-      // for simplicity, sign with existing capability agent
-      const signer = capabilityAgent.getSigner();
-      signer.algorithm = 'Ed25519';
-      verifiableCredential.issuer = capabilityAgent.id;
-      verifiableCredential = await helpers.envelopeCredential({
-        verifiableCredential,
-        signer
+    it('verifies a PDF417 VCB', async () => {
+      // add required CBOR-LD registry entry
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      /* eslint-disable */
+      const registryEntry = [
+        {
+          type: "context",
+          table:
+          {
+            "https://www.w3.org/ns/credentials/v2": 32768,
+            "https://w3id.org/vc-barcodes/v1": 32769,
+            "https://w3id.org/utopia/v2": 32770
+          }
+        },
+        {
+          type: "https://w3id.org/security#cryptosuiteString",
+          table:
+          {
+            "ecdsa-rdfc-2019": 1,
+            "ecdsa-sd-2023": 2,
+            "eddsa-rdfc-2022": 3,
+            "ecdsa-xi-2023": 4
+          }
+        }
+      ];
+      /* eslint-enable */
+      await zcapClient.write({
+        url: `${verifierId}/cborld-registry-entries`,
+        json: {id: `urn:cborld:registry-entry:100`, registryEntry},
+        capability: rootZcap
       });
+
+      const verifiableCredential = {
+        '@context': 'https://www.w3.org/ns/credentials/v2',
+        id: 'data:application/vcb;barcode=pdf417;base64,' +
+          Buffer.from(mockData.vcbs.pdf417, 'utf8').toString('base64'),
+        type: 'EnvelopedVerifiableCredential'
+      };
       let error;
       let result;
       try {
-        const zcapClient = helpers.createZcapClient({capabilityAgent});
         result = await zcapClient.write({
           url: `${verifierId}/credentials/verify`,
           capability: rootZcap,
