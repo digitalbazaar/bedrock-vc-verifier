@@ -326,7 +326,7 @@ describe('verify APIs', () => {
       });
       const envelopedVerifiableCredential = {
         '@context': 'https://www.w3.org/ns/credentials/v2',
-        id: `data:application/vcb;barcode=qr_code,${payload}`,
+        id: `data:application/vcb;barcode-format=qr_code,${payload}`,
         type: 'EnvelopedVerifiableCredential'
       };
       let error;
@@ -397,7 +397,8 @@ describe('verify APIs', () => {
 
       const verifiableCredential = {
         '@context': 'https://www.w3.org/ns/credentials/v2',
-        id: `data:application/vcb;barcode=qr_code,${mockData.vcbs.qr_code}`,
+        id: 'data:application/vcb;barcode-format=qr_code,' +
+          mockData.vcbs.qr_code,
         type: 'EnvelopedVerifiableCredential'
       };
       let error;
@@ -467,7 +468,7 @@ describe('verify APIs', () => {
 
       const verifiableCredential = {
         '@context': 'https://www.w3.org/ns/credentials/v2',
-        id: 'data:application/vcb;barcode=pdf417;base64,' +
+        id: 'data:application/vcb;barcode-format=pdf417;base64,' +
           Buffer.from(mockData.vcbs.pdf417, 'utf8').toString('base64'),
         type: 'EnvelopedVerifiableCredential'
       };
