@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 22.1.1 - 2025-04-dd
+
+### Fixed
+- Fix processing of base64-encoded `qr_code` VCBs.
+
 ## 22.1.0 - 2025-04-10
 
 ### Added
