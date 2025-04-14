@@ -385,7 +385,7 @@ export async function envelopeCredential({
 
   const jwt = await signJWT({payload, protectedHeader, signer});
   return {
-    '@context': VC_CONTEXT_2,
+    '@context': [VC_CONTEXT_2],
     id: `data:application/jwt,${jwt}`,
     type: 'EnvelopedVerifiableCredential'
   };
