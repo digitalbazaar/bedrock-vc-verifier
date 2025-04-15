@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 22.1.2 - 2025-04-dd
+## 22.1.2 - 2025-04-14
 
 ### Fixed
 - Fix processing of unprotected VPs that contain enveloped verifiable
