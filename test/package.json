@@ -57,7 +57,7 @@
     "@digitalbazaar/edv-client": "^16.1.0",
     "@digitalbazaar/ezcap": "^4.1.0",
     "@digitalbazaar/http-client": "^4.1.1",
-    "@digitalbazaar/vc": "^7.1.2",
+    "@digitalbazaar/vc": "^7.2.0",
     "@digitalbazaar/vc-status-list-context": "^3.1.1",
     "@digitalbazaar/vpqr": "^5.1.0",
     "@digitalbazaar/webkms-client": "^14.1.2",
