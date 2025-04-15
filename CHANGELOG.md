@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 22.2.0 - 2025-04-dd
+
+### Added
+- Include `credential` in DI results to match enveloped VC results.
+
 ## 22.1.2 - 2025-04-14
 
 ### Fixed
