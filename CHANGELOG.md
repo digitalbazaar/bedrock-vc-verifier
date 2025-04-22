@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 22.2.1 - 2025-04-xx
+## 22.2.1 - 2025-04-22
 
 ### Fixed
 - Ensure a credential verification error is returned if one is available,
