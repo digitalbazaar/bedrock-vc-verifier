@@ -2,7 +2,7 @@
 
 ## 22.2.1 - 2025-04-xx
 
-### Removed 
+### Removed
 - Remove result.presentationResult check on first credential result.
 
 ## 22.2.0 - 2025-04-14
