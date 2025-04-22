@@ -2,8 +2,9 @@
 
 ## 22.2.1 - 2025-04-xx
 
-### Removed
-- Remove result.presentationResult check on first credential result.
+### Fixed
+- Ensure a credential verification error is returned if one is available,
+  including if an unprotected presentation was used.
 
 ## 22.2.0 - 2025-04-14
 

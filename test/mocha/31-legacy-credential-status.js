@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2019-2023 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2019-2025 Digital Bazaar, Inc. All rights reserved.
  */
 import * as helpers from './helpers.js';
 import * as statusListCtx from '@digitalbazaar/vc-status-list-context';
@@ -546,7 +546,7 @@ describe('verify legacy credential status', () => {
       const {checks, error: {message: errorMsg}} = error.data;
       checks.should.be.an('array');
       checks.should.have.length(1);
-      errorMsg.should.equal('The credential failed a status check.');
+      errorMsg.should.equal('A credential failed a status check.');
       error.data.statusResult.verified.should.equal(false);
       const [{check}] = checks;
       check.should.be.an('array');
@@ -638,7 +638,7 @@ describe('verify legacy credential status', () => {
       const {checks, error: {message: errorMsg}} = error.data;
       checks.should.be.an('array');
       checks.should.have.length(1);
-      errorMsg.should.equal('The credential failed a status check.');
+      errorMsg.should.equal('A credential failed a status check.');
       error.data.statusResult.verified.should.equal(false);
       const [{check}] = checks;
       check.should.be.an('array');
