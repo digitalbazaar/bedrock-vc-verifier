@@ -1,5 +1,13 @@
 # bedrock-vc-verifier ChangeLog
 
+## 22.3.0 - 2025-04-dd
+
+### Added
+- Use `@digitalbazaar/cborld@8`. This adds support for decoding payloads
+  that use the CBOR-LD 1.0 tag `0xcb1d` (`51997`).
+- Use `@digitalbazaar/vpqr@5.2`. This adds support for decoding QR codes
+  that use the CBOR-LD 1.0 tag `0xcb1d` (`51997`).
+
 ## 22.2.1 - 2025-04-22
 
 ### Fixed
