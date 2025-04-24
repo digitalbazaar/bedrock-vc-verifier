@@ -5,7 +5,7 @@
 ### Added
 - Use `@digitalbazaar/cborld@8`. This adds support for decoding payloads
   that use the CBOR-LD 1.0 tag `0xcb1d` (`51997`).
-- Use `@digitalbazaar/vpqr@5.2`. This adds support for decoding QR codes
+- Use `@digitalbazaar/vpqr@6.0`. This adds support for decoding QR codes
   that use the CBOR-LD 1.0 tag `0xcb1d` (`51997`).
 
 ## 22.2.1 - 2025-04-22
