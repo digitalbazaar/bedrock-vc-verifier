@@ -320,6 +320,130 @@ describe('verify APIs', () => {
       const {payload} = await util.toQrCode({
         header: 'VC1-',
         jsonldDocument: verifiableCredential,
+        registryEntryId: 1,
+        documentLoader: brDocLoader,
+        qrMultibaseEncoding: 'R',
+        diagnose: null
+      });
+      const envelopedVerifiableCredential = {
+        '@context': 'https://www.w3.org/ns/credentials/v2',
+        id: 'data:application/vcb;barcode-format=qr_code;base64,' +
+          Buffer.from(payload, 'utf8').toString('base64'),
+        type: 'EnvelopedVerifiableCredential'
+      };
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/credentials/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential: envelopedVerifiableCredential
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      const [check] = checks;
+      check.should.be.a('string');
+      check.should.equal('proof');
+      should.exist(result.data.results);
+      result.data.results.should.be.an('array');
+      result.data.results.should.have.length(1);
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    });
+    it('verifies a legacy-range QR code VCB', async () => {
+      let verifiableCredential = klona(mockCredential);
+      delete verifiableCredential.proof;
+      // for simplicity, sign with existing capability agent
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await vc.issue({
+        credential: verifiableCredential,
+        documentLoader: brDocLoader,
+        suite: new Ed25519Signature2020({signer})
+      });
+      // generate vanilla VCB
+      const {payload} = await util.toQrCode({
+        header: 'VC1-',
+        jsonldDocument: verifiableCredential,
+        format: 'legacy-range',
+        registryEntryId: 1,
+        documentLoader: brDocLoader,
+        qrMultibaseEncoding: 'R',
+        diagnose: null
+      });
+      const envelopedVerifiableCredential = {
+        '@context': 'https://www.w3.org/ns/credentials/v2',
+        id: 'data:application/vcb;barcode-format=qr_code;base64,' +
+          Buffer.from(payload, 'utf8').toString('base64'),
+        type: 'EnvelopedVerifiableCredential'
+      };
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/credentials/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              checks: ['proof'],
+            },
+            verifiableCredential: envelopedVerifiableCredential
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      const [check] = checks;
+      check.should.be.a('string');
+      check.should.equal('proof');
+      should.exist(result.data.results);
+      result.data.results.should.be.an('array');
+      result.data.results.should.have.length(1);
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    });
+    it('verifies a legacy-singleton QR code VCB', async () => {
+      let verifiableCredential = klona(mockCredential);
+      delete verifiableCredential.proof;
+      // for simplicity, sign with existing capability agent
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await vc.issue({
+        credential: verifiableCredential,
+        documentLoader: brDocLoader,
+        suite: new Ed25519Signature2020({signer})
+      });
+      // generate vanilla VCB
+      const {payload} = await util.toQrCode({
+        header: 'VC1-',
+        jsonldDocument: verifiableCredential,
+        format: 'legacy-singleton',
         documentLoader: brDocLoader,
         qrMultibaseEncoding: 'R',
         diagnose: null
@@ -1146,7 +1270,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.be.a('boolean');
       credentialResult.verified.should.equal(true);
     });
-    it('verifies a DI VP with a VCB enveloped credential', async () => {
+    it('verifies a DI VP with a VCB enveloped VC', async () => {
       let verifiableCredential = klona(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
@@ -1161,6 +1285,184 @@ describe('verify APIs', () => {
       const {payload} = await util.toQrCode({
         header: 'VC1-',
         jsonldDocument: verifiableCredential,
+        registryEntryId: 1,
+        documentLoader: brDocLoader,
+        qrMultibaseEncoding: 'R',
+        diagnose: null
+      });
+      verifiableCredential = {
+        '@context': ['https://www.w3.org/ns/credentials/v2'],
+        id: 'data:application/vcb;barcode-format=qr_code;base64,' +
+          Buffer.from(payload, 'utf8').toString('base64'),
+        type: 'EnvelopedVerifiableCredential'
+      };
+      const presentation = vc.createPresentation({
+        holder: capabilityAgent.id,
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137'
+      });
+      presentation.verifiableCredential = verifiableCredential;
+
+      // get challenge from verifier
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
+
+      const domain = 'rp.example';
+      await vc.signPresentation({
+        presentation,
+        suite: new Ed25519Signature2020({signer}),
+        challenge,
+        domain,
+        documentLoader: brDocLoader
+      });
+
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/presentations/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              challenge,
+              domain,
+              checks: ['proof'],
+            },
+            verifiablePresentation: presentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('proof');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      should.exist(result.data.presentationResult);
+      result.data.presentationResult.should.be.an('object');
+      should.exist(result.data.presentationResult.verified);
+      result.data.presentationResult.verified.should.be.a('boolean');
+      result.data.presentationResult.verified.should.equal(true);
+      should.exist(result.data.credentialResults);
+      const {data: {credentialResults}} = result;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(true);
+    });
+    it('verifies a DI VP w/legacy-range VCB enveloped VC', async () => {
+      let verifiableCredential = klona(mockCredential);
+      delete verifiableCredential.proof;
+      // for simplicity, sign with existing capability agent
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await vc.issue({
+        credential: verifiableCredential,
+        documentLoader: brDocLoader,
+        suite: new Ed25519Signature2020({signer})
+      });
+      const {payload} = await util.toQrCode({
+        header: 'VC1-',
+        jsonldDocument: verifiableCredential,
+        format: 'legacy-range',
+        registryEntryId: 1,
+        documentLoader: brDocLoader,
+        qrMultibaseEncoding: 'R',
+        diagnose: null
+      });
+      verifiableCredential = {
+        '@context': ['https://www.w3.org/ns/credentials/v2'],
+        id: 'data:application/vcb;barcode-format=qr_code;base64,' +
+          Buffer.from(payload, 'utf8').toString('base64'),
+        type: 'EnvelopedVerifiableCredential'
+      };
+      const presentation = vc.createPresentation({
+        holder: capabilityAgent.id,
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137'
+      });
+      presentation.verifiableCredential = verifiableCredential;
+
+      // get challenge from verifier
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
+
+      const domain = 'rp.example';
+      await vc.signPresentation({
+        presentation,
+        suite: new Ed25519Signature2020({signer}),
+        challenge,
+        domain,
+        documentLoader: brDocLoader
+      });
+
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/presentations/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              challenge,
+              domain,
+              checks: ['proof'],
+            },
+            verifiablePresentation: presentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('proof');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      should.exist(result.data.presentationResult);
+      result.data.presentationResult.should.be.an('object');
+      should.exist(result.data.presentationResult.verified);
+      result.data.presentationResult.verified.should.be.a('boolean');
+      result.data.presentationResult.verified.should.equal(true);
+      should.exist(result.data.credentialResults);
+      const {data: {credentialResults}} = result;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(true);
+    });
+    it('verifies a DI VP w/legacy-singleton VCB enveloped VC', async () => {
+      let verifiableCredential = klona(mockCredential);
+      delete verifiableCredential.proof;
+      // for simplicity, sign with existing capability agent
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await vc.issue({
+        credential: verifiableCredential,
+        documentLoader: brDocLoader,
+        suite: new Ed25519Signature2020({signer})
+      });
+      const {payload} = await util.toQrCode({
+        header: 'VC1-',
+        jsonldDocument: verifiableCredential,
+        format: 'legacy-singleton',
         documentLoader: brDocLoader,
         qrMultibaseEncoding: 'R',
         diagnose: null
