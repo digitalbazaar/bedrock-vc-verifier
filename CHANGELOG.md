@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 22.3.0 - 2025-04-dd
+## 22.3.0 - 2025-04-24
 
 ### Added
 - Use `@digitalbazaar/cborld@8`. This adds support for decoding payloads
