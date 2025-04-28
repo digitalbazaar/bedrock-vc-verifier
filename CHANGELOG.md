@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 24.0.0 - 2025-04-dd
+## 23.0.0 - 2025-04-28
 
 ### Changed
 - **BREAKING**: Set default verifier instance `verifyOptions` to not allow the
