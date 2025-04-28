@@ -1,5 +1,15 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.0.0 - 2025-04-dd
+
+### Changed
+- **BREAKING**: Set default verifier instance `verifyOptions` to not allow the
+  built-in document loader to load remote URLs (e.g., contexts) by default,
+  unless they are in an allow list (e.g., used for loading the specific status
+  list credential that is being checked in a given operation). Existing
+  instances will not be affected, but new instances will automatically use
+  these defaults unless other options are manually specified.
+
 ## 22.3.0 - 2025-04-24
 
 ### Added
