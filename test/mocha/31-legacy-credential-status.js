@@ -7,7 +7,6 @@ import * as vc from '@digitalbazaar/vc';
 import {agent} from '@bedrock/https-agent';
 import {documentLoader as brDocLoader} from '@bedrock/jsonld-document-loader';
 import {CapabilityAgent} from '@digitalbazaar/webkms-client';
-import {createRequire} from 'node:module';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {
   Ed25519VerificationKey2020
@@ -17,11 +16,7 @@ import {fileURLToPath} from 'node:url';
 import fs from 'node:fs';
 import {httpClient} from '@digitalbazaar/http-client';
 import https from 'node:https';
-import {klona} from 'klona';
 import path from 'node:path';
-
-const require = createRequire(import.meta.url);
-const revocationListCtx = require('vc-revocation-list-context');
 
 import {mockData} from './mock.data.js';
 
@@ -31,8 +26,7 @@ const {baseUrl} = mockData;
 const serviceType = 'vc-verifier';
 
 const VC_SL_CONTEXT_URL = statusListCtx.constants.CONTEXT_URL_V1;
-const VC_RL_CONTEXT_URL =
-  revocationListCtx.constants.VC_REVOCATION_LIST_CONTEXT_V1_URL;
+const VC_RL_CONTEXT_URL = 'https://w3id.org/vc-revocation-list-2020/v1';
 
 const encodedList100k =
   'H4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA';
@@ -188,7 +182,7 @@ function _startServer({app}) {
       };
 
       // Revoked Status List 2021 Credential
-      revokedSlCredential = klona(slCredentialRevocation);
+      revokedSlCredential = structuredClone(slCredentialRevocation);
 
       revokedSlCredential.id =
         `${BASE_URL}/status/8ec30054-9111-11ec-9ab5-10bf48838a41`,
@@ -198,7 +192,8 @@ function _startServer({app}) {
         `${BASE_URL}/status/8ec30054-9111-11ec-9ab5-10bf48838a41#list`;
 
       // Revoked Unsigned 2021 Credential
-      revokedUnsignedCredential = klona(unsignedCredentialSl2021TypeRevocation);
+      revokedUnsignedCredential = structuredClone(
+        unsignedCredentialSl2021TypeRevocation);
       revokedUnsignedCredential.credentialStatus.id =
         `${revokedSlCredential.id}#50000`;
       revokedUnsignedCredential.credentialStatus.statusListIndex = 50000;
@@ -247,7 +242,7 @@ function _startServer({app}) {
       };
 
       // Revoked Revocation List 2020 Credential
-      revokedRlCredential = klona(rlCredential);
+      revokedRlCredential = structuredClone(rlCredential);
 
       revokedRlCredential.id =
         `${BASE_URL}/status/a63896b8-9111-11ec-9fd2-10bf48838a41`,
@@ -257,7 +252,8 @@ function _startServer({app}) {
         `${BASE_URL}/status/a63896b8-9111-11ec-9fd2-10bf48838a41#list`;
 
       // Revoked Unsigned 2020 Credential
-      revokedUnsignedCredential2 = klona(unsignedCredentialRL2020Type);
+      revokedUnsignedCredential2 = structuredClone(
+        unsignedCredentialRL2020Type);
       revokedUnsignedCredential2.credentialStatus.id =
         `${revokedRlCredential.id}#50000`;
       revokedUnsignedCredential2.credentialStatus.revocationListIndex = 50000;

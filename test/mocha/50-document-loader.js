@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2024 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2024-2025 Digital Bazaar, Inc. All rights reserved.
  */
 import * as helpers from './helpers.js';
 import * as vc from '@digitalbazaar/vc';
@@ -17,7 +17,6 @@ import {createRequire} from 'node:module';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {httpClient} from '@digitalbazaar/http-client';
-import {klona} from 'klona';
 
 import {mockData} from './mock.data.js';
 
@@ -114,7 +113,7 @@ describe('document loader option', () => {
       }
       describe(description, () => {
         it('verifies a valid credential', async () => {
-          let verifiableCredential = klona(mockCredential);
+          let verifiableCredential = structuredClone(mockCredential);
           if(cryptosuite === 'ecdsa-sd-2023') {
             const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
               selectivePointers: [
@@ -180,7 +179,7 @@ describe('document loader option', () => {
     }
     const [mockCredential] = mockCredentials;
     it('does not verify an invalid credential', async () => {
-      const badCredential = klona(mockCredential);
+      const badCredential = structuredClone(mockCredential);
       // change the degree name
       badCredential.credentialSubject.degree.name =
         'Bachelor of Science in Nursing';
@@ -211,7 +210,7 @@ describe('document loader option', () => {
       error.data.error.errors[0].message.should.equal('Invalid signature.');
     });
     it('does not verify a credential with an unknown context', async () => {
-      const badCredential = klona(mockCredential);
+      const badCredential = structuredClone(mockCredential);
       // add a context unknown to the verifier instance
       badCredential['@context'].push('https://w3id.org/age/v1');
       let error;
@@ -268,7 +267,7 @@ describe('document loader option', () => {
           const signingKey = methodFor({purpose: 'assertionMethod'});
           const suite = new Ed25519Signature2020({key: signingKey});
 
-          let verifiableCredential = klona(mockCredential);
+          let verifiableCredential = structuredClone(mockCredential);
           if(cryptosuite === 'ecdsa-sd-2023') {
             const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
               selectivePointers: [
@@ -364,7 +363,7 @@ describe('document loader option', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const badCredential = klona(mockCredential);
+      const badCredential = structuredClone(mockCredential);
       // change the degree name
       badCredential.credentialSubject.degree.name =
         'Bachelor of Science in Nursing';
@@ -426,7 +425,7 @@ describe('document loader option', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const badCredential = klona(mockCredential);
+      const badCredential = structuredClone(mockCredential);
       const presentation = vc.createPresentation({
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
         verifiableCredential: badCredential
