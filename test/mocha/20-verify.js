@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2020-2024 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2020-2025 Digital Bazaar, Inc. All rights reserved.
  */
 import * as helpers from './helpers.js';
 import * as vc from '@digitalbazaar/vc';
@@ -17,7 +17,6 @@ import {createRequire} from 'node:module';
 import {DataIntegrityProof} from '@digitalbazaar/data-integrity';
 import {Ed25519Signature2020} from '@digitalbazaar/ed25519-signature-2020';
 import {httpClient} from '@digitalbazaar/http-client';
-import {klona} from 'klona';
 import {util} from '@digitalbazaar/vpqr';
 
 import {mockData} from './mock.data.js';
@@ -149,7 +148,7 @@ describe('verify APIs', () => {
       description += `, DID method ${method}`;
       describe(description, () => {
         it('verifies a valid credential', async () => {
-          let verifiableCredential = klona(mockCredential);
+          let verifiableCredential = structuredClone(mockCredential);
           if(cryptosuite === 'ecdsa-sd-2023') {
             const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
               selectivePointers: [
@@ -215,7 +214,7 @@ describe('verify APIs', () => {
     }
     const [mockCredential] = mockCredentials;
     it('verifies a VC-JWT enveloped credential', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -260,7 +259,7 @@ describe('verify APIs', () => {
       r.verified.should.equal(true);
     });
     it('verifies a VC-JWT enveloped credential with DI', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -305,7 +304,7 @@ describe('verify APIs', () => {
       r.verified.should.equal(true);
     });
     it('verifies a QR code VCB', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -366,7 +365,7 @@ describe('verify APIs', () => {
       r.verified.should.equal(true);
     });
     it('verifies a legacy-range QR code VCB', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -428,7 +427,7 @@ describe('verify APIs', () => {
       r.verified.should.equal(true);
     });
     it('verifies a legacy-singleton QR code VCB', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -631,7 +630,7 @@ describe('verify APIs', () => {
       r.verified.should.equal(true);
     });
     it('verifies a valid credential w/oauth2 w/root scope', async () => {
-      const verifiableCredential = klona(mockCredential);
+      const verifiableCredential = structuredClone(mockCredential);
       let error;
       let result;
       try {
@@ -671,7 +670,7 @@ describe('verify APIs', () => {
     });
     it('verifies a valid credential w/oauth2 w/credentials scope',
       async () => {
-        const verifiableCredential = klona(mockCredential);
+        const verifiableCredential = structuredClone(mockCredential);
         let error;
         let result;
         try {
@@ -711,7 +710,7 @@ describe('verify APIs', () => {
       });
     it('verifies a valid credential w/oauth2 w/targeted scope',
       async () => {
-        const verifiableCredential = klona(mockCredential);
+        const verifiableCredential = structuredClone(mockCredential);
         let error;
         let result;
         try {
@@ -751,7 +750,7 @@ describe('verify APIs', () => {
       });
     it('fails to verify a valid credential w/bad oauth2 scope',
       async () => {
-        const verifiableCredential = klona(mockCredential);
+        const verifiableCredential = structuredClone(mockCredential);
         let error;
         let result;
         try {
@@ -786,7 +785,7 @@ describe('verify APIs', () => {
         error.data.cause.details.claim.should.equal('scope');
       });
     it('does not verify an invalid credential', async () => {
-      const badCredential = klona(mockCredential);
+      const badCredential = structuredClone(mockCredential);
       // change the degree name
       badCredential.credentialSubject.degree.name =
         'Bachelor of Science in Nursing';
@@ -817,7 +816,7 @@ describe('verify APIs', () => {
       error.data.error.errors[0].message.should.equal('Invalid signature.');
     });
     it('does not verify an expired credential', async () => {
-      const expiredCredential = klona(mockExpiredCredential);
+      const expiredCredential = structuredClone(mockExpiredCredential);
       let error;
       let result;
       try {
@@ -872,7 +871,7 @@ describe('verify APIs', () => {
           const signingKey = methodFor({purpose: 'assertionMethod'});
           const suite = new Ed25519Signature2020({key: signingKey});
 
-          let verifiableCredential = klona(mockCredential);
+          let verifiableCredential = structuredClone(mockCredential);
           if(cryptosuite === 'ecdsa-sd-2023') {
             const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
               selectivePointers: [
@@ -963,7 +962,7 @@ describe('verify APIs', () => {
     }
     const [mockCredential] = mockCredentials;
     it('verifies a VC-JWT enveloped VP', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -1036,7 +1035,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.equal(true);
     });
     it('verifies a VC-JWT 1.1 enveloped VP', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -1114,7 +1113,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.equal(true);
     });
     it('verifies a VC-JWT enveloped VP with DI VC', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -1192,7 +1191,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.equal(true);
     });
     it('verifies a DI VP with a VC-JWT enveloped credential', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -1271,7 +1270,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.equal(true);
     });
     it('verifies a DI VP with a VCB enveloped VC', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -1359,7 +1358,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.equal(true);
     });
     it('verifies a DI VP w/legacy-range VCB enveloped VC', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -1448,7 +1447,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.equal(true);
     });
     it('verifies a DI VP w/legacy-singleton VCB enveloped VC', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -1536,7 +1535,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.equal(true);
     });
     it('verifies a VC-JWT + DI VP', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -1622,7 +1621,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.equal(true);
     });
     it('fails to verify a VC-JWT enveloped VP with DI VC', async () => {
-      let verifiableCredential = klona(mockCredential);
+      let verifiableCredential = structuredClone(mockCredential);
       // intentionally keep proof and change `issuer`...
       // for simplicity, sign with existing capability agent
       const signer = capabilityAgent.getSigner();
@@ -1704,7 +1703,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const verifiableCredential = klona(mockCredential);
+      const verifiableCredential = structuredClone(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'did:test:foo',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -1775,7 +1774,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const verifiableCredential = klona(mockCredential);
+      const verifiableCredential = structuredClone(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'did:test:foo',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -1847,7 +1846,7 @@ describe('verify APIs', () => {
         const signingKey = methodFor({purpose: 'assertionMethod'});
         const suite = new Ed25519Signature2020({key: signingKey});
 
-        const verifiableCredential = klona(mockCredential);
+        const verifiableCredential = structuredClone(mockCredential);
         const presentation = vc.createPresentation({
           holder: 'did:test:foo',
           id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -1919,7 +1918,7 @@ describe('verify APIs', () => {
         const signingKey = methodFor({purpose: 'assertionMethod'});
         const suite = new Ed25519Signature2020({key: signingKey});
 
-        const verifiableCredential = klona(mockCredential);
+        const verifiableCredential = structuredClone(mockCredential);
         const presentation = vc.createPresentation({
           holder: 'did:test:foo',
           id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -1980,7 +1979,7 @@ describe('verify APIs', () => {
         const signingKey = methodFor({purpose: 'assertionMethod'});
         const suite = new Ed25519Signature2020({key: signingKey});
 
-        const verifiableCredential = klona(mockCredential);
+        const verifiableCredential = structuredClone(mockCredential);
         const presentation = vc.createPresentation({
           holder: 'did:test:foo',
           id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -2040,7 +2039,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const verifiableCredential = klona(mockCredential);
+      const verifiableCredential = structuredClone(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'urn:uuid:c8d4f2d0-11ea-4603-8b8b-fb24fa6b29c0',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -2089,7 +2088,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const verifiableCredential = klona(mockCredential);
+      const verifiableCredential = structuredClone(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'urn:uuid:c8d4f2d0-11ea-4603-8b8b-fb24fa6b29c0',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -2153,7 +2152,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const verifiableCredential = klona(mockCredential);
+      const verifiableCredential = structuredClone(mockCredential);
       const presentation = vc.createPresentation({
         holder: 'urn:uuid:c8d4f2d0-11ea-4603-8b8b-fb24fa6b29c0',
         id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
@@ -2202,7 +2201,7 @@ describe('verify APIs', () => {
       const signingKey = methodFor({purpose: 'assertionMethod'});
       const suite = new Ed25519Signature2020({key: signingKey});
 
-      const badCredential = klona(mockCredential);
+      const badCredential = structuredClone(mockCredential);
       // change the degree name
       badCredential.credentialSubject.degree.name =
         'Bachelor of Science in Nursing';
