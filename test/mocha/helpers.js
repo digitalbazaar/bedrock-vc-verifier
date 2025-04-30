@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2019-2025 Digital Bazaar, Inc. All rights reserved.
  */
-import * as base64url from 'base64url-universal';
 import * as bedrock from '@bedrock/core';
 import {importJWK, SignJWT} from 'jose';
 import {KeystoreAgent, KmsClient} from '@digitalbazaar/webkms-client';
@@ -453,8 +452,9 @@ export async function envelopePresentation({
 
 export async function signJWT({payload, protectedHeader, signer} = {}) {
   // encode payload and protected header
-  const b64Payload = base64url.encode(JSON.stringify(payload));
-  const b64ProtectedHeader = base64url.encode(JSON.stringify(protectedHeader));
+  const b64Payload = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const b64ProtectedHeader = Buffer.from(
+    JSON.stringify(protectedHeader)).toString('base64url');
   payload = TEXT_ENCODER.encode(b64Payload);
   protectedHeader = TEXT_ENCODER.encode(b64ProtectedHeader);
 
@@ -470,7 +470,7 @@ export async function signJWT({payload, protectedHeader, signer} = {}) {
 
   // create JWS
   const jws = {
-    signature: base64url.encode(signature),
+    signature: Buffer.from(signature).toString('base64url'),
     payload: b64Payload,
     protected: b64ProtectedHeader
   };
