@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 23.1.0 - 2025-07-dd
+## 23.1.0 - 2025-07-23
 
 ### Added
 - Add verify enveloped presentation to vcb module.
