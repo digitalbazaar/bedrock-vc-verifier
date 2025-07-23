@@ -1341,7 +1341,7 @@ describe('verify APIs', () => {
       credentialResult.verified.should.be.a('boolean');
       credentialResult.verified.should.equal(true);
     });
-    it('should not verify an enveloped VP containing a VCB' +
+    it('should not verify an enveloped VP containing a VCB ' +
       'with a bad signature', async () => {
       let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.id;
