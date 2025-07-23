@@ -1269,6 +1269,157 @@ describe('verify APIs', () => {
       credentialResult.verified.should.be.a('boolean');
       credentialResult.verified.should.equal(true);
     });
+    it('verifies an enveloped VP containing a VCB', async () => {
+      let verifiableCredential = structuredClone(mockCredential);
+      delete verifiableCredential.id;
+      delete verifiableCredential.proof;
+      // for simplicity, sign with existing capability agent
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await vc.issue({
+        credential: verifiableCredential,
+        documentLoader: brDocLoader,
+        suite: new Ed25519Signature2020({signer})
+      });
+      const verifiablePresentation = {
+        '@context': 'https://www.w3.org/2018/credentials/v1',
+        type: 'VerifiablePresentation',
+        verifiableCredential: [verifiableCredential]
+      };
+      // generate vanilla VCB
+      const {payload} = await util.toQrCode({
+        header: 'VP1-',
+        jsonldDocument: verifiablePresentation,
+        registryEntryId: 1,
+        documentLoader: brDocLoader,
+        qrMultibaseEncoding: 'R',
+        diagnose: null
+      });
+      const envelopedVerifiablePresentation = {
+        '@context': 'https://www.w3.org/ns/credentials/v2',
+        id: 'data:application/vcb;barcode-format=qr_code;base64,' +
+          Buffer.from(payload, 'utf8').toString('base64'),
+        type: 'EnvelopedVerifiablePresentation'
+      };
+      // get challenge from verifier
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/presentations/verify`,
+          capability: rootZcap,
+          json: {
+            verifiablePresentation: envelopedVerifiablePresentation,
+            options: {
+              challenge,
+              checks: [],
+            }
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      should.exist(result.data.presentationResult);
+      result.data.presentationResult.should.be.an('object');
+      should.exist(result.data.presentationResult.verified);
+      result.data.presentationResult.verified.should.be.a('boolean');
+      result.data.presentationResult.verified.should.equal(true);
+      should.exist(result.data.credentialResults);
+      const {data: {credentialResults}} = result;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(true);
+    });
+    it('should not verify an enveloped VP containing a VCB' +
+      'with a bad signature', async () => {
+      let verifiableCredential = structuredClone(mockCredential);
+      delete verifiableCredential.id;
+      delete verifiableCredential.proof;
+      // for simplicity, sign with existing capability agent
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await vc.issue({
+        credential: verifiableCredential,
+        documentLoader: brDocLoader,
+        suite: new Ed25519Signature2020({signer})
+      });
+      verifiableCredential = {
+        ...structuredClone(verifiableCredential),
+        id: 'http://example.gov/credentials/3732/INVALID-SIGNATURE'
+      };
+      const verifiablePresentation = {
+        '@context': 'https://www.w3.org/2018/credentials/v1',
+        type: 'VerifiablePresentation',
+        verifiableCredential: [verifiableCredential]
+      };
+      // generate vanilla VCB
+      const {payload} = await util.toQrCode({
+        header: 'VP1-',
+        jsonldDocument: verifiablePresentation,
+        registryEntryId: 1,
+        documentLoader: brDocLoader,
+        qrMultibaseEncoding: 'R',
+        diagnose: null
+      });
+      const envelopedVerifiablePresentation = {
+        '@context': 'https://www.w3.org/ns/credentials/v2',
+        id: 'data:application/vcb;barcode-format=qr_code;base64,' +
+          Buffer.from(payload, 'utf8').toString('base64'),
+        type: 'EnvelopedVerifiablePresentation'
+      };
+      // get challenge from verifier
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/presentations/verify`,
+          capability: rootZcap,
+          json: {
+            verifiablePresentation: envelopedVerifiablePresentation,
+            options: {
+              challenge,
+              checks: [],
+            }
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.not.exist(result);
+      should.exist(error.data);
+      error.data.error.message.should.equal('Verification error.');
+      should.exist(error.data.verified);
+      error.data.verified.should.be.a('boolean');
+      error.data.verified.should.equal(false);
+      should.exist(error.data.presentationResult);
+      error.data.presentationResult.should.be.an('object');
+      should.exist(error.data.presentationResult.verified);
+      error.data.presentationResult.verified.should.be.a('boolean');
+      error.data.presentationResult.verified.should.equal(false);
+      should.exist(error.data.presentationResult.credentialResults);
+      const {data: {presentationResult: {credentialResults}}} = error;
+      credentialResults.should.be.an('array');
+      credentialResults.should.have.length(1);
+      const [credentialResult] = credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(false);
+    });
     it('verifies a DI VP with a VCB enveloped VC', async () => {
       let verifiableCredential = structuredClone(mockCredential);
       delete verifiableCredential.proof;
