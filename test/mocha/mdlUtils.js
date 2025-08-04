@@ -109,10 +109,10 @@ export async function verifyPresentation({
     const b64Mdl = Buffer.from(encodedMdoc).toString('base64');
     return {
       '@context': [VC_CONTEXT_2],
-      type: ['VerifiablePresentation'],
+      type: 'VerifiablePresentation',
       verifiableCredential: {
         id: `data:application/mdl;base64,${b64Mdl}`,
-        type: ['EnvelopedVerifiableCredential']
+        type: 'EnvelopedVerifiableCredential'
       }
     };
   } catch(err) {
