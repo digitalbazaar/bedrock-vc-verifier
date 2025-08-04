@@ -221,8 +221,198 @@ describe('mDL /presentations/verify', () => {
       .equal('EnvelopedVerifiableCredential');
   });
 
-  // FIXME: add negative test that fails to verify w/o trusted cert
-  // FIXME: add negative test that fails w/bad issuer signature
+  it('fails without a matching trusted certificate', async () => {
+    // generate a different (untrusted) issuer and shadow `certChain` var
+    const certChain = await generateCertificateChain();
+
+    // get device key pair
+    const deviceKeyPair = await mdlUtils.generateDeviceKeyPair();
+
+    // issue an MDL
+    const issuerPrivateJwk = certChain.leaf.subject.jwk;
+    const issuerCertificate = certChain.leaf.pemCertificate;
+    const mdoc = await mdlUtils.issue({
+      issuerPrivateJwk, issuerCertificate,
+      devicePublicJwk: deviceKeyPair.publicJwk
+    });
+
+    // get challenge from verifier
+    const {data: {challenge}} = await helpers.createChallenge(
+      {capabilityAgent, verifierId});
+
+    // create an MDL session transcript
+    const sessionTranscript = {
+      mdocGeneratedNonce: randomUUID(),
+      clientId: randomUUID(),
+      // note: expected to be an OID4VP exchange response URL
+      responseUri: 'https://test.example',
+      verifierGeneratedNonce: challenge
+    };
+
+    // create MDL enveloped presentation
+    const envelopedPresentation = await mdlUtils.createPresentation({
+      presentationDefinition: PRESENTATION_DEFINITION_1,
+      mdoc,
+      sessionTranscript,
+      devicePrivateJwk: deviceKeyPair.privateJwk
+    });
+
+    // uncomment code to run local mDL verification
+    /*
+    const vpToken = envelopedPresentation.id.slice(
+      envelopedPresentation.id.indexOf(',') + 1);
+    const deviceResponse = Buffer.from(vpToken, 'base64url');
+    await mdlUtils.verifyPresentation({
+      deviceResponse, sessionTranscript,
+      trustedCertificates: [certChain.intermediate.pemCertificate]
+    });
+    */
+
+    // send VP to verifier VC API
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/presentations/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            domain: sessionTranscript.responseUri,
+            challenge,
+            // ensure `challenge` is checked
+            checks: ['challenge'],
+            mdl: {
+              // note: in session transcript:
+              // `domain` will be used for `responseUri`
+              // `challenge` will be used for `verifierGeneratedNonce`
+              // so do not send here to avoid redundancy
+              sessionTranscript: {
+                mdocGeneratedNonce: sessionTranscript.mdocGeneratedNonce,
+                clientId: sessionTranscript.clientId
+              }
+            }
+          },
+          verifiablePresentation: envelopedPresentation
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    should.exist(error);
+    should.not.exist(result);
+    should.exist(error.data.checks);
+    const {checks} = error.data;
+    checks.should.be.an('array');
+    checks.should.have.length(1);
+    should.exist(error.data.verified);
+    error.data.verified.should.be.a('boolean');
+    error.data.verified.should.equal(false);
+    should.exist(error.data.error);
+    error.data.error.errors.should.be.an('array');
+    error.data.error.errors.should.have.length(1);
+    error.data.error.name.should.equal('VerificationError');
+    const e = error.data.error.errors[0];
+    e.should.be.an('object');
+    should.exist(e.name);
+    e.name.should.equal('MDLError');
+    e.message.should.include('No valid certificate paths found');
+  });
+
+  it('fails with an invalid issuer signature', async () => {
+    // get device key pair
+    const deviceKeyPair = await mdlUtils.generateDeviceKeyPair();
+
+    // issue an MDL; but *importantly for this test* with the wrong JWK
+    const issuerPrivateJwk = certChain.intermediate.subject.jwk;
+    const issuerCertificate = certChain.leaf.pemCertificate;
+    const mdoc = await mdlUtils.issue({
+      issuerPrivateJwk, issuerCertificate,
+      devicePublicJwk: deviceKeyPair.publicJwk
+    });
+
+    // get challenge from verifier
+    const {data: {challenge}} = await helpers.createChallenge(
+      {capabilityAgent, verifierId});
+
+    // create an MDL session transcript
+    const sessionTranscript = {
+      mdocGeneratedNonce: randomUUID(),
+      clientId: randomUUID(),
+      // note: expected to be an OID4VP exchange response URL
+      responseUri: 'https://test.example',
+      verifierGeneratedNonce: challenge
+    };
+
+    // create MDL enveloped presentation
+    const envelopedPresentation = await mdlUtils.createPresentation({
+      presentationDefinition: PRESENTATION_DEFINITION_1,
+      mdoc,
+      sessionTranscript,
+      devicePrivateJwk: deviceKeyPair.privateJwk
+    });
+
+    // uncomment code to run local mDL verification
+    /*
+    const vpToken = envelopedPresentation.id.slice(
+      envelopedPresentation.id.indexOf(',') + 1);
+    const deviceResponse = Buffer.from(vpToken, 'base64url');
+    await mdlUtils.verifyPresentation({
+      deviceResponse, sessionTranscript,
+      trustedCertificates: [certChain.intermediate.pemCertificate]
+    });
+    */
+
+    // send VP to verifier VC API
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/presentations/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            domain: sessionTranscript.responseUri,
+            challenge,
+            // ensure `challenge` is checked
+            checks: ['challenge'],
+            mdl: {
+              // note: in session transcript:
+              // `domain` will be used for `responseUri`
+              // `challenge` will be used for `verifierGeneratedNonce`
+              // so do not send here to avoid redundancy
+              sessionTranscript: {
+                mdocGeneratedNonce: sessionTranscript.mdocGeneratedNonce,
+                clientId: sessionTranscript.clientId
+              }
+            }
+          },
+          verifiablePresentation: envelopedPresentation
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    should.exist(error);
+    should.not.exist(result);
+    should.exist(error.data.checks);
+    const {checks} = error.data;
+    checks.should.be.an('array');
+    checks.should.have.length(1);
+    should.exist(error.data.verified);
+    error.data.verified.should.be.a('boolean');
+    error.data.verified.should.equal(false);
+    should.exist(error.data.error);
+    error.data.error.errors.should.be.an('array');
+    error.data.error.errors.should.have.length(1);
+    error.data.error.name.should.equal('VerificationError');
+    const e = error.data.error.errors[0];
+    e.should.be.an('object');
+    should.exist(e.name);
+    e.name.should.equal('MDLError');
+    e.message.should.include('Issuer signature must be valid');
+  });
 
   it('fails to verify with an invalid device signature', async () => {
     // get device key pair
