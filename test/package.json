@@ -16,7 +16,7 @@
     "url": "http://digitalbazaar.com"
   },
   "dependencies": {
-    "@auth0/mdl": "^2.3.0",
+    "@auth0/mdl": "^3.0.0",
     "@bedrock/app-identity": "^4.0.0",
     "@bedrock/core": "^6.3.0",
     "@bedrock/credentials-context": "^5.0.3",
