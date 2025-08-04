@@ -28,8 +28,7 @@ export async function generateCertificateChain() {
   return {root, intermediate, leaf};
 }
 
-async function _createEntity({issuer, commonName, serialNumber} = {}) {
-  // generate subject key pair
+export async function generateKeyPair() {
   const algorithm = {
     algorithm: {name: 'ECDSA', namedCurve: 'P-256'},
     usages: ['sign', 'verify']
@@ -40,6 +39,12 @@ async function _createEntity({issuer, commonName, serialNumber} = {}) {
   jwk.kid = `urn:uuid:${randomUUID()}`;
   delete jwk.key_ops;
   delete jwk.ext;
+  return {keyPair, jwk};
+}
+
+async function _createEntity({issuer, commonName, serialNumber} = {}) {
+  // generate subject key pair
+  const {keyPair, jwk} = await generateKeyPair();
 
   // subject ID
   const subject = {

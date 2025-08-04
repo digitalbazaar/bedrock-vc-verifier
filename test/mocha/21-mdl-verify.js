@@ -2,14 +2,12 @@
  * Copyright (c) 2025 Digital Bazaar, Inc. All rights reserved.
  */
 import * as helpers from './helpers.js';
+import * as mdlUtils from './mdlUtils.js';
+import {generateCertificateChain, generateKeyPair} from './certUtils.js';
 import {agent} from '@bedrock/https-agent';
 import {CapabilityAgent} from '@digitalbazaar/webkms-client';
-import {generateCertificateChain} from './certUtils.js';
 import {httpClient} from '@digitalbazaar/http-client';
 import {randomUUID} from 'node:crypto';
-
-// FIXME: move elsewhere, load order matters right now because of pkijs globals
-import * as mdlUtils from './mdlUtils.js';
 
 import {mockData} from './mock.data.js';
 
@@ -42,7 +40,7 @@ const PRESENTATION_DEFINITION_1 = {
   ]
 };
 
-describe('mDL verify APIs', () => {
+describe('mDL /presentations/verify', () => {
   let capabilityAgent;
   let verifierConfig;
   let verifierId;
@@ -126,9 +124,6 @@ describe('mDL verify APIs', () => {
   });
 
   it('verifies a valid presentation', async () => {
-    // create a certificate chain that ends in the MDL issuer (leaf)
-    const certChain = await generateCertificateChain();
-
     // get device key pair
     const deviceKeyPair = await mdlUtils.generateDeviceKeyPair();
 
@@ -140,13 +135,17 @@ describe('mDL verify APIs', () => {
       devicePublicJwk: deviceKeyPair.publicJwk
     });
 
+    // get challenge from verifier
+    const {data: {challenge}} = await helpers.createChallenge(
+      {capabilityAgent, verifierId});
+
     // create an MDL session transcript
     const sessionTranscript = {
       mdocGeneratedNonce: randomUUID(),
       clientId: randomUUID(),
-      // FIXME: replace with OID4VP exchange URL
+      // note: expected to be an OID4VP exchange response URL
       responseUri: 'https://test.example',
-      verifierGeneratedNonce: randomUUID()
+      verifierGeneratedNonce: challenge
     };
 
     // create MDL enveloped presentation
@@ -157,78 +156,18 @@ describe('mDL verify APIs', () => {
       devicePrivateJwk: deviceKeyPair.privateJwk
     });
 
-    // FIXME: send `sessionTranscript` as an `option` in presentation
-    // verification options, i.e.,
-    // `{verifiablePresentation, mdl: {sessionTranscript}}`
-
-    // FIXME: send VP to verifier VC API ...
-
-    // FIXME: verifier API will do this...
-
-    // FIXME: use robust parser
+    // uncomment code to run local mDL verification
+    /*
     const vpToken = envelopedPresentation.id.slice(
       envelopedPresentation.id.indexOf(',') + 1);
     const deviceResponse = Buffer.from(vpToken, 'base64url');
-
     await mdlUtils.verifyPresentation({
       deviceResponse, sessionTranscript,
       trustedCertificates: [certChain.intermediate.pemCertificate]
     });
+    */
 
-    /*
-
-    // get signing key
-    const {methodFor} = await didKeyDriver.generate();
-    const signingKey = methodFor({purpose: 'assertionMethod'});
-    const suite = new Ed25519Signature2020({key: signingKey});
-
-    const mockCredential = {};
-    const cryptosuite = '';
-    let verifiableCredential = structuredClone(mockCredential);
-    if(cryptosuite === 'ecdsa-sd-2023') {
-      const cryptosuite = createEcdsaSd2023DiscloseCryptosuite({
-        selectivePointers: [
-          '/credentialSubject/id'
-        ]
-      });
-      const suite = new DataIntegrityProof({cryptosuite});
-      const derivedVC = await vc.derive({
-        verifiableCredential,
-        suite,
-        documentLoader: brDocLoader
-      });
-      verifiableCredential = derivedVC;
-    } else if(cryptosuite === 'bbs-2023') {
-      const cryptosuite = createBbs2023DiscloseCryptosuite({
-        selectivePointers: [
-          '/credentialSubject/id'
-        ]
-      });
-      const suite = new DataIntegrityProof({cryptosuite});
-      const derivedVC = await vc.derive({
-        verifiableCredential,
-        suite,
-        documentLoader: brDocLoader
-      });
-      verifiableCredential = derivedVC;
-    }
-    const presentation = vc.createPresentation({
-      holder: 'did:test:foo',
-      id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
-      verifiableCredential
-    });
-
-    // get challenge from verifier
-    const {data: {challenge}} = await helpers.createChallenge(
-      {capabilityAgent, verifierId});
-
-    await vc.signPresentation({
-      presentation,
-      suite,
-      challenge,
-      documentLoader: brDocLoader
-    });
-
+    // send VP to verifier VC API
     let error;
     let result;
     try {
@@ -238,10 +177,22 @@ describe('mDL verify APIs', () => {
         capability: rootZcap,
         json: {
           options: {
+            domain: sessionTranscript.responseUri,
             challenge,
-            checks: ['proof'],
+            // ensure `challenge` is checked
+            checks: ['challenge'],
+            mdl: {
+              // note: in session transcript:
+              // `domain` will be used for `responseUri`
+              // `challenge` will be used for `verifierGeneratedNonce`
+              // so do not send here to avoid redundancy
+              sessionTranscript: {
+                mdocGeneratedNonce: sessionTranscript.mdocGeneratedNonce,
+                clientId: sessionTranscript.clientId
+              }
+            }
           },
-          verifiablePresentation: presentation
+          verifiablePresentation: envelopedPresentation
         }
       });
     } catch(e) {
@@ -253,7 +204,7 @@ describe('mDL verify APIs', () => {
     checks.should.be.an('array');
     checks.should.have.length(1);
     checks[0].should.be.a('string');
-    checks[0].should.equal('proof');
+    checks[0].should.equal('challenge');
     should.exist(result.data.verified);
     result.data.verified.should.be.a('boolean');
     result.data.verified.should.equal(true);
@@ -262,19 +213,113 @@ describe('mDL verify APIs', () => {
     should.exist(result.data.presentationResult.verified);
     result.data.presentationResult.verified.should.be.a('boolean');
     result.data.presentationResult.verified.should.equal(true);
-    should.exist(result.data.credentialResults);
-    const {data: {credentialResults}} = result;
-    credentialResults.should.be.an('array');
-    credentialResults.should.have.length(1);
-    const [credentialResult] = credentialResults;
-    should.exist(credentialResult.verified);
-    credentialResult.verified.should.be.a('boolean');
-    credentialResult.verified.should.equal(true);
-
-    */
+    should.exist(result.data.presentation);
+    result.data.presentation.should.be.an('object');
+    result.data.presentation.type.should.equal('VerifiablePresentation');
+    result.data.presentation.verifiableCredential.should.be.an('object');
+    result.data.presentation.verifiableCredential.type.should
+      .equal('EnvelopedVerifiableCredential');
   });
 
   // FIXME: add negative test that fails to verify w/o trusted cert
   // FIXME: add negative test that fails w/bad issuer signature
-  // FIXME: add negative test that fails w/bad device signature
+
+  it('fails to verify with an invalid device signature', async () => {
+    // get device key pair
+    const deviceKeyPair = await mdlUtils.generateDeviceKeyPair();
+
+    // issue an MDL
+    const issuerPrivateJwk = certChain.leaf.subject.jwk;
+    const issuerCertificate = certChain.leaf.pemCertificate;
+    const mdoc = await mdlUtils.issue({
+      issuerPrivateJwk, issuerCertificate,
+      devicePublicJwk: deviceKeyPair.publicJwk
+    });
+
+    // get challenge from verifier
+    const {data: {challenge}} = await helpers.createChallenge(
+      {capabilityAgent, verifierId});
+
+    // create an MDL session transcript
+    const sessionTranscript = {
+      mdocGeneratedNonce: randomUUID(),
+      clientId: randomUUID(),
+      // note: expected to be an OID4VP exchange response URL
+      responseUri: 'https://test.example',
+      verifierGeneratedNonce: challenge
+    };
+
+    // generate a different JWK to sign with so that the signature will NOT
+    // match
+    const otherDeviceJwk = await generateKeyPair();
+
+    // create MDL enveloped presentation
+    const envelopedPresentation = await mdlUtils.createPresentation({
+      presentationDefinition: PRESENTATION_DEFINITION_1,
+      mdoc,
+      sessionTranscript,
+      devicePrivateJwk: otherDeviceJwk.jwk
+    });
+
+    // uncomment code to run local mDL verification
+    /*
+    const vpToken = envelopedPresentation.id.slice(
+      envelopedPresentation.id.indexOf(',') + 1);
+    const deviceResponse = Buffer.from(vpToken, 'base64url');
+    await mdlUtils.verifyPresentation({
+      deviceResponse, sessionTranscript,
+      trustedCertificates: [certChain.intermediate.pemCertificate]
+    });
+    */
+
+    // send VP to verifier VC API
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/presentations/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            domain: sessionTranscript.responseUri,
+            challenge,
+            // ensure `challenge` is checked
+            checks: ['challenge'],
+            mdl: {
+              // note: in session transcript:
+              // `domain` will be used for `responseUri`
+              // `challenge` will be used for `verifierGeneratedNonce`
+              // so do not send here to avoid redundancy
+              sessionTranscript: {
+                mdocGeneratedNonce: sessionTranscript.mdocGeneratedNonce,
+                clientId: sessionTranscript.clientId
+              }
+            }
+          },
+          verifiablePresentation: envelopedPresentation
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    should.exist(error);
+    should.not.exist(result);
+    should.exist(error.data.checks);
+    const {checks} = error.data;
+    checks.should.be.an('array');
+    checks.should.have.length(1);
+    should.exist(error.data.verified);
+    error.data.verified.should.be.a('boolean');
+    error.data.verified.should.equal(false);
+    should.exist(error.data.error);
+    error.data.error.errors.should.be.an('array');
+    error.data.error.errors.should.have.length(1);
+    error.data.error.name.should.equal('VerificationError');
+    const e = error.data.error.errors[0];
+    e.should.be.an('object');
+    should.exist(e.name);
+    e.name.should.equal('MDLError');
+    e.message.should.include('Device signature must be valid');
+  });
 });
