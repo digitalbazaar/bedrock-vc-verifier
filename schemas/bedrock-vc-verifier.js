@@ -282,7 +282,7 @@ const sequence = {
   maximum: Number.MAX_SAFE_INTEGER - 1
 };
 
-const mdlCAStoreBody = {
+const mdlCaStoreBody = {
   title: 'mDL Certificate Authority Store Record',
   type: 'object',
   required: ['id', 'trustedCertificates'],
@@ -300,21 +300,21 @@ const mdlCAStoreBody = {
   }
 };
 
-export function createMdlCAStoreBody() {
+export function createMdlCaStoreBody() {
   return {
-    ...mdlCAStoreBody,
-    title: 'createMdlCAStoreBody'
+    ...mdlCaStoreBody,
+    title: 'createMdlCaStoreBody'
   };
 }
 
-export function updateMdlCAStoreBody() {
+export function updateMdlCaStoreBody() {
   return {
-    ...mdlCAStoreBody,
+    ...mdlCaStoreBody,
     required: ['id', 'trustedCertificates', 'sequence'],
     properties: {
-      ...mdlCAStoreBody.properties,
+      ...mdlCaStoreBody.properties,
       sequence
     },
-    title: 'updateMdlCAStoreBody'
+    title: 'updateMdlCaStoreBody'
   };
 }

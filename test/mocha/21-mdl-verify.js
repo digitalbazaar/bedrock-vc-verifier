@@ -91,7 +91,7 @@ describe('mDL /presentations/verify', () => {
       delegator: capabilityAgent
     });
 
-    // add `mdlCAStores` to verifier config options
+    // add `mdl` config to verifier config options
     const caStoreId = `urn:mdl-ca-store:${randomUUID()}`;
     const configOptions = {
       verifyOptions: {
