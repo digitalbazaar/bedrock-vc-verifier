@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Digital Bazaar, Inc. All rights reserved.
  */
 import {
-  DataItem, DeviceResponse, Document, MDoc, parse, Verifier
+  DataItem, DeviceResponse, Document, MDoc, /*parse,*/ Verifier
 } from '@auth0/mdl';
 
 const VC_CONTEXT_2 = 'https://www.w3.org/ns/credentials/v2';
@@ -30,7 +30,8 @@ export async function createPresentation({
   // FIXME: define a base64url-encoded mdl vp token mime type?
   const encodedDeviceResponse = deviceResponse.encode();
   const vpToken = Buffer.from(encodedDeviceResponse).toString('base64url');
-  //console.log(vpToken, 'vpToken');
+  // console.log('device side: device response cbor', encodedDeviceResponse);
+  // console.log(vpToken, 'vpToken');
 
   return {
     '@context': [VC_CONTEXT_2],
@@ -80,10 +81,11 @@ export async function issue({
 export async function verifyPresentation({
   deviceResponse, sessionTranscript, trustedCertificates
 } = {}) {
-  const parsed = parse(deviceResponse);
+  // uncomment to debug:
+  /*const parsed = parse(deviceResponse);
   const issuerCertificate = parsed.documents?.[0]
     .issuerSigned?.issuerAuth?.certificate;
-  console.log('issuer certificate', issuerCertificate);
+  console.log('issuer certificate', issuerCertificate);*/
 
   // produced on the verifier side
   const encodedSessionTranscript = _encodeSessionTranscript(sessionTranscript);
@@ -98,15 +100,12 @@ export async function verifyPresentation({
     const mdoc = await verifier.verify(deviceResponse, {
       encodedSessionTranscript
     });
-    console.log('Verification succeeded!');
-    console.log('Verified mdoc', mdoc);
-    console.log('DeviceSignedDocument', mdoc.documents[0]);
+    // console.log('Verification succeeded!');
+    // console.log('Verified mdoc', mdoc);
+    // console.log('DeviceSignedDocument', mdoc.documents[0]);
 
-    // CBOR-encode the mdoc
+    // express cbor-encoded mdoc as an enveloped VC in a VP
     const encodedMdoc = mdoc.encode();
-    console.log('Encoded MDoc:', encodedMdoc);
-
-    // express encoded mdoc as an enveloped VC in a VP
     const b64Mdl = Buffer.from(encodedMdoc).toString('base64');
     return {
       '@context': [VC_CONTEXT_2],
@@ -117,7 +116,7 @@ export async function verifyPresentation({
       }
     };
   } catch(err) {
-    console.error('Verification failed:', err);
+    //console.error('Verification failed:', err);
     return;
   }
 }
