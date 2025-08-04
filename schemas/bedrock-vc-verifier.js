@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2022-2024 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2022-2025 Digital Bazaar, Inc. All rights reserved.
  */
 import {schemas} from '@bedrock/validation';
 
@@ -182,6 +182,8 @@ export const verifyOptions = {
     required: ['didResolver']
   }, {
     required: ['documentLoader']
+  }, {
+    required: ['mdl']
   }],
   additionalProperties: false,
   properties: {
@@ -205,6 +207,20 @@ export const verifyOptions = {
       properties: {
         allowRemoteContexts: {
           type: 'boolean'
+        }
+      }
+    },
+    mdl: {
+      title: 'mDL Verification Options',
+      type: 'object',
+      required: ['caStores'],
+      additionalProperties: false,
+      properties: {
+        caStores: {
+          title: 'mDL Certificate Authority Store IDs',
+          type: 'array',
+          minItems: 1,
+          items: {type: 'string'}
         }
       }
     }
@@ -256,5 +272,49 @@ export function verifyPresentationBody() {
         ]
       }
     }
+  };
+}
+
+const sequence = {
+  title: 'sequence',
+  type: 'integer',
+  minimum: 0,
+  maximum: Number.MAX_SAFE_INTEGER - 1
+};
+
+const mdlCAStoreBody = {
+  title: 'mDL Certificate Authority Store Record',
+  type: 'object',
+  required: ['id', 'trustedCertificates'],
+  additionalProperties: false,
+  properties: {
+    id: {
+      title: 'CA Store ID',
+      type: 'string',
+      pattern: '^urn:mdl-ca-store:'
+    },
+    trustedCertificates: {
+      type: 'array',
+      items: {type: 'string'}
+    }
+  }
+};
+
+export function createMdlCAStoreBody() {
+  return {
+    ...mdlCAStoreBody,
+    title: 'createMdlCAStoreBody'
+  };
+}
+
+export function updateMdlCAStoreBody() {
+  return {
+    ...mdlCAStoreBody,
+    required: ['id', 'trustedCertificates', 'sequence'],
+    properties: {
+      ...mdlCAStoreBody.properties,
+      sequence
+    },
+    title: 'updateMdlCAStoreBody'
   };
 }

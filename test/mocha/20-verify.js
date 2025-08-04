@@ -2407,6 +2407,5 @@ describe('verify APIs', () => {
       should.exist(e.name);
       e.message.should.equal('Invalid signature.');
     });
-
   });
 });
