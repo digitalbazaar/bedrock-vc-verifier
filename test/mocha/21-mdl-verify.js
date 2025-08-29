@@ -187,7 +187,11 @@ describe('mDL /presentations/verify', () => {
               // `challenge` will be used for `verifierGeneratedNonce`
               // so do not send here to avoid redundancy
               sessionTranscript: {
-                mdocGeneratedNonce: sessionTranscript.mdocGeneratedNonce,
+                // `mdocGeneratedNonce` must be base64url-encoded to ensure
+                // that byte strings can be used if necessary
+                mdocGeneratedNonce: Buffer
+                  .from(sessionTranscript.mdocGeneratedNonce, 'utf8')
+                  .toString('base64url'),
                 clientId: sessionTranscript.clientId
               }
             }
@@ -288,7 +292,11 @@ describe('mDL /presentations/verify', () => {
               // `challenge` will be used for `verifierGeneratedNonce`
               // so do not send here to avoid redundancy
               sessionTranscript: {
-                mdocGeneratedNonce: sessionTranscript.mdocGeneratedNonce,
+                // `mdocGeneratedNonce` must be base64url-encoded to ensure
+                // that byte strings can be used if necessary
+                mdocGeneratedNonce: Buffer
+                  .from(sessionTranscript.mdocGeneratedNonce, 'utf8')
+                  .toString('base64url'),
                 clientId: sessionTranscript.clientId
               }
             }
@@ -383,7 +391,11 @@ describe('mDL /presentations/verify', () => {
               // `challenge` will be used for `verifierGeneratedNonce`
               // so do not send here to avoid redundancy
               sessionTranscript: {
-                mdocGeneratedNonce: sessionTranscript.mdocGeneratedNonce,
+                // `mdocGeneratedNonce` must be base64url-encoded to ensure
+                // that byte strings can be used if necessary
+                mdocGeneratedNonce: Buffer
+                  .from(sessionTranscript.mdocGeneratedNonce, 'utf8')
+                  .toString('base64url'),
                 clientId: sessionTranscript.clientId
               }
             }
@@ -482,7 +494,11 @@ describe('mDL /presentations/verify', () => {
               // `challenge` will be used for `verifierGeneratedNonce`
               // so do not send here to avoid redundancy
               sessionTranscript: {
-                mdocGeneratedNonce: sessionTranscript.mdocGeneratedNonce,
+                // `mdocGeneratedNonce` must be base64url-encoded to ensure
+                // that byte strings can be used if necessary
+                mdocGeneratedNonce: Buffer
+                  .from(sessionTranscript.mdocGeneratedNonce, 'utf8')
+                  .toString('base64url'),
                 clientId: sessionTranscript.clientId
               }
             }
