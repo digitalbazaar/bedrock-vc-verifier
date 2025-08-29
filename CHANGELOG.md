@@ -1,5 +1,35 @@
 # bedrock-vc-verifier ChangeLog
 
+## 23.2.0 - 2025-mm-dd
+
+### Added
+- Add support for verifying mDL presentations as enveloped verifiable
+  presentations. Current support is limited to Mdoc mDL presentations that
+  consist of a device response that is built using a session transcript that
+  follows ISO 18013-7. The `mdocGeneratedNonce` and `clientId` for this
+  session transcript must be provided via presentation verification options
+  passed to `/presentations/verify`. The `mdocGeneratedNonce` option value
+  must be `base64url-no-pad` encoded and it will be decoded prior to being
+  added to the session transcript for verification. The other session
+  transcript options will be auto-populated using the usual presentation
+  verification options of `challenge` (for the `verifierGeneratedNonce`) and
+  `domain` (for the `responseUri`). An `EnvelopedVerifiablePresentation`
+  that expresses an mDL presentation in this format is expected to use
+  a data URL for its identifier that includes the media type
+  `application/mdl-vp-token` with content that is the `base64url-no-pad`
+  `vp_token` value as specified in ISO 18013-7. The verified presentation
+  will be returned as a VC 2.0 `VerifiablePresentation`, containing an
+  `EnvelopedVerifiableCredential` that uses a data URL for its identifier
+  that includes the media type `application/mdl`, using the `base64`
+  media type parameter to express that the content is the resulting mdoc mDL
+  that has been `base64`-encoded. A future version may provide an option
+  to pass an mDL presentation (device response) as an
+  `EnvelopedVerifiableCredential` to either `/credentials/verify` or as
+  a VC inside of a `VerifiablePresentation` that might contain other VCs,
+  and an option to receive the verified presentation with a mapping of
+  an mdoc mDL to a VC (with an appropriate `@context` for the various
+  mdoc mDL fields expressed therein).
+
 ## 23.1.0 - 2025-07-23
 
 ### Added
