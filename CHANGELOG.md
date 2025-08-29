@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 23.2.0 - 2025-mm-dd
+## 23.2.0 - 2025-08-29
 
 ### Added
 - Add support for verifying mDL presentations as enveloped verifiable
