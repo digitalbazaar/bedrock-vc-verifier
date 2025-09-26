@@ -1,5 +1,11 @@
 # bedrock-vc-verifier ChangeLog
 
+## 23.3.0 - 2025-mm-dd
+
+### Added
+- Add support for verifing `TerseBitstringStatusListEntry` credential
+  statuses.
+
 ## 23.2.0 - 2025-08-29
 
 ### Added

@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2019-2024 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2019-2025 Digital Bazaar, Inc. All rights reserved.
  */
 import * as helpers from './helpers.js';
 import * as vc from '@digitalbazaar/vc';
@@ -25,6 +25,7 @@ const {baseUrl} = mockData;
 const serviceType = 'vc-verifier';
 
 const VC_V2_CONTEXT_URL = 'https://www.w3.org/ns/credentials/v2';
+const VC_BARCODES_V1_CONTEXT_URL = 'https://w3id.org/vc-barcodes/v1';
 
 const encodedList100k =
   'uH4sIAAAAAAAAA-3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAP4GcwM92tQwAAA';
@@ -212,9 +213,30 @@ app.get('/status/5d3e7a97-1121-11ec-9b38-10bf48838a41',
 app.get('/status/8ec30054-9111-11ec-9ab5-10bf48838a41',
   // eslint-disable-next-line no-unused-vars
   (req, res, next) => {
-    // responds with a revoked SLC
+    // responds with SLC w/a revoked bit in it
     res.json(revokedSlc);
   });
+// route for terse SLC
+app.get('/status-lists/revocation/0',
+  // eslint-disable-next-line no-unused-vars
+  (req, res, next) => {
+    // responds with SLC w/a revoked bit in it
+    res.json(revokedSlc);
+  });
+// routes for terse SLC w/both revocation and suspension
+app.get('/both/status-lists/revocation/0',
+  // eslint-disable-next-line no-unused-vars
+  (req, res, next) => {
+    // responds with a valid SLC
+    res.json(slcRevocation);
+  });
+app.get('/both/status-lists/suspension/0',
+  // eslint-disable-next-line no-unused-vars
+  (req, res, next) => {
+    // responds with a valid SLC
+    res.json(slcSuspension);
+  });
+
 let server;
 before(async () => {
   server = await _startServer({app});
@@ -295,13 +317,16 @@ describe('verify BitstringStatusList credential status', () => {
     rootZcap = `urn:zcap:root:${encodeURIComponent(verifierId)}`;
   });
   it('should verify VC w/ "statusPurpose" revocation', async () => {
-    slcRevocation = await vc.issue({
-      credential: slcRevocation,
-      documentLoader: _documentLoader,
-      suite
-    });
+    // only reissue if not already issued
+    if(!slcRevocation.proof) {
+      slcRevocation = await vc.issue({
+        credential: structuredClone(slcRevocation),
+        documentLoader: _documentLoader,
+        suite
+      });
+    }
     const verifiableCredential = await vc.issue({
-      credential: unsignedCredentialStatusPurposeRevocation,
+      credential: structuredClone(unsignedCredentialStatusPurposeRevocation),
       documentLoader: _documentLoader,
       suite
     });
@@ -352,13 +377,16 @@ describe('verify BitstringStatusList credential status', () => {
     }
   });
   it('should verify VC w/ "statusPurpose" suspension', async () => {
-    slcSuspension = await vc.issue({
-      credential: slcSuspension,
-      documentLoader: _documentLoader,
-      suite
-    });
+    // only reissue if not already issued
+    if(!slcSuspension.proof) {
+      slcSuspension = await vc.issue({
+        credential: structuredClone(slcSuspension),
+        documentLoader: _documentLoader,
+        suite
+      });
+    }
     const verifiableCredential = await vc.issue({
-      credential: unsignedCredentialStatusPurposeSuspension,
+      credential: structuredClone(unsignedCredentialStatusPurposeSuspension),
       documentLoader: _documentLoader,
       suite
     });
@@ -408,14 +436,159 @@ describe('verify BitstringStatusList credential status', () => {
       r.status.should.equal(false);
     }
   });
+  it('should verify VC w/ terse "statusPurpose" revocation', async () => {
+    // only reissue if not already issued
+    if(!revokedSlc.proof) {
+      revokedSlc = await vc.issue({
+        credential: structuredClone(revokedSlc),
+        documentLoader: _documentLoader,
+        suite
+      });
+    }
+    const c = structuredClone(unsignedCredentialStatusPurposeRevocation);
+    c['@context'].push(VC_BARCODES_V1_CONTEXT_URL);
+    c.credentialStatus = {
+      type: 'TerseBitstringStatusListEntry',
+      terseStatusListBaseUrl: `${testServerBaseUrl}/status-lists`,
+      terseStatusListIndex: 67342
+    };
+    const verifiableCredential = await vc.issue({
+      credential: c,
+      documentLoader: _documentLoader,
+      suite
+    });
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/credentials/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            checks: ['proof', 'credentialStatus'],
+          },
+          verifiableCredential
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    assertNoError(error);
+    should.exist(result.data.verified);
+    result.data.verified.should.be.a('boolean');
+    result.data.verified.should.equal(true);
+    const {checks, statusResult} = result.data;
+    checks.should.be.an('array');
+    checks.should.have.length(2);
+    checks.should.be.an('array');
+    checks.should.eql(['proof', 'credentialStatus']);
+    should.exist(result.data.results);
+    result.data.results.should.be.an('array');
+    result.data.results.should.have.length(1);
+    {
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    }
+    {
+      should.exist(statusResult);
+      statusResult.should.be.an('object');
+      should.exist(statusResult.results);
+      statusResult.results.should.be.an('array');
+      statusResult.results.should.have.length(1);
+      const [r] = statusResult.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+      r.status.should.equal(false);
+    }
+  });
+  it('should verify VC w/ terse w/ both statuses', async () => {
+    // only reissue if not already issued
+    if(!slcRevocation.proof) {
+      slcRevocation = await vc.issue({
+        credential: structuredClone(slcRevocation),
+        documentLoader: _documentLoader,
+        suite
+      });
+    }
+    // only reissue if not already issued
+    if(!slcSuspension.proof) {
+      slcSuspension = await vc.issue({
+        credential: structuredClone(slcSuspension),
+        documentLoader: _documentLoader,
+        suite
+      });
+    }
+    const c = structuredClone(unsignedCredentialStatusPurposeRevocation);
+    c['@context'].push(VC_BARCODES_V1_CONTEXT_URL);
+    c.credentialStatus = {
+      type: 'TerseBitstringStatusListEntry',
+      // note "/both/" in URL to map to mocks with "/both/" routes
+      terseStatusListBaseUrl: `${testServerBaseUrl}/both/status-lists`,
+      terseStatusListIndex: 67342
+    };
+    const verifiableCredential = await vc.issue({
+      credential: c,
+      documentLoader: _documentLoader,
+      suite
+    });
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/credentials/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            checks: ['proof', 'credentialStatus'],
+          },
+          verifiableCredential
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    assertNoError(error);
+    should.exist(result.data.verified);
+    result.data.verified.should.be.a('boolean');
+    result.data.verified.should.equal(true);
+    const {checks, statusResult} = result.data;
+    checks.should.be.an('array');
+    checks.should.have.length(2);
+    checks.should.be.an('array');
+    checks.should.eql(['proof', 'credentialStatus']);
+    should.exist(result.data.results);
+    result.data.results.should.be.an('array');
+    result.data.results.should.have.length(1);
+    {
+      const [r] = result.data.results;
+      r.verified.should.be.a('boolean');
+      r.verified.should.equal(true);
+    }
+    {
+      should.exist(statusResult);
+      statusResult.should.be.an('object');
+      should.exist(statusResult.results);
+      statusResult.results.should.be.an('array');
+      statusResult.results.should.have.length(2);
+      for(const r of statusResult.results) {
+        r.verified.should.be.a('boolean');
+        r.verified.should.equal(true);
+        r.status.should.equal(false);
+      }
+    }
+  });
   it('should fail if "statusPurpose" of the SLC does not match', async () => {
     slcRevocation = await vc.issue({
-      credential: slcRevocation,
+      credential: structuredClone(slcRevocation),
       documentLoader: _documentLoader,
       suite
     });
     const verifiableCredential = await vc.issue({
-      credential: unsignedCredentialWithUnmatchingStatusPurpose,
+      credential: structuredClone(
+        unsignedCredentialWithUnmatchingStatusPurpose),
       documentLoader: _documentLoader,
       suite
     });
@@ -445,13 +618,16 @@ describe('verify BitstringStatusList credential status', () => {
       'does not match the status purpose "suspension" in the credential.');
   });
   it('should fail to verify revoked VC', async () => {
-    revokedSlc = await vc.issue({
-      credential: revokedSlc,
-      documentLoader: _documentLoader,
-      suite
-    });
+    // only reissue SLC w/revoked bit if not already issued
+    if(!revokedSlc.proof) {
+      revokedSlc = await vc.issue({
+        credential: structuredClone(revokedSlc),
+        documentLoader: _documentLoader,
+        suite
+      });
+    }
     const verifiableCredential = await vc.issue({
-      credential: revokedUnsignedCredential,
+      credential: structuredClone(revokedUnsignedCredential),
       documentLoader: _documentLoader,
       suite
     });
@@ -464,7 +640,7 @@ describe('verify BitstringStatusList credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['credentialStatus'],
+            checks: ['proof', 'credentialStatus'],
           },
           verifiableCredential
         }
@@ -478,9 +654,66 @@ describe('verify BitstringStatusList credential status', () => {
     result.data.verified.should.equal(true);
     const {checks, statusResult} = result.data;
     checks.should.be.an('array');
-    checks.should.have.length(1);
+    checks.should.have.length(2);
     checks.should.be.an('array');
-    checks.should.eql(['credentialStatus']);
+    checks.should.eql(['proof', 'credentialStatus']);
+    should.exist(statusResult);
+    statusResult.should.be.an('object');
+    should.exist(statusResult.results);
+    statusResult.results.should.be.an('array');
+    statusResult.results.should.have.length(1);
+    const [r] = statusResult.results;
+    r.verified.should.be.a('boolean');
+    r.verified.should.equal(true);
+    r.status.should.equal(true);
+  });
+  it('should fail to verify revoked terse VC', async () => {
+    // only reissue SLC w/revoked bit if not already issued
+    if(!revokedSlc.proof) {
+      revokedSlc = await vc.issue({
+        credential: structuredClone(revokedSlc),
+        documentLoader: _documentLoader,
+        suite
+      });
+    }
+    const c = structuredClone(revokedUnsignedCredential);
+    c['@context'].push(VC_BARCODES_V1_CONTEXT_URL);
+    c.credentialStatus = {
+      type: 'TerseBitstringStatusListEntry',
+      terseStatusListBaseUrl: `${testServerBaseUrl}/status-lists`,
+      terseStatusListIndex: 50000
+    };
+    const verifiableCredential = await vc.issue({
+      credential: c,
+      documentLoader: _documentLoader,
+      suite
+    });
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/credentials/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            checks: ['proof', 'credentialStatus'],
+          },
+          verifiableCredential
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    assertNoError(error);
+    should.exist(result.data.verified);
+    result.data.verified.should.be.a('boolean');
+    result.data.verified.should.equal(true);
+    const {checks, statusResult} = result.data;
+    checks.should.be.an('array');
+    checks.should.have.length(2);
+    checks.should.be.an('array');
+    checks.should.eql(['proof', 'credentialStatus']);
     should.exist(statusResult);
     statusResult.should.be.an('object');
     should.exist(statusResult.results);
