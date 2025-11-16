@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 23.4.0 - 2025-mm-dd
+
+### Added
+- Add automatic zcap-refresh feature.
+
 ## 23.3.1 - 2025-11-16
 
 ### Fixed
