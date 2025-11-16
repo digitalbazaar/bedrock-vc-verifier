@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 23.3.1 - 2025-mm-dd
+## 23.3.1 - 2025-11-16
 
 ### Fixed
 - Do not call `end()` on an HTTP response after sending the body.
