@@ -8,6 +8,7 @@ import '@bedrock/app-identity';
 import '@bedrock/https-agent';
 import '@bedrock/mongodb';
 import '@bedrock/service-agent';
+import '@bedrock/service-core';
 import '@bedrock/vc-verifier';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -41,3 +42,6 @@ config['service-agent'].kms.baseUrl = 'https://localhost:18443/kms';
 
 // set up express to serve `did:web` DID documents
 config.express.static.push({route: '/test/dids', path: './dids'});
+
+// set config storage refresh interval short for testing purposes
+config['service-core'].configStorage.refresh.interval = 100;
