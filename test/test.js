@@ -8,6 +8,7 @@ import {didIo} from '@bedrock/did-io';
 import {getServiceIdentities} from '@bedrock/app-identity';
 import {handlers} from '@bedrock/meter-http';
 import {jsonLdDocumentLoader} from '@bedrock/jsonld-document-loader';
+import {verifierService} from '@bedrock/vc-verifier';
 import '@bedrock/edv-storage';
 import '@bedrock/https-agent';
 import '@bedrock/kms';
@@ -16,7 +17,6 @@ import '@bedrock/meter';
 import '@bedrock/meter-usage-reporter';
 import '@bedrock/server';
 import '@bedrock/ssm-mongodb';
-import '@bedrock/vc-verifier';
 
 import * as helpers from './mocha/helpers.js';
 
@@ -47,6 +47,9 @@ jsonLdDocumentLoader.addDocuments({documents: contexts});
 import {mockData} from './mocha/mock.data.js';
 
 bedrock.events.on('bedrock.init', async () => {
+  // disable refresh handler except in refresh tests
+  verifierService._disableRefreshHandler = true;
+
   /* Handlers need to be added before `bedrock.start` is called. These are
   no-op handlers to enable meter usage without restriction */
   handlers.setCreateHandler({
@@ -104,12 +107,14 @@ bedrock.events.on('bedrock-express.configure.routes', async app => {
     const capabilityAgent = await CapabilityAgent.fromSecret({secret, handle});
 
     const oldZcap = req.body;
+    const nextYear = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365);
     const newZcap = await helpers.delegate({
       capability: oldZcap.parentCapability,
       allowedActions: oldZcap.allowedAction,
       controller: oldZcap.controller,
       invocationTarget: oldZcap.invocationTarget,
-      delegator: capabilityAgent
+      delegator: capabilityAgent,
+      expires: nextYear
     });
     res.json(newZcap);
   }));
