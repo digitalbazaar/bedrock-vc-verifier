@@ -4,6 +4,8 @@
 
 ### Added
 - Add automatic zcap-refresh feature.
+- Export `verifierService` symbol for programmatic access to verifier service
+  instance.
 
 ## 23.3.1 - 2025-11-16
 

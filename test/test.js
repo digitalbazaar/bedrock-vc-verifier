@@ -3,6 +3,7 @@
  */
 import * as bedrock from '@bedrock/core';
 import {asyncHandler} from '@bedrock/express';
+import {CapabilityAgent} from '@digitalbazaar/webkms-client';
 import {didIo} from '@bedrock/did-io';
 import {getServiceIdentities} from '@bedrock/app-identity';
 import {handlers} from '@bedrock/meter-http';
@@ -16,6 +17,8 @@ import '@bedrock/meter-usage-reporter';
 import '@bedrock/server';
 import '@bedrock/ssm-mongodb';
 import '@bedrock/vc-verifier';
+
+import * as helpers from './mocha/helpers.js';
 
 const contexts = new Map([
   ['https://www.w3.org/ns/credentials/examples/v2', {
@@ -74,8 +77,8 @@ bedrock.events.on('bedrock-express.configure.routes', app => {
   });
 });
 
-// mock universal DID resolver
 bedrock.events.on('bedrock-express.configure.routes', async app => {
+  // mock universal DID resolver
   app.get('/1.0/identifiers/:did', asyncHandler(async (req, res) => {
     const {did: url} = req.params;
     // resolve via did-io
@@ -86,6 +89,37 @@ bedrock.events.on('bedrock-express.configure.routes', async app => {
       didDocumentMetadata: {},
       didResolutionMetadata: {
         contentType: 'application/did+ld+json'
+      }
+    });
+  }));
+
+  // mock zcap refresh routes
+  const refreshRoute =
+    '/profiles/:profileId/zcaps/policies/:delegateId/refresh';
+
+  app.post(refreshRoute, asyncHandler(async (req, res) => {
+    // produces same capability agent as in test
+    const secret = 'refreshtestsecret';
+    const handle = 'test';
+    const capabilityAgent = await CapabilityAgent.fromSecret({secret, handle});
+
+    const oldZcap = req.body;
+    const newZcap = await helpers.delegate({
+      capability: oldZcap.parentCapability,
+      allowedActions: oldZcap.allowedAction,
+      controller: oldZcap.controller,
+      invocationTarget: oldZcap.invocationTarget,
+      delegator: capabilityAgent
+    });
+    res.json(newZcap);
+  }));
+  app.get(`${refreshRoute}/policy`, asyncHandler(async (req, res) => {
+    res.json({
+      policy: {
+        refresh: {
+          // no constraints
+          constraints: {}
+        }
       }
     });
   }));
