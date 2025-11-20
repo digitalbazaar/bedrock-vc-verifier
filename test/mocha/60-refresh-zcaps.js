@@ -18,7 +18,7 @@ describe('refresh zcaps', () => {
     // enable refresh handler
     verifierService._disableRefreshHandler = false;
 
-    const secret = '53ad64ce-8e1d-11ec-bb12-10bf48838a41';
+    const secret = 'refreshtestsecret';
     const handle = 'test';
     capabilityAgent = await CapabilityAgent.fromSecret({secret, handle});
 
