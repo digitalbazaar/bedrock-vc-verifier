@@ -1,5 +1,10 @@
 # bedrock-vc-verifier ChangeLog
 
+## 23.5.0 - 2025-12-dd
+
+### Added
+- Expose credential status check error message.
+
 ## 23.4.0 - 2025-11-20
 
 ### Added
