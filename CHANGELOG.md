@@ -1,5 +1,16 @@
 # bedrock-vc-verifier ChangeLog
 
+## 23.5.1 - 2025-12-dd
+
+### Fixed
+- Handle case where a `TerseBitstringStatusEntry` expands to two non-existent
+  `BitstringStatusListEntry` values, i.e., neither revocation nor suspension
+  list have been published (yet) for the given VC, such that the credential
+  status value is considered `false` for both status purposes. This fix only
+  sets `verified: true` without returning the expanded entries with associated
+  `false` status values; a future fix might also return those `false` values
+  for better consistency.
+
 ## 23.5.0 - 2025-12-09
 
 ### Added
