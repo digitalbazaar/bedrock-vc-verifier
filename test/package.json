@@ -26,7 +26,7 @@
     "@bedrock/edv-storage": "^20.0.0",
     "@bedrock/express": "^8.3.1",
     "@bedrock/https-agent": "^4.1.0",
-    "@bedrock/jsonld-document-loader": "^5.2.0",
+    "@bedrock/jsonld-document-loader": "^5.2.1",
     "@bedrock/kms": "^16.0.0",
     "@bedrock/kms-http": "^22.0.0",
     "@bedrock/meter": "^6.0.0",
