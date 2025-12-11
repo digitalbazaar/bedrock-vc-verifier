@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 23.5.1 - 2025-12-dd
+## 23.5.1 - 2025-12-11
 
 ### Fixed
 - Handle case where a `TerseBitstringStatusEntry` expands to two non-existent
