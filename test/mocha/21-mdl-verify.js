@@ -7,6 +7,7 @@ import {generateCertificateChain, generateKeyPair} from './certUtils.js';
 import {agent} from '@bedrock/https-agent';
 import {CapabilityAgent} from '@digitalbazaar/webkms-client';
 import {httpClient} from '@digitalbazaar/http-client';
+import {oid4vp} from '@digitalbazaar/oid4-client';
 import {randomUUID} from 'node:crypto';
 
 import {mockData} from './mock.data.js';
@@ -139,8 +140,9 @@ describe('mDL /presentations/verify', () => {
     const {data: {challenge}} = await helpers.createChallenge(
       {capabilityAgent, verifierId});
 
-    // create an MDL session transcript
-    const sessionTranscript = {
+    // create an MDL handover
+    const handover = {
+      type: 'AnnexBHandover',
       mdocGeneratedNonce: randomUUID(),
       clientId: randomUUID(),
       // note: expected to be an OID4VP exchange response URL
@@ -152,7 +154,7 @@ describe('mDL /presentations/verify', () => {
     const envelopedPresentation = await mdlUtils.createPresentation({
       presentationDefinition: PRESENTATION_DEFINITION_1,
       mdoc,
-      sessionTranscript,
+      handover,
       devicePrivateJwk: deviceKeyPair.privateJwk
     });
 
@@ -162,7 +164,7 @@ describe('mDL /presentations/verify', () => {
       envelopedPresentation.id.indexOf(',') + 1);
     const deviceResponse = Buffer.from(vpToken, 'base64url');
     await mdlUtils.verifyPresentation({
-      deviceResponse, sessionTranscript,
+      deviceResponse, handover,
       trustedCertificates: [certChain.intermediate.pemCertificate]
     });
     */
@@ -177,23 +179,14 @@ describe('mDL /presentations/verify', () => {
         capability: rootZcap,
         json: {
           options: {
-            domain: sessionTranscript.responseUri,
+            domain: handover.responseUri,
             challenge,
             // ensure `challenge` is checked
             checks: ['challenge'],
             mdl: {
-              // note: in session transcript:
-              // `domain` will be used for `responseUri`
-              // `challenge` will be used for `verifierGeneratedNonce`
-              // so do not send here to avoid redundancy
-              sessionTranscript: {
-                // `mdocGeneratedNonce` must be base64url-encoded to ensure
-                // that byte strings can be used if necessary
-                mdocGeneratedNonce: Buffer
-                  .from(sessionTranscript.mdocGeneratedNonce, 'utf8')
-                  .toString('base64url'),
-                clientId: sessionTranscript.clientId
-              }
+              sessionTranscript: Buffer
+                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .toString('base64url')
             }
           },
           verifiablePresentation: envelopedPresentation
@@ -244,8 +237,9 @@ describe('mDL /presentations/verify', () => {
     const {data: {challenge}} = await helpers.createChallenge(
       {capabilityAgent, verifierId});
 
-    // create an MDL session transcript
-    const sessionTranscript = {
+    // create an MDL handover
+    const handover = {
+      type: 'AnnexBHandover',
       mdocGeneratedNonce: randomUUID(),
       clientId: randomUUID(),
       // note: expected to be an OID4VP exchange response URL
@@ -257,7 +251,7 @@ describe('mDL /presentations/verify', () => {
     const envelopedPresentation = await mdlUtils.createPresentation({
       presentationDefinition: PRESENTATION_DEFINITION_1,
       mdoc,
-      sessionTranscript,
+      handover,
       devicePrivateJwk: deviceKeyPair.privateJwk
     });
 
@@ -267,7 +261,7 @@ describe('mDL /presentations/verify', () => {
       envelopedPresentation.id.indexOf(',') + 1);
     const deviceResponse = Buffer.from(vpToken, 'base64url');
     await mdlUtils.verifyPresentation({
-      deviceResponse, sessionTranscript,
+      deviceResponse, handover,
       trustedCertificates: [certChain.intermediate.pemCertificate]
     });
     */
@@ -282,23 +276,14 @@ describe('mDL /presentations/verify', () => {
         capability: rootZcap,
         json: {
           options: {
-            domain: sessionTranscript.responseUri,
+            domain: handover.responseUri,
             challenge,
             // ensure `challenge` is checked
             checks: ['challenge'],
             mdl: {
-              // note: in session transcript:
-              // `domain` will be used for `responseUri`
-              // `challenge` will be used for `verifierGeneratedNonce`
-              // so do not send here to avoid redundancy
-              sessionTranscript: {
-                // `mdocGeneratedNonce` must be base64url-encoded to ensure
-                // that byte strings can be used if necessary
-                mdocGeneratedNonce: Buffer
-                  .from(sessionTranscript.mdocGeneratedNonce, 'utf8')
-                  .toString('base64url'),
-                clientId: sessionTranscript.clientId
-              }
+              sessionTranscript: Buffer
+                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .toString('base64url')
             }
           },
           verifiablePresentation: envelopedPresentation
@@ -343,8 +328,9 @@ describe('mDL /presentations/verify', () => {
     const {data: {challenge}} = await helpers.createChallenge(
       {capabilityAgent, verifierId});
 
-    // create an MDL session transcript
-    const sessionTranscript = {
+    // create an MDL handover
+    const handover = {
+      type: 'AnnexBHandover',
       mdocGeneratedNonce: randomUUID(),
       clientId: randomUUID(),
       // note: expected to be an OID4VP exchange response URL
@@ -356,7 +342,7 @@ describe('mDL /presentations/verify', () => {
     const envelopedPresentation = await mdlUtils.createPresentation({
       presentationDefinition: PRESENTATION_DEFINITION_1,
       mdoc,
-      sessionTranscript,
+      handover,
       devicePrivateJwk: deviceKeyPair.privateJwk
     });
 
@@ -366,7 +352,7 @@ describe('mDL /presentations/verify', () => {
       envelopedPresentation.id.indexOf(',') + 1);
     const deviceResponse = Buffer.from(vpToken, 'base64url');
     await mdlUtils.verifyPresentation({
-      deviceResponse, sessionTranscript,
+      deviceResponse, handover,
       trustedCertificates: [certChain.intermediate.pemCertificate]
     });
     */
@@ -381,23 +367,14 @@ describe('mDL /presentations/verify', () => {
         capability: rootZcap,
         json: {
           options: {
-            domain: sessionTranscript.responseUri,
+            domain: handover.responseUri,
             challenge,
             // ensure `challenge` is checked
             checks: ['challenge'],
             mdl: {
-              // note: in session transcript:
-              // `domain` will be used for `responseUri`
-              // `challenge` will be used for `verifierGeneratedNonce`
-              // so do not send here to avoid redundancy
-              sessionTranscript: {
-                // `mdocGeneratedNonce` must be base64url-encoded to ensure
-                // that byte strings can be used if necessary
-                mdocGeneratedNonce: Buffer
-                  .from(sessionTranscript.mdocGeneratedNonce, 'utf8')
-                  .toString('base64url'),
-                clientId: sessionTranscript.clientId
-              }
+              sessionTranscript: Buffer
+                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .toString('base64url')
             }
           },
           verifiablePresentation: envelopedPresentation
@@ -442,8 +419,9 @@ describe('mDL /presentations/verify', () => {
     const {data: {challenge}} = await helpers.createChallenge(
       {capabilityAgent, verifierId});
 
-    // create an MDL session transcript
-    const sessionTranscript = {
+    // create an MDL handover
+    const handover = {
+      type: 'AnnexBHandover',
       mdocGeneratedNonce: randomUUID(),
       clientId: randomUUID(),
       // note: expected to be an OID4VP exchange response URL
@@ -459,7 +437,7 @@ describe('mDL /presentations/verify', () => {
     const envelopedPresentation = await mdlUtils.createPresentation({
       presentationDefinition: PRESENTATION_DEFINITION_1,
       mdoc,
-      sessionTranscript,
+      handover,
       devicePrivateJwk: otherDeviceJwk.jwk
     });
 
@@ -469,7 +447,7 @@ describe('mDL /presentations/verify', () => {
       envelopedPresentation.id.indexOf(',') + 1);
     const deviceResponse = Buffer.from(vpToken, 'base64url');
     await mdlUtils.verifyPresentation({
-      deviceResponse, sessionTranscript,
+      deviceResponse, handover,
       trustedCertificates: [certChain.intermediate.pemCertificate]
     });
     */
@@ -484,23 +462,14 @@ describe('mDL /presentations/verify', () => {
         capability: rootZcap,
         json: {
           options: {
-            domain: sessionTranscript.responseUri,
+            domain: handover.responseUri,
             challenge,
             // ensure `challenge` is checked
             checks: ['challenge'],
             mdl: {
-              // note: in session transcript:
-              // `domain` will be used for `responseUri`
-              // `challenge` will be used for `verifierGeneratedNonce`
-              // so do not send here to avoid redundancy
-              sessionTranscript: {
-                // `mdocGeneratedNonce` must be base64url-encoded to ensure
-                // that byte strings can be used if necessary
-                mdocGeneratedNonce: Buffer
-                  .from(sessionTranscript.mdocGeneratedNonce, 'utf8')
-                  .toString('base64url'),
-                clientId: sessionTranscript.clientId
-              }
+              sessionTranscript: Buffer
+                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .toString('base64url')
             }
           },
           verifiablePresentation: envelopedPresentation
