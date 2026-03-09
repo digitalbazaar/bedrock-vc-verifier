@@ -1,9 +1,7 @@
 /*
  * Copyright (c) 2025-2026 Digital Bazaar, Inc. All rights reserved.
  */
-import {
-  DeviceResponse, Document, MDoc, /*parse,*/ Verifier
-} from '@auth0/mdl';
+import {DeviceResponse, Document, MDoc, /*parse,*/ Verifier} from '@auth0/mdl';
 import {oid4vp} from '@digitalbazaar/oid4-client';
 
 const VC_CONTEXT_2 = 'https://www.w3.org/ns/credentials/v2';
@@ -17,6 +15,12 @@ export async function createPresentation({
   presentationDefinition,
   mdoc, handover, devicePrivateJwk
 } = {}) {
+  // pick input_descriptor w/ID: `MDOC_TYPE_MDL` as needed by auth0 lib
+  presentationDefinition = {
+    ...presentationDefinition,
+    input_descriptors: presentationDefinition.input_descriptors.filter(
+      e => e.id === MDOC_TYPE_MDL)
+  };
   const encodedSessionTranscript = await encodeSessionTranscript({handover});
   const deviceResponse = await DeviceResponse.from(mdoc)
     .usingPresentationDefinition(presentationDefinition)
