@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 23.6.0 - 2026-mm-dd
+## 23.6.0 - 2026-03-11
 
 ### Added
 - Support verifying mDLs submitted w/DC API (ISO 18013-7 Annex C and D).
