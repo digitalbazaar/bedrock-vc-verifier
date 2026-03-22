@@ -90,7 +90,7 @@ export async function verifyPresentation({
   console.log('issuer certificate', issuerCertificate);*/
 
   // produced on the verifier side
-  const encodedSessionTranscript = encodeSessionTranscript({handover});
+  const encodedSessionTranscript = await encodeSessionTranscript({handover});
 
   const verifier = new Verifier(trustedCertificates);
   // console.log('Getting diagnostic information...');
