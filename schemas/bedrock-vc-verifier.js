@@ -178,7 +178,7 @@ const envelopedVerifiablePresentation = {
 export const verifyOptions = {
   title: 'Verify Options',
   type: 'object',
-  oneOf: [{
+  anyOf: [{
     required: ['didResolver']
   }, {
     required: ['documentLoader']
