@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 23.6.1 - 2026-04-dd
+## 23.6.1 - 2026-04-08
 
 ### Fixed
 - Fix `verifyOptions` JSON schema (use `anyOf` instead of `oneOf` for required
