@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2026 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2025-2026 Digital Bazaar, Inc.
  */
 import {DeviceResponse, Document, MDoc, /*parse,*/ Verifier} from '@auth0/mdl';
 import {oid4vp} from '@digitalbazaar/oid4-client';

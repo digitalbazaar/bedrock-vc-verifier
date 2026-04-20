@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2024-2025 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2024-2026 Digital Bazaar, Inc.
  */
 import * as helpers from './helpers.js';
 import * as vc from '@digitalbazaar/vc';
