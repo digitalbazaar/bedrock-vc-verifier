@@ -101,7 +101,7 @@ function _startServer({app}) {
           statusListIndex: '67342',
           statusListCredential: slcRevocation.id
         },
-        issuer: slcRevocation.issuer,
+        issuer: slcRevocation.issuer
       };
 
       // SLC with statusPurpose `suspension`
@@ -140,7 +140,7 @@ function _startServer({app}) {
           statusListIndex: '67342',
           statusListCredential: slcSuspension.id
         },
-        issuer: slcSuspension.issuer,
+        issuer: slcSuspension.issuer
       };
 
       // unsigned VC with unmatching status purpose
@@ -166,7 +166,7 @@ function _startServer({app}) {
           // with status purpose `revocation`.
           statusListCredential: slcRevocation.id
         },
-        issuer: slcRevocation.issuer,
+        issuer: slcRevocation.issuer
       };
 
       // revoked SLC
@@ -339,7 +339,7 @@ describe('verify BitstringStatusList credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -399,7 +399,7 @@ describe('verify BitstringStatusList credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -466,7 +466,7 @@ describe('verify BitstringStatusList credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -542,7 +542,7 @@ describe('verify BitstringStatusList credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -601,7 +601,7 @@ describe('verify BitstringStatusList credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -640,7 +640,7 @@ describe('verify BitstringStatusList credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -697,7 +697,7 @@ describe('verify BitstringStatusList credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }

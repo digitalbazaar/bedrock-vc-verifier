@@ -150,7 +150,7 @@ describe('document loader option', () => {
               capability: rootZcap,
               json: {
                 options: {
-                  checks: ['proof'],
+                  checks: ['proof']
                 },
                 verifiableCredential
               }
@@ -192,7 +192,7 @@ describe('document loader option', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential: badCredential
           }
@@ -222,7 +222,7 @@ describe('document loader option', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential: badCredential
           }
@@ -322,7 +322,7 @@ describe('document loader option', () => {
               json: {
                 options: {
                   challenge,
-                  checks: ['proof'],
+                  checks: ['proof']
                 },
                 verifiablePresentation: presentation
               }
@@ -390,7 +390,7 @@ describe('document loader option', () => {
           json: {
             options: {
               challenge,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
@@ -452,7 +452,7 @@ describe('document loader option', () => {
           json: {
             options: {
               challenge,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
