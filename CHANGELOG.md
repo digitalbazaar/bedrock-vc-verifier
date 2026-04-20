@@ -1,5 +1,13 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.0.0 - 2026-04-xx
+
+### Changed
+- **NOTE**: Update supported platforms.
+  - Test on Node.js >=20.
+  - Update `engines.node` to `>=20`.
+  - Update README requirements section.
+
 ## 23.6.1 - 2026-04-08
 
 ### Fixed
