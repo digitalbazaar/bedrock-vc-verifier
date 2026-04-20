@@ -150,7 +150,7 @@ describe('did resolver option', () => {
               capability: rootZcap,
               json: {
                 options: {
-                  checks: ['proof'],
+                  checks: ['proof']
                 },
                 verifiableCredential
               }
@@ -192,7 +192,7 @@ describe('did resolver option', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential: badCredential
           }
@@ -292,7 +292,7 @@ describe('did resolver option', () => {
               json: {
                 options: {
                   challenge,
-                  checks: ['proof'],
+                  checks: ['proof']
                 },
                 verifiablePresentation: presentation
               }
@@ -360,7 +360,7 @@ describe('did resolver option', () => {
           json: {
             options: {
               challenge,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }

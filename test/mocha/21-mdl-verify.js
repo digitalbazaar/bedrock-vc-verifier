@@ -31,7 +31,7 @@ const PRESENTATION_DEFINITION_1 = {
         limit_disclosure: 'required',
         fields: [
           {
-            // eslint-disable-next-line quotes
+            // eslint-disable-next-line @stylistic/quotes
             path: ["$['org.iso.18013.5.1']['age_over_21']"],
             intent_to_retain: false
           }

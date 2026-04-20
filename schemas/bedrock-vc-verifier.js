@@ -66,7 +66,7 @@ function verifiableCredential() {
         minItems: 1,
         // this first type must be VerifiableCredential
         items: [
-          {const: 'VerifiableCredential'},
+          {const: 'VerifiableCredential'}
         ],
         // additional types must be strings
         additionalItems: {
@@ -122,7 +122,7 @@ export function verifiablePresentation() {
         minItems: 1,
         // this first type must be VerifiablePresentation
         items: [
-          {const: 'VerifiablePresentation'},
+          {const: 'VerifiablePresentation'}
         ],
         // additional types must be strings
         additionalItems: {

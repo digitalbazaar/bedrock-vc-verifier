@@ -117,7 +117,7 @@ export async function verifyPresentation({
         type: 'EnvelopedVerifiableCredential'
       }
     };
-  } catch(err) {
+  } catch/*(err)*/ {
     //console.error('Verification failed:', err);
     return;
   }
