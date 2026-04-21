@@ -1,7 +1,7 @@
 # Bedrock VC Verifier API module _(@bedrock/vc-verifier)_
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/digitalbazaar/bedrock-vc-verifier/main.yml)](https://github.com/digitalbazaar/bedrock-vc-verifier/actions/workflows/main.yml)
-[![NPM Version](https://img.shields.io/npm/v/bedrock-vc-verifier.svg)](https://npm.im/bedrock-vc-verifier)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/digitalbazaar/bedrock-vc-verifier/main.yaml)](https://github.com/digitalbazaar/bedrock-vc-verifier/actions/workflows/main.yaml)
+[![NPM Version](https://img.shields.io/npm/v/@bedrock/vc-verifier.svg)](https://npm.im/@bedrock/vc-verifier)
 
 > A VC Verifier API library for use with Bedrock applications.
 
