@@ -16,7 +16,7 @@
   - Update README requirements section.
 
 ### Removed
-- **BREAKING**: Remove support for old cryptosuites.
+- **BREAKING**: Remove support for old, non-standard cryptosuites.
   - `Ed25519Signature2018`: Migrate to `Ed25519Signature2020`.
   - `ecdsa-2019`: Migrate to `ecdsa-rdfc-2019`.
   - `eddsa-2022`: Migrate to `eddsa-rdfc-2022`.
