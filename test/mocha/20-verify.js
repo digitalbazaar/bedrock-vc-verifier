@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2020-2025 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2020-2026 Digital Bazaar, Inc.
  */
 import * as helpers from './helpers.js';
 import * as vc from '@digitalbazaar/vc';
@@ -134,7 +134,11 @@ describe('verify APIs', () => {
       let description;
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
-        if(cryptosuite === 'ecdsa-2019') {
+        if(
+          cryptosuite === 'ecdsa-rdfc-2019' ||
+          cryptosuite === 'ecdsa-jcs-2019' ||
+          cryptosuite === 'ecdsa-sd-2023'
+        ) {
           const keyType = helpers.getEcdsaAlgorithms({
             credential: mockCredential
           })[0];
@@ -185,7 +189,7 @@ describe('verify APIs', () => {
               capability: rootZcap,
               json: {
                 options: {
-                  checks: ['proof'],
+                  checks: ['proof']
                 },
                 verifiableCredential
               }
@@ -233,7 +237,7 @@ describe('verify APIs', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential
           }
@@ -278,7 +282,7 @@ describe('verify APIs', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential
           }
@@ -339,7 +343,7 @@ describe('verify APIs', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential: envelopedVerifiableCredential
           }
@@ -401,7 +405,7 @@ describe('verify APIs', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential: envelopedVerifiableCredential
           }
@@ -462,7 +466,7 @@ describe('verify APIs', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential: envelopedVerifiableCredential
           }
@@ -533,7 +537,7 @@ describe('verify APIs', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential
           }
@@ -604,7 +608,7 @@ describe('verify APIs', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential
           }
@@ -643,7 +647,7 @@ describe('verify APIs', () => {
           headers: {authorization: `Bearer ${accessToken}`},
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential
           }
@@ -683,7 +687,7 @@ describe('verify APIs', () => {
             headers: {authorization: `Bearer ${accessToken}`},
             json: {
               options: {
-                checks: ['proof'],
+                checks: ['proof']
               },
               verifiableCredential
             }
@@ -723,7 +727,7 @@ describe('verify APIs', () => {
             headers: {authorization: `Bearer ${accessToken}`},
             json: {
               options: {
-                checks: ['proof'],
+                checks: ['proof']
               },
               verifiableCredential
             }
@@ -764,7 +768,7 @@ describe('verify APIs', () => {
             headers: {authorization: `Bearer ${accessToken}`},
             json: {
               options: {
-                checks: ['proof'],
+                checks: ['proof']
               },
               verifiableCredential
             }
@@ -798,7 +802,7 @@ describe('verify APIs', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential: badCredential
           }
@@ -826,7 +830,7 @@ describe('verify APIs', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential: expiredCredential
           }
@@ -851,8 +855,9 @@ describe('verify APIs', () => {
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
         if(
-          cryptosuite === 'ecdsa-2019' || cryptosuite === 'ecdsa-rdfc-2019' ||
-          cryptosuite === 'ecdsa-jcs-2019' || cryptosuite === 'ecdsa-sd-2023'
+          cryptosuite === 'ecdsa-rdfc-2019' ||
+          cryptosuite === 'ecdsa-jcs-2019' ||
+          cryptosuite === 'ecdsa-sd-2023'
         ) {
           const keyType = helpers.getEcdsaAlgorithms({
             credential: mockCredential
@@ -926,7 +931,7 @@ describe('verify APIs', () => {
               json: {
                 options: {
                   challenge,
-                  checks: ['proof'],
+                  checks: ['proof']
                 },
                 verifiablePresentation: presentation
               }
@@ -1002,7 +1007,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               domain,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: envelopedPresentation
           }
@@ -1080,7 +1085,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               domain,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: envelopedPresentation
           }
@@ -1158,7 +1163,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               domain,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: envelopedPresentation
           }
@@ -1237,7 +1242,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               domain,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
@@ -1316,7 +1321,7 @@ describe('verify APIs', () => {
             verifiablePresentation: envelopedVerifiablePresentation,
             options: {
               challenge,
-              checks: [],
+              checks: []
             }
           }
         });
@@ -1393,7 +1398,7 @@ describe('verify APIs', () => {
             verifiablePresentation: envelopedVerifiablePresentation,
             options: {
               challenge,
-              checks: [],
+              checks: []
             }
           }
         });
@@ -1476,7 +1481,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               domain,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
@@ -1565,7 +1570,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               domain,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
@@ -1653,7 +1658,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               domain,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
@@ -1739,7 +1744,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               domain,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: envelopedPresentation
           }
@@ -1817,7 +1822,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               domain,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: envelopedPresentation
           }
@@ -1887,7 +1892,7 @@ describe('verify APIs', () => {
           json: {
             options: {
               challenge,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
@@ -1958,7 +1963,7 @@ describe('verify APIs', () => {
           json: {
             options: {
               challenge,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
@@ -2030,7 +2035,7 @@ describe('verify APIs', () => {
             json: {
               options: {
                 challenge,
-                checks: ['proof'],
+                checks: ['proof']
               },
               verifiablePresentation: presentation
             }
@@ -2103,7 +2108,7 @@ describe('verify APIs', () => {
             json: {
               options: {
                 challenge,
-                checks: ['proof'],
+                checks: ['proof']
               },
               verifiablePresentation: presentation
             }
@@ -2164,7 +2169,7 @@ describe('verify APIs', () => {
             json: {
               options: {
                 challenge,
-                checks: ['proof'],
+                checks: ['proof']
               },
               verifiablePresentation: presentation
             }
@@ -2215,7 +2220,7 @@ describe('verify APIs', () => {
             options: {
               challenge,
               // check challenge via verifier challenge management
-              checks: ['proof', 'challenge'],
+              checks: ['proof', 'challenge']
             },
             verifiablePresentation: presentation
           }
@@ -2265,7 +2270,7 @@ describe('verify APIs', () => {
               challenge,
               // do not include `challenge` in checks to do local challenge
               // management
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
@@ -2328,7 +2333,7 @@ describe('verify APIs', () => {
           json: {
             options: {
               // intentionally omit challenge
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }
@@ -2379,7 +2384,7 @@ describe('verify APIs', () => {
           json: {
             options: {
               challenge,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }

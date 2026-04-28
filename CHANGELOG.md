@@ -1,5 +1,26 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.0.0 - 2026-04-xx
+
+### Changed
+- Update dependencies.
+  - `serialize-error@13`.
+- Update all minor dependencies.
+- Update all dev dependencies.
+  - `@digitalbazaar/eslint-config@8`.
+  - `eslint@9`.
+- Update all test dependencies.
+- **NOTE**: Update supported platforms.
+  - Test on Node.js >=20.
+  - Update `engines.node` to `>=20`.
+  - Update README requirements section.
+
+### Removed
+- **BREAKING**: Remove support for old, non-standard cryptosuites.
+  - `Ed25519Signature2018`: Migrate to `Ed25519Signature2020`.
+  - `ecdsa-2019`: Migrate to `ecdsa-rdfc-2019`.
+  - `eddsa-2022`: Migrate to `eddsa-rdfc-2022`.
+
 ## 23.6.1 - 2026-04-08
 
 ### Fixed

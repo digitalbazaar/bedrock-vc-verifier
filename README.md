@@ -1,7 +1,7 @@
 # Bedrock VC Verifier API module _(@bedrock/vc-verifier)_
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/digitalbazaar/bedrock-vc-verifier/main.yml)](https://github.com/digitalbazaar/bedrock-vc-verifier/actions/workflows/main.yml)
-[![NPM Version](https://img.shields.io/npm/v/bedrock-vc-verifier.svg)](https://npm.im/bedrock-vc-verifier)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/digitalbazaar/bedrock-vc-verifier/main.yaml)](https://github.com/digitalbazaar/bedrock-vc-verifier/actions/workflows/main.yaml)
+[![NPM Version](https://img.shields.io/npm/v/@bedrock/vc-verifier.svg)](https://npm.im/@bedrock/vc-verifier)
 
 > A VC Verifier API library for use with Bedrock applications.
 
@@ -25,7 +25,10 @@ TBD
 
 ## Install
 
-- Node.js 18+ is required.
+This software requires and supports maintained recent versions of Node.js.
+Updates may remove support for older unmaintained platform versions. Please use
+dependency version lock files and testing to ensure compatibility with this
+software.
 
 ### NPM
 

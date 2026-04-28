@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2019-2025 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2019-2026 Digital Bazaar, Inc.
  */
 import * as helpers from './helpers.js';
 import * as statusListCtx from '@digitalbazaar/vc-status-list-context';
@@ -109,7 +109,7 @@ function _startServer({app}) {
           statusListIndex: '67342',
           statusListCredential: slCredentialRevocation.id
         },
-        issuer: slCredentialRevocation.issuer,
+        issuer: slCredentialRevocation.issuer
       };
 
       // Status List 2021 Credential with statusPurpose `suspension`
@@ -151,7 +151,7 @@ function _startServer({app}) {
           statusListIndex: '67342',
           statusListCredential: slCredentialSuspension.id
         },
-        issuer: slCredentialSuspension.issuer,
+        issuer: slCredentialSuspension.issuer
       };
 
       // Unsigned 2021 Credential with unmatching status purpose
@@ -178,7 +178,7 @@ function _startServer({app}) {
           // with status purpose `revocation`.
           statusListCredential: slCredentialRevocation.id
         },
-        issuer: slCredentialRevocation.issuer,
+        issuer: slCredentialRevocation.issuer
       };
 
       // Revoked Status List 2021 Credential
@@ -238,7 +238,7 @@ function _startServer({app}) {
           revocationListIndex: '67342',
           revocationListCredential: rlCredential.id
         },
-        issuer: rlCredential.issuer,
+        issuer: rlCredential.issuer
       };
 
       // Revoked Revocation List 2020 Credential
@@ -400,7 +400,7 @@ describe('verify legacy credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -445,7 +445,7 @@ describe('verify legacy credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -490,7 +490,7 @@ describe('verify legacy credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -527,7 +527,7 @@ describe('verify legacy credential status', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['credentialStatus'],
+              checks: ['credentialStatus']
             },
             verifiableCredential
           }
@@ -574,7 +574,7 @@ describe('verify legacy credential status', () => {
         capability: rootZcap,
         json: {
           options: {
-            checks: ['proof', 'credentialStatus'],
+            checks: ['proof', 'credentialStatus']
           },
           verifiableCredential
         }
@@ -619,7 +619,7 @@ describe('verify legacy credential status', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['credentialStatus'],
+              checks: ['credentialStatus']
             },
             verifiableCredential
           }

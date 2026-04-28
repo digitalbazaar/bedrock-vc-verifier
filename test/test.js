@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2016-2025 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2026 Digital Bazaar, Inc.
  */
 import * as bedrock from '@bedrock/core';
 import {asyncHandler} from '@bedrock/express';

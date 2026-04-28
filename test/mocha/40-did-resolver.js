@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2024-2025 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2024-2026 Digital Bazaar, Inc.
  */
 import * as helpers from './helpers.js';
 import * as vc from '@digitalbazaar/vc';
@@ -100,7 +100,11 @@ describe('did resolver option', () => {
       let description;
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
-        if(cryptosuite === 'ecdsa-2019') {
+        if(
+          cryptosuite === 'ecdsa-rdfc-2019' ||
+          cryptosuite === 'ecdsa-jcs-2019' ||
+          cryptosuite === 'ecdsa-sd-2023'
+        ) {
           const keyType = helpers.getEcdsaAlgorithms({
             credential: mockCredential
           })[0];
@@ -150,7 +154,7 @@ describe('did resolver option', () => {
               capability: rootZcap,
               json: {
                 options: {
-                  checks: ['proof'],
+                  checks: ['proof']
                 },
                 verifiableCredential
               }
@@ -192,7 +196,7 @@ describe('did resolver option', () => {
           capability: rootZcap,
           json: {
             options: {
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiableCredential: badCredential
           }
@@ -217,8 +221,9 @@ describe('did resolver option', () => {
       const {type, cryptosuite} = mockCredential.proof;
       if(cryptosuite) {
         if(
-          cryptosuite === 'ecdsa-2019' || cryptosuite === 'ecdsa-rdfc-2019' ||
-          cryptosuite === 'ecdsa-jcs-2019' || cryptosuite === 'ecdsa-sd-2023'
+          cryptosuite === 'ecdsa-rdfc-2019' ||
+          cryptosuite === 'ecdsa-jcs-2019' ||
+          cryptosuite === 'ecdsa-sd-2023'
         ) {
           const keyType = helpers.getEcdsaAlgorithms({
             credential: mockCredential
@@ -292,7 +297,7 @@ describe('did resolver option', () => {
               json: {
                 options: {
                   challenge,
-                  checks: ['proof'],
+                  checks: ['proof']
                 },
                 verifiablePresentation: presentation
               }
@@ -360,7 +365,7 @@ describe('did resolver option', () => {
           json: {
             options: {
               challenge,
-              checks: ['proof'],
+              checks: ['proof']
             },
             verifiablePresentation: presentation
           }

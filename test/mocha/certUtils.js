@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2025-2026 Digital Bazaar, Inc.
  */
 import * as asn1js from 'asn1js';
 import * as pkijs from 'pkijs';
@@ -141,7 +141,7 @@ function _createCrypto() {
   // initialize `pkijs` crypto engine only as needed
   try {
     pkijs.getEngine();
-  } catch(e) {
+  } catch {
     pkijs.setEngine('newEngine', new pkijs.CryptoEngine({
       name: 'newEngine', crypto: webcrypto, subtle: webcrypto.subtle
     }));
@@ -156,6 +156,6 @@ function _toPem(buffer, tag = 'CERTIFICATE') {
     `-----BEGIN ${tag}-----`,
     wrapped,
     `-----END ${tag}-----`,
-    '',
+    ''
   ].join('\n');
 }

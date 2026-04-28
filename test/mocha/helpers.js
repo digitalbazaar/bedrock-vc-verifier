@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2019-2026 Digital Bazaar, Inc.
  */
 import * as bedrock from '@bedrock/core';
 import {importJWK, SignJWT} from 'jose';
@@ -298,8 +298,7 @@ export function getEcdsaAlgorithms({credential, presentation} = {}) {
     const proofs = Array.isArray(credential.proof) ? credential.proof :
       [credential.proof];
     for(const proof of proofs) {
-      if(proof.cryptosuite === 'ecdsa-2019' ||
-        proof.cryptosuite === 'ecdsa-rdfc-2019' ||
+      if(proof.cryptosuite === 'ecdsa-rdfc-2019' ||
         proof.cryptosuite === 'ecdsa-jcs-2019' ||
         proof.cryptosuite === 'ecdsa-sd-2023') {
         const {verificationMethod} = proof;
