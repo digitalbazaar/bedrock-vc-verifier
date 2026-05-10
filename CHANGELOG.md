@@ -1,5 +1,11 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.1.0 - 2026-05-dd
+
+### Changed
+- Use configuration system to set body parser limits for specific routes
+  instead of change the default body parser configuration.
+
 ## 24.0.0 - 2026-05-10
 
 ### Changed
