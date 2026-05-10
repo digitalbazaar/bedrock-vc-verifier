@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 24.0.0 - 2026-04-xx
+## 24.0.0 - 2026-05-10
 
 ### Changed
 - Update dependencies.
