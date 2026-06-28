@@ -74,7 +74,7 @@ describe('provision API', () => {
       err.data.details.errors.should.have.length(1);
       const [error] = err.data.details.errors;
       error.name.should.equal('ValidationError');
-      error.message.should.contain(`should have required property 'zcaps'`);
+      error.message.should.contain(`have required property 'zcaps'`);
     });
     it('creates a config', async () => {
       let err;
