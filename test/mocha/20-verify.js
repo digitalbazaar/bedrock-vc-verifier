@@ -221,7 +221,7 @@ describe('verify APIs', () => {
       vc => vc['@context'][0] === VC_CONTEXT_1);
     const version2Credential = mockCredentials.find(
       vc => vc['@context'][0] !== VC_CONTEXT_1);
-      const versions = [version1Credential, version2Credential];
+    const versions = [version1Credential, version2Credential];
     for(const mockCredential of versions) {
       const isVersion1 = mockCredential['@context'][0] === VC_CONTEXT_1;
       const version = isVersion1 ? 'v1' : 'v2';
