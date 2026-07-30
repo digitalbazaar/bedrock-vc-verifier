@@ -216,6 +216,141 @@ describe('verify APIs', () => {
         });
       });
     }
+
+    const version1Credential = mockCredentials.find(
+      vc => vc['@context'][0] === VC_CONTEXT_1);
+    const version2Credential = mockCredentials.find(
+      vc => vc['@context'][0] !== VC_CONTEXT_1);
+      const versions = [version1Credential, version2Credential];
+    for(const mockCredential of versions) {
+      const isVersion1 = mockCredential['@context'][0] === VC_CONTEXT_1;
+      const version = isVersion1 ? 'v1' : 'v2';
+      describe(`checks expiration on ${version} credential`, () => {
+        it('includes proof error on an expired credential', async () => {
+          let verifiableCredential = structuredClone(mockCredential);
+          delete verifiableCredential.proof;
+          // for simplicity, sign with existing capability agent
+          const signer = capabilityAgent.getSigner();
+          signer.algorithm = 'Ed25519';
+          verifiableCredential.issuer = capabilityAgent.id;
+          const now = new Date();
+          const futureDate = new Date();
+          futureDate.setFullYear(now.getFullYear() + 10);
+          const expires = futureDate.toISOString().slice(0, -5) + 'Z';
+          if(isVersion1) {
+            verifiableCredential.issuanceDate =
+              now.toISOString().slice(0, -5) + 'Z';
+            verifiableCredential.expirationDate = expires;
+          } else {
+            verifiableCredential.validFrom =
+              now.toISOString().slice(0, -5) + 'Z';
+            verifiableCredential.validUntil = expires;
+          }
+          // sign VC with proper expiry
+          verifiableCredential = await vc.issue({
+            credential: verifiableCredential,
+            documentLoader: brDocLoader,
+            suite: new Ed25519Signature2020({signer})
+          });
+          // replace expiry afterwards
+          const pastDate = new Date();
+          pastDate.setFullYear(now.getFullYear() - 10);
+          const changedExpires = pastDate.toISOString().slice(0, -5) + 'Z';
+          if(verifiableCredential.issuanceDate) {
+            verifiableCredential.expirationDate = changedExpires;
+          } else {
+            verifiableCredential.validUntil = changedExpires;
+          }
+
+          let error;
+          let result;
+          try {
+            const zcapClient = helpers.createZcapClient({capabilityAgent});
+            result = await zcapClient.write({
+              url: `${verifierId}/credentials/verify`,
+              capability: rootZcap,
+              json: {
+                options: {
+                  checks: ['proof']
+                },
+                verifiableCredential
+              }
+            });
+          } catch(e) {
+            error = e;
+          }
+          should.exist(error);
+          should.not.exist(result);
+          should.exist(error.data);
+          error.data.should.be.an('object');
+          error.data.verified.should.be.a('boolean');
+          error.data.verified.should.equal(false);
+          error.data.error.name.should.equal('VerificationError');
+          if(isVersion1) {
+            error.data.error.message.should.equal('Credential has expired.');
+          } else {
+            error.data.error.message.should.include('is after "validUntil"');
+          }
+          error.data.results[0].proofVerified.should.equal(false);
+        });
+        it('includes proof result on an expired credential', async () => {
+          let verifiableCredential = structuredClone(mockCredential);
+          delete verifiableCredential.proof;
+          // for simplicity, sign with existing capability agent
+          const signer = capabilityAgent.getSigner();
+          signer.algorithm = 'Ed25519';
+          verifiableCredential.issuer = capabilityAgent.id;
+          const now = new Date();
+          const pastDate = new Date();
+          pastDate.setFullYear(now.getFullYear() - 10);
+          const expires = pastDate.toISOString().slice(0, -5) + 'Z';
+          if(isVersion1) {
+            verifiableCredential.issuanceDate = expires;
+            verifiableCredential.expirationDate = expires;
+          } else {
+            verifiableCredential.validFrom = expires;
+            verifiableCredential.validUntil = expires;
+          }
+          verifiableCredential = await vc.issue({
+            credential: verifiableCredential,
+            documentLoader: brDocLoader,
+            suite: new Ed25519Signature2020({signer})
+          });
+
+          let error;
+          let result;
+          try {
+            const zcapClient = helpers.createZcapClient({capabilityAgent});
+            result = await zcapClient.write({
+              url: `${verifierId}/credentials/verify`,
+              capability: rootZcap,
+              json: {
+                options: {
+                  checks: ['proof']
+                },
+                verifiableCredential
+              }
+            });
+          } catch(e) {
+            error = e;
+          }
+          should.exist(error);
+          should.not.exist(result);
+          should.exist(error.data);
+          error.data.should.be.an('object');
+          error.data.verified.should.be.a('boolean');
+          error.data.verified.should.equal(false);
+          error.data.error.name.should.equal('VerificationError');
+          if(isVersion1) {
+            error.data.error.message.should.equal('Credential has expired.');
+          } else {
+            error.data.error.message.should.include('is after "validUntil"');
+          }
+          error.data.results[0].proofVerified.should.equal(true);
+        });
+      });
+    }
+
     const [mockCredential] = mockCredentials;
     it('verifies a VC-JWT enveloped credential', async () => {
       let verifiableCredential = structuredClone(mockCredential);
@@ -846,6 +981,7 @@ describe('verify APIs', () => {
       error.data.verified.should.equal(false);
       error.data.error.name.should.equal('VerificationError');
       error.data.error.message.should.equal('Credential has expired.');
+      error.data.results[0].proofVerified.should.equal(false);
     });
   });
 
