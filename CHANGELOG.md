@@ -1,5 +1,11 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.1.1 - 2027-mm-dd
+
+### Fixed
+- Report any `proof` results for v2 VCs when `checks.proof` is set, even if a
+  validity period check also failed.
+
 ## 24.1.0 - 2026-05-10
 
 ### Changed
