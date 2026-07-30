@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 24.1.1 - 2027-mm-dd
+## 24.1.1 - 2027-07-30
 
 ### Fixed
 - Report any `proof` results for v2 VCs when `checks.proof` is set, even if a
