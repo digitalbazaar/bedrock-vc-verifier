@@ -8,21 +8,26 @@ import {randomUUID, webcrypto} from 'node:crypto';
 const crypto = _createCrypto();
 
 export async function generateCertificateChain() {
+  const now = new Date();
+
   const root = await _createEntity({
     commonName: 'Root',
-    serialNumber: 1
+    serialNumber: 1,
+    now
   });
 
   const intermediate = await _createEntity({
     issuer: root.subject,
     commonName: 'Intermediate',
-    serialNumber: 2
+    serialNumber: 2,
+    now
   });
 
   const leaf = await _createEntity({
     issuer: intermediate.subject,
     commonName: 'Leaf',
-    serialNumber: 3
+    serialNumber: 3,
+    now
   });
 
   return {root, intermediate, leaf};
@@ -42,7 +47,7 @@ export async function generateKeyPair() {
   return {keyPair, jwk};
 }
 
-async function _createEntity({issuer, commonName, serialNumber} = {}) {
+async function _createEntity({issuer, commonName, serialNumber, now} = {}) {
   // generate subject key pair
   const {keyPair, jwk} = await generateKeyPair();
 
@@ -88,8 +93,8 @@ async function _createEntity({issuer, commonName, serialNumber} = {}) {
   }));
 
   // validity period
-  certificate.notBefore.value = new Date();
-  const notAfter = new Date();
+  certificate.notBefore.value = new Date(now);
+  const notAfter = new Date(now);
   notAfter.setUTCFullYear(notAfter.getUTCFullYear() + 1);
   certificate.notAfter.value = notAfter;
 
