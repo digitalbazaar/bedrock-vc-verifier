@@ -41,6 +41,8 @@ const PRESENTATION_DEFINITION_1 = {
   ]
 };
 
+const VC_CONTEXT_2 = 'https://www.w3.org/ns/credentials/v2';
+
 describe('mDL /presentations/verify', () => {
   let capabilityAgent;
   let verifierConfig;
@@ -496,6 +498,409 @@ describe('mDL /presentations/verify', () => {
     result.data.presentation.verifiableCredential.type.should
       .equal('EnvelopedVerifiableCredential');
   });
+
+  it('verifies a valid Annex B presentation as a credential', async () => {
+    // get device key pair
+    const deviceKeyPair = await mdlUtils.generateDeviceKeyPair();
+
+    // issue an MDL
+    const issuerPrivateJwk = certChain.leaf.subject.jwk;
+    const issuerCertificate = certChain.leaf.pemCertificate;
+    const mdoc = await mdlUtils.issue({
+      issuerPrivateJwk, issuerCertificate,
+      devicePublicJwk: deviceKeyPair.publicJwk
+    });
+
+    // get challenge from verifier
+    const {data: {challenge}} = await helpers.createChallenge(
+      {capabilityAgent, verifierId});
+
+    // create an MDL handover
+    const handover = {
+      type: 'AnnexBHandover',
+      mdocGeneratedNonce: randomUUID(),
+      clientId: randomUUID(),
+      // note: expected to be an OID4VP exchange response URL
+      responseUri: 'https://test.example',
+      verifierGeneratedNonce: challenge
+    };
+
+    // create MDL enveloped credential
+    const envelopedCredential = await mdlUtils.createDerivedCredential({
+      presentationDefinition: PRESENTATION_DEFINITION_1,
+      mdoc,
+      handover,
+      devicePrivateJwk: deviceKeyPair.privateJwk
+    });
+
+    // uncomment code to run local mDL verification
+    /*
+    const vpToken = envelopedCredential.id.slice(
+      envelopedCredential.id.indexOf(',') + 1);
+    const deviceResponse = Buffer.from(vpToken, 'base64url');
+    await mdlUtils.verifyPresentation({
+      deviceResponse, handover,
+      trustedCertificates: [certChain.intermediate.pemCertificate]
+    });
+    */
+
+    // create presentation w/ credential
+    const verifiablePresentation = {
+      '@context': [VC_CONTEXT_2],
+      type: ['VerifiablePresentation'],
+      verifiableCredential: envelopedCredential
+    };
+
+    // send VP to verifier VC API
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/presentations/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            domain: handover.responseUri,
+            challenge,
+            // ensure `challenge` is checked
+            checks: ['challenge'],
+            mdl: {
+              sessionTranscript: Buffer
+                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .toString('base64url')
+            }
+          },
+          verifiablePresentation
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    assertNoError(error);
+    should.exist(result.data.checks);
+    const {checks} = result.data;
+    checks.should.be.an('array');
+    checks.should.have.length(1);
+    checks[0].should.be.a('string');
+    checks[0].should.equal('challenge');
+    should.exist(result.data.verified);
+    result.data.verified.should.be.a('boolean');
+    result.data.verified.should.equal(true);
+    should.exist(result.data.credentialResults);
+    result.data.credentialResults.should.be.an('array');
+    result.data.credentialResults.length.should.equal(1);
+    const [credentialResult] = result.data.credentialResults;
+    should.exist(credentialResult.verified);
+    credentialResult.verified.should.be.a('boolean');
+    credentialResult.verified.should.equal(true);
+    should.exist(credentialResult.credential);
+    credentialResult.credential.should.be.an('object');
+    credentialResult.credential.type.should
+      .equal('EnvelopedVerifiableCredential');
+  });
+
+  it('verifies a valid Annex C presentation as a credential', async () => {
+    // get device key pair
+    const deviceKeyPair = await mdlUtils.generateDeviceKeyPair();
+
+    // issue an MDL
+    const issuerPrivateJwk = certChain.leaf.subject.jwk;
+    const issuerCertificate = certChain.leaf.pemCertificate;
+    const mdoc = await mdlUtils.issue({
+      issuerPrivateJwk, issuerCertificate,
+      devicePublicJwk: deviceKeyPair.publicJwk
+    });
+
+    // get challenge from verifier
+    const {data: {challenge}} = await helpers.createChallenge(
+      {capabilityAgent, verifierId});
+
+    // create an Annex C MDL handover
+    const handover = {
+      type: 'dcapi',
+      origin: 'https://test.example',
+      nonce: randomUUID(),
+      // note: expected to be an OID4VP key, not the device key
+      recipientPublicJwk: deviceKeyPair.publicJwk
+    };
+
+    // create MDL enveloped credential
+    const envelopedCredential = await mdlUtils.createDerivedCredential({
+      presentationDefinition: PRESENTATION_DEFINITION_1,
+      mdoc,
+      handover,
+      devicePrivateJwk: deviceKeyPair.privateJwk
+    });
+
+    // uncomment code to run local mDL verification
+    /*
+    const vpToken = envelopedCredential.id.slice(
+      envelopedCredential.id.indexOf(',') + 1);
+    const deviceResponse = Buffer.from(vpToken, 'base64url');
+    await mdlUtils.verifyPresentation({
+      deviceResponse, handover,
+      trustedCertificates: [certChain.intermediate.pemCertificate]
+    });
+    */
+
+    // create presentation w/ credential
+    const verifiablePresentation = {
+      '@context': [VC_CONTEXT_2],
+      type: ['VerifiablePresentation'],
+      verifiableCredential: envelopedCredential
+    };
+
+    // send VP to verifier VC API
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/presentations/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            domain: handover.responseUri,
+            challenge,
+            // ensure `challenge` is checked
+            checks: ['challenge'],
+            mdl: {
+              sessionTranscript: Buffer
+                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .toString('base64url')
+            }
+          },
+          verifiablePresentation
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    assertNoError(error);
+    should.exist(result.data.checks);
+    const {checks} = result.data;
+    checks.should.be.an('array');
+    checks.should.have.length(1);
+    checks[0].should.be.a('string');
+    checks[0].should.equal('challenge');
+    should.exist(result.data.verified);
+    result.data.verified.should.be.a('boolean');
+    result.data.verified.should.equal(true);
+    should.exist(result.data.credentialResults);
+    result.data.credentialResults.should.be.an('array');
+    result.data.credentialResults.length.should.equal(1);
+    const [credentialResult] = result.data.credentialResults;
+    should.exist(credentialResult.verified);
+    credentialResult.verified.should.be.a('boolean');
+    credentialResult.verified.should.equal(true);
+    should.exist(credentialResult.credential);
+    credentialResult.credential.should.be.an('object');
+    credentialResult.credential.type.should
+      .equal('EnvelopedVerifiableCredential');
+  });
+
+  it('verifies a valid Annex D presentation as a credential', async () => {
+    // get device key pair
+    const deviceKeyPair = await mdlUtils.generateDeviceKeyPair();
+
+    // issue an MDL
+    const issuerPrivateJwk = certChain.leaf.subject.jwk;
+    const issuerCertificate = certChain.leaf.pemCertificate;
+    const mdoc = await mdlUtils.issue({
+      issuerPrivateJwk, issuerCertificate,
+      devicePublicJwk: deviceKeyPair.publicJwk
+    });
+
+    // get challenge from verifier
+    const {data: {challenge}} = await helpers.createChallenge(
+      {capabilityAgent, verifierId});
+
+    // create an Annex D MDL handover
+    const handover = {
+      type: 'OpenID4VPDCAPIHandover',
+      origin: 'https://test.example',
+      nonce: randomUUID(),
+      // note: expected to be an OID4VP key, not the device key
+      recipientPublicJwk: deviceKeyPair.publicJwk
+    };
+
+    // create MDL enveloped presentation
+    const envelopedCredential = await mdlUtils.createDerivedCredential({
+      presentationDefinition: PRESENTATION_DEFINITION_1,
+      mdoc,
+      handover,
+      devicePrivateJwk: deviceKeyPair.privateJwk
+    });
+
+    // uncomment code to run local mDL verification
+    /*
+    const vpToken = envelopedCredential.id.slice(
+      envelopedCredential.id.indexOf(',') + 1);
+    const deviceResponse = Buffer.from(vpToken, 'base64url');
+    await mdlUtils.verifyPresentation({
+      deviceResponse, handover,
+      trustedCertificates: [certChain.intermediate.pemCertificate]
+    });
+    */
+
+    // create presentation w/ credential
+    const verifiablePresentation = {
+      '@context': [VC_CONTEXT_2],
+      type: ['VerifiablePresentation'],
+      verifiableCredential: envelopedCredential
+    };
+
+    // send VP to verifier VC API
+    let error;
+    let result;
+    try {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      result = await zcapClient.write({
+        url: `${verifierId}/presentations/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            domain: handover.responseUri,
+            challenge,
+            // ensure `challenge` is checked
+            checks: ['challenge'],
+            mdl: {
+              sessionTranscript: Buffer
+                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .toString('base64url')
+            }
+          },
+          verifiablePresentation
+        }
+      });
+    } catch(e) {
+      error = e;
+    }
+    assertNoError(error);
+    should.exist(result.data.checks);
+    const {checks} = result.data;
+    checks.should.be.an('array');
+    checks.should.have.length(1);
+    checks[0].should.be.a('string');
+    checks[0].should.equal('challenge');
+    should.exist(result.data.verified);
+    result.data.verified.should.be.a('boolean');
+    result.data.verified.should.equal(true);
+    should.exist(result.data.credentialResults);
+    result.data.credentialResults.should.be.an('array');
+    result.data.credentialResults.length.should.equal(1);
+    const [credentialResult] = result.data.credentialResults;
+    should.exist(credentialResult.verified);
+    credentialResult.verified.should.be.a('boolean');
+    credentialResult.verified.should.equal(true);
+    should.exist(credentialResult.credential);
+    credentialResult.credential.should.be.an('object');
+    credentialResult.credential.type.should
+      .equal('EnvelopedVerifiableCredential');
+  });
+
+  it('verifies a valid Annex D presentation as a credential w/owf libs',
+    async () => {
+      // get device key pair
+      const deviceKeyPair = await mdlUtils.generateDeviceKeyPair();
+
+      // issue an MDL
+      const issuerPrivateJwk = certChain.leaf.subject.jwk;
+      const issuerCertificate = certChain.leaf.pemCertificate;
+      const issuerSigned = await mdlUtils.issueWithOwf({
+        issuerPrivateJwk, issuerCertificate,
+        devicePublicJwk: deviceKeyPair.publicJwk
+      });
+
+      // get challenge from verifier
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
+
+      // create an Annex D MDL handover
+      const handover = {
+        type: 'OpenID4VPDCAPIHandover',
+        origin: 'https://test.example',
+        nonce: randomUUID(),
+        // note: expected to be an OID4VP key, not the device key
+        recipientPublicJwk: deviceKeyPair.publicJwk
+      };
+
+      // create MDL enveloped credential
+      const envelopedCredential =
+        await mdlUtils.createDerivedCredentialWithOwf({
+          presentationDefinition: PRESENTATION_DEFINITION_1,
+          issuerSigned,
+          handover,
+          devicePrivateJwk: deviceKeyPair.privateJwk
+        });
+
+      // uncomment code to run local mDL verification
+      /*
+      const vpToken = envelopedCredential.id.slice(
+        envelopedCredential.id.indexOf(',') + 1);
+      const deviceResponse = Buffer.from(vpToken, 'base64url');
+      await mdlUtils.verifyPresentationWithOwf({
+        deviceResponse, handover,
+        trustedCertificates: [certChain.intermediate.pemCertificate]
+      });
+      */
+
+      // create presentation w/ credential
+      const verifiablePresentation = {
+        '@context': [VC_CONTEXT_2],
+        type: ['VerifiablePresentation'],
+        verifiableCredential: envelopedCredential
+      };
+
+      // send VP to verifier VC API
+      let error;
+      let result;
+      try {
+        const zcapClient = helpers.createZcapClient({capabilityAgent});
+        result = await zcapClient.write({
+          url: `${verifierId}/presentations/verify`,
+          capability: rootZcap,
+          json: {
+            options: {
+              domain: handover.responseUri,
+              challenge,
+              // ensure `challenge` is checked
+              checks: ['challenge'],
+              mdl: {
+                sessionTranscript: Buffer
+                  .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                  .toString('base64url')
+              }
+            },
+            verifiablePresentation
+          }
+        });
+      } catch(e) {
+        error = e;
+      }
+      assertNoError(error);
+      should.exist(result.data.checks);
+      const {checks} = result.data;
+      checks.should.be.an('array');
+      checks.should.have.length(1);
+      checks[0].should.be.a('string');
+      checks[0].should.equal('challenge');
+      should.exist(result.data.verified);
+      result.data.verified.should.be.a('boolean');
+      result.data.verified.should.equal(true);
+      should.exist(result.data.credentialResults);
+      result.data.credentialResults.should.be.an('array');
+      result.data.credentialResults.length.should.equal(1);
+      const [credentialResult] = result.data.credentialResults;
+      should.exist(credentialResult.verified);
+      credentialResult.verified.should.be.a('boolean');
+      credentialResult.verified.should.equal(true);
+      should.exist(credentialResult.credential);
+      credentialResult.credential.should.be.an('object');
+      credentialResult.credential.type.should
+        .equal('EnvelopedVerifiableCredential');
+    });
 
   it('fails without a matching trusted certificate', async () => {
     // generate a different (untrusted) issuer and shadow `certChain` var
