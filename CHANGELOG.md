@@ -1,6 +1,12 @@
 # bedrock-vc-verifier ChangeLog
 
-## 24.1.1 - 2027-07-30
+## 24.2.0 - 2026-mm-dd
+
+### Fixed
+- Accept a doc type on mdoc mDLs as either `org.iso.18013.5.1` or
+  `org.iso.18013.5.1.mDL` to increase interop with mdoc mDL libraries.
+
+## 24.1.1 - 2026-07-30
 
 ### Fixed
 - Report any `proof` results for v2 VCs when `checks.proof` is set, even if a
