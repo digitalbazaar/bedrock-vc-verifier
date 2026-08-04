@@ -2,6 +2,10 @@
 
 ## 24.2.0 - 2026-mm-dd
 
+### Added
+- Enable verification of am mdoc mDL device response expressed as
+  an enveloped verifiable credential containing an mDL vp-token.
+
 ### Fixed
 - Accept a doc type on mdoc mDLs as either `org.iso.18013.5.1` or
   `org.iso.18013.5.1.mDL` to increase interop with mdoc mDL libraries.

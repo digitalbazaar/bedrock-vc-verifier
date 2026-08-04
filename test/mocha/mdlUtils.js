@@ -17,6 +17,40 @@ const MDL_NAMESPACE = `${MDOC_TYPE_MDL}.mDL`;
 
 const {encodeSessionTranscript} = oid4vp.mdl;
 
+export async function createDerivedCredential({
+  presentationDefinition,
+  mdoc, handover, devicePrivateJwk
+} = {}) {
+  const {id} = await createPresentation({
+    presentationDefinition,
+    mdoc,
+    handover,
+    devicePrivateJwk
+  });
+  return {
+    '@context': VC_CONTEXT_2,
+    id,
+    type: 'EnvelopedVerifiableCredential'
+  };
+}
+
+export async function createDerivedCredentialWithOwf({
+  presentationDefinition,
+  issuerSigned, handover, devicePrivateJwk
+} = {}) {
+  const {id} = await createPresentationWithOwf({
+    presentationDefinition,
+    issuerSigned,
+    handover,
+    devicePrivateJwk
+  });
+  return {
+    '@context': VC_CONTEXT_2,
+    id,
+    type: 'EnvelopedVerifiableCredential'
+  };
+}
+
 export async function createPresentation({
   presentationDefinition,
   mdoc, handover, devicePrivateJwk
