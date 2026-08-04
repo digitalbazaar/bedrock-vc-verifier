@@ -3,8 +3,8 @@
  */
 import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey';
 import {
-  CoseKey, DeviceKey, DeviceRequest, DocRequest, Holder,
-  Issuer as MDocIssuer, ItemsRequest, SessionTranscript, SignatureAlgorithm
+  CoseKey, DeviceKey, DeviceRequest, DocRequest, Holder, ItemsRequest,
+  Issuer as MDocIssuer, SessionTranscript, SignatureAlgorithm
 } from '@owf/mdoc';
 import {DeviceResponse, Document, MDoc, /*parse,*/ Verifier} from '@auth0/mdl';
 import {oid4vp} from '@digitalbazaar/oid4-client';
@@ -49,15 +49,16 @@ export async function createPresentation({
 }
 
 export async function createPresentationWithOwf({
-  presentationDefinition,
+  /*presentationDefinition,*/
   issuerSigned, handover, devicePrivateJwk
 } = {}) {
   // FIXME: parse or not do not use presentation exchange
+  /*
   presentationDefinition = {
     ...presentationDefinition,
     input_descriptors: presentationDefinition.input_descriptors.filter(
       e => e.id === MDL_NAMESPACE)
-  };
+  };*/
 
   // prepare device request
   const deviceRequest = DeviceRequest.create({
