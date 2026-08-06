@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 24.2.1 - 2026-mm-dd
+## 24.2.1 - 2026-08-06
 
 ### Fixed
 - Make mdoc mDL doc type and namespace consistent.
