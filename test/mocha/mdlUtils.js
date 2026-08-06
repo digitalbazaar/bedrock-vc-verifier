@@ -12,8 +12,8 @@ import {X509Certificate} from 'node:crypto';
 
 const VC_CONTEXT_2 = 'https://www.w3.org/ns/credentials/v2';
 
-const MDOC_TYPE_MDL = 'org.iso.18013.5.1';
-const MDL_NAMESPACE = `${MDOC_TYPE_MDL}.mDL`;
+const MDL_NAMESPACE = 'org.iso.18013.5.1';
+const MDOC_TYPE_MDL = `${MDL_NAMESPACE}.mDL`;
 
 const {encodeSessionTranscript} = oid4vp.mdl;
 
@@ -55,11 +55,11 @@ export async function createPresentation({
   presentationDefinition,
   mdoc, handover, devicePrivateJwk
 } = {}) {
-  // pick input_descriptor w/ID: `MDL_NAMESPACE` as needed by auth0 lib
+  // pick input_descriptor w/ID: `MDOC_TYPE_MDL` as needed by auth0 lib
   presentationDefinition = {
     ...presentationDefinition,
     input_descriptors: presentationDefinition.input_descriptors.filter(
-      e => e.id === MDL_NAMESPACE)
+      e => e.id === MDOC_TYPE_MDL)
   };
   const encodedSessionTranscript = await encodeSessionTranscript({handover});
   const deviceResponse = await DeviceResponse.from(mdoc)
@@ -91,7 +91,7 @@ export async function createPresentationWithOwf({
   presentationDefinition = {
     ...presentationDefinition,
     input_descriptors: presentationDefinition.input_descriptors.filter(
-      e => e.id === MDL_NAMESPACE)
+      e => e.id === MDOC_TYPE_MDL)
   };*/
 
   // prepare device request
@@ -160,8 +160,8 @@ export async function issue({
   devicePublicJwk
 } = {}) {
   // FIXME: doc type and namespace are reversed w/`@auth0/mdl` lib
-  const document = await new Document(MDL_NAMESPACE)
-    .addIssuerNameSpace(MDOC_TYPE_MDL, {
+  const document = await new Document(MDOC_TYPE_MDL)
+    .addIssuerNameSpace(MDL_NAMESPACE, {
       family_name: 'FamilyName',
       given_name: 'GivenName',
       birth_date: '1990-01-01',
