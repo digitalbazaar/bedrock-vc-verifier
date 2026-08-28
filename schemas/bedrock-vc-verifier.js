@@ -175,6 +175,21 @@ const envelopedVerifiablePresentation = {
   }
 };
 
+const mdocVerificationOptions = {
+  title: 'mdoc Verification Options',
+  type: 'object',
+  required: ['caStores'],
+  additionalProperties: false,
+  properties: {
+    caStores: {
+      title: 'mdoc Certificate Authority Store IDs',
+      type: 'array',
+      minItems: 1,
+      items: {type: 'string'}
+    }
+  }
+};
+
 export const verifyOptions = {
   title: 'Verify Options',
   type: 'object',
@@ -183,6 +198,9 @@ export const verifyOptions = {
   }, {
     required: ['documentLoader']
   }, {
+    required: ['mdoc']
+  }, {
+    // deprecated; use `mdoc` instead
     required: ['mdl']
   }],
   additionalProperties: false,
@@ -210,20 +228,9 @@ export const verifyOptions = {
         }
       }
     },
-    mdl: {
-      title: 'mDL Verification Options',
-      type: 'object',
-      required: ['caStores'],
-      additionalProperties: false,
-      properties: {
-        caStores: {
-          title: 'mDL Certificate Authority Store IDs',
-          type: 'array',
-          minItems: 1,
-          items: {type: 'string'}
-        }
-      }
-    }
+    mdoc: mdocVerificationOptions,
+    // deprecated, use `mdoc` instead
+    mdl: mdocVerificationOptions
   }
 };
 
@@ -282,6 +289,24 @@ const sequence = {
   maximum: Number.MAX_SAFE_INTEGER - 1
 };
 
+const mdocCaStoreBody = {
+  title: 'mdoc Certificate Authority Store Record',
+  type: 'object',
+  required: ['id', 'trustedCertificates'],
+  additionalProperties: false,
+  properties: {
+    id: {
+      title: 'CA Store ID',
+      type: 'string',
+      pattern: '^urn:mdoc-ca-store:'
+    },
+    trustedCertificates: {
+      type: 'array',
+      items: {type: 'string'}
+    }
+  }
+};
+
 const mdlCaStoreBody = {
   title: 'mDL Certificate Authority Store Record',
   type: 'object',
@@ -300,6 +325,26 @@ const mdlCaStoreBody = {
   }
 };
 
+export function createMdocCaStoreBody() {
+  return {
+    ...mdocCaStoreBody,
+    title: 'createMdocCaStoreBody'
+  };
+}
+
+export function updateMdocCaStoreBody() {
+  return {
+    ...mdocCaStoreBody,
+    required: ['id', 'trustedCertificates', 'sequence'],
+    properties: {
+      ...mdocCaStoreBody.properties,
+      sequence
+    },
+    title: 'updateMdocCaStoreBody'
+  };
+}
+
+// deprecated use `createMdlCaStoreBody` instead
 export function createMdlCaStoreBody() {
   return {
     ...mdlCaStoreBody,
@@ -307,6 +352,7 @@ export function createMdlCaStoreBody() {
   };
 }
 
+// deprecated use `updateMdocCaStoreBody` instead
 export function updateMdlCaStoreBody() {
   return {
     ...mdlCaStoreBody,

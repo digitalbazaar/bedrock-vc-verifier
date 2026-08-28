@@ -43,7 +43,7 @@ const PRESENTATION_DEFINITION_1 = {
 
 const VC_CONTEXT_2 = 'https://www.w3.org/ns/credentials/v2';
 
-describe('mDL /presentations/verify', () => {
+describe('deprecated "mdl" /presentations/verify', () => {
   let capabilityAgent;
   let verifierConfig;
   let verifierId;
