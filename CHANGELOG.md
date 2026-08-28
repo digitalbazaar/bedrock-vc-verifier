@@ -1,5 +1,13 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.3.0 - 2026-08-dd
+
+### Added
+- Support verification of mdoc mDLs expressed using the media type
+  `application/mdoc` and various options named `mdoc` instead of
+  `mdl`. Use of the `application/mdl` and options named `mdl` are
+  now deprecated in favor of their `mdoc` variants.
+
 ## 24.2.1 - 2026-08-06
 
 ### Fixed
