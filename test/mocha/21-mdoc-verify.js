@@ -187,7 +187,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdoc: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },
@@ -280,7 +280,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdoc: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },
@@ -373,7 +373,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdoc: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },
@@ -466,7 +466,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdoc: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },
@@ -567,7 +567,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdoc: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },
@@ -667,7 +667,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdoc: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },
@@ -767,7 +767,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdl: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },
@@ -869,7 +869,7 @@ describe('mdoc /presentations/verify', () => {
               checks: ['challenge'],
               mdl: {
                 sessionTranscript: Buffer
-                  .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                  .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                   .toString('base64url')
               }
             },
@@ -966,7 +966,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdoc: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },
@@ -1057,7 +1057,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdoc: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },
@@ -1152,7 +1152,7 @@ describe('mdoc /presentations/verify', () => {
             checks: ['challenge'],
             mdoc: {
               sessionTranscript: Buffer
-                .from(await oid4vp.mdl.encodeSessionTranscript({handover}))
+                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
                 .toString('base64url')
             }
           },

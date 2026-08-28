@@ -59,7 +59,7 @@
     "@digitalbazaar/edv-client": "^16.3.0",
     "@digitalbazaar/ezcap": "^4.3.0",
     "@digitalbazaar/http-client": "^4.3.0",
-    "@digitalbazaar/oid4-client": "^5.10.0",
+    "@digitalbazaar/oid4-client": "^5.14.0",
     "@digitalbazaar/vc": "^7.3.0",
     "@digitalbazaar/vc-status-list-context": "^3.1.1",
     "@digitalbazaar/vpqr": "^6.0.0",
