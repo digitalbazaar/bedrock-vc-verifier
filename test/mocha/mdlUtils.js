@@ -15,7 +15,7 @@ const VC_CONTEXT_2 = 'https://www.w3.org/ns/credentials/v2';
 const MDL_NAMESPACE = 'org.iso.18013.5.1';
 const MDOC_TYPE_MDL = `${MDL_NAMESPACE}.mDL`;
 
-const {encodeSessionTranscript} = oid4vp.mdl;
+const {encodeSessionTranscript} = oid4vp.mdoc;
 
 export async function createDerivedCredential({
   presentationDefinition,
