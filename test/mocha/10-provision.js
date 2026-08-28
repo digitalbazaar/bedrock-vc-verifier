@@ -819,14 +819,12 @@ describe('provision API', () => {
       const url = `${config.id}/contexts`;
 
       let err;
-      let result;
       try {
         await client.write({url, json: {id: contextId}, capability: rootZcap});
       } catch(e) {
         err = e;
       }
       should.exist(err);
-      should.not.exist(result);
       err.data.type.should.equal('ValidationError');
       err.data.message.should.equal(
         'A validation error occurred in the \'createContextBody\' validator.');

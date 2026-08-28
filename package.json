@@ -74,8 +74,8 @@
     "@bedrock/veres-one-context": "^16.0.0"
   },
   "devDependencies": {
-    "@digitalbazaar/eslint-config": "^8.0.1",
-    "eslint": "^9.39.4"
+    "@digitalbazaar/eslint-config": "^9.0.0",
+    "eslint": "^10.9.1"
   },
   "engines": {
     "node": ">=20"
