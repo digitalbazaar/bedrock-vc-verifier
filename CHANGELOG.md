@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 24.3.0 - 2026-08-dd
+## 24.3.0 - 2026-08-29
 
 ### Added
 - Support verification of mdoc mDLs expressed using the media type
