@@ -1,5 +1,12 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.3.1 - 2026-mm-dd
+
+### Fixed
+- Support verification of mdoc mDLs expressed using the media type
+  `application/mdoc` as enveloped VCs not just enveloped VPs.
+- Allow single value `type` fields for VCs and VPs.
+
 ## 24.3.0 - 2026-08-29
 
 ### Added

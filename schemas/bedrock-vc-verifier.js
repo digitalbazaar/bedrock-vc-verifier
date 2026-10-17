@@ -62,16 +62,20 @@ function verifiableCredential() {
       },
       issuer: idOrObjectWithId(),
       type: {
-        type: 'array',
-        minItems: 1,
-        // this first type must be VerifiableCredential
-        items: [
-          {const: 'VerifiableCredential'}
-        ],
-        // additional types must be strings
-        additionalItems: {
-          type: 'string'
-        }
+        anyOf: [{
+          const: 'VerifiableCredential'
+        }, {
+          type: 'array',
+          minItems: 1,
+          // this first type must be VerifiableCredential
+          items: [
+            {const: 'VerifiableCredential'}
+          ],
+          // additional types must be strings
+          additionalItems: {
+            type: 'string'
+          }
+        }]
       },
       proof: schemas.proof()
     }
@@ -118,16 +122,20 @@ export function verifiablePresentation() {
         type: 'string'
       },
       type: {
-        type: 'array',
-        minItems: 1,
-        // this first type must be VerifiablePresentation
-        items: [
-          {const: 'VerifiablePresentation'}
-        ],
-        // additional types must be strings
-        additionalItems: {
-          type: 'string'
-        }
+        anyOf: [{
+          const: 'VerifiablePresentation'
+        }, {
+          type: 'array',
+          minItems: 1,
+          // this first type must be VerifiablePresentation
+          items: [
+            {const: 'VerifiablePresentation'}
+          ],
+          // additional types must be strings
+          additionalItems: {
+            type: 'string'
+          }
+        }]
       },
       verifiableCredential: {
         anyOf: [
