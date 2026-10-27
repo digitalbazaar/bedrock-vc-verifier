@@ -1,5 +1,11 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.3.2 - 2026-10-dd
+
+### Fixed
+- Ensure extra VC proof check is performed when validity period check fails
+  even if a VP proof check is not required.
+
 ## 24.3.1 - 2026-10-16
 
 ### Fixed
