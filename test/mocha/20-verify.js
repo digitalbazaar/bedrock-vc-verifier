@@ -1044,8 +1044,9 @@ describe('verify APIs', () => {
       error.data.problemDetails.should.be.an('array');
       error.data.problemDetails.length.should.equal(1);
       const [problem] = error.data.problemDetails;
-      problem.type.should.be.a('string');
-      problem.title.should.be.a('string');
+      problem.type.should.equal(
+        'https://w3id.org/security#PROOF_VERIFICATION_ERROR');
+      problem.title.should.equal('PROOF_VERIFICATION_ERROR');
       problem.detail.should.equal('Invalid signature.');
     });
 
