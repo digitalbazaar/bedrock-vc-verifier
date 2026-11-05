@@ -18,6 +18,10 @@ config.mocha.tests.push(path.join(__dirname, 'mocha'));
 
 // MongoDB
 config.mongodb.name = 'bedrock_vc_verifier_test';
+// allow a dedicated test MongoDB port (defaults to 27017)
+if(process.env.MONGODB_PORT) {
+  config.mongodb.port = Number(process.env.MONGODB_PORT);
+}
 config.mongodb.dropCollections.onInit = true;
 config.mongodb.dropCollections.collections = [];
 // drop all collections on initialization
