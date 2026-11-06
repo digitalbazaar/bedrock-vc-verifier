@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
 import {deepStrictEqual, strictEqual} from 'node:assert';
-// import through the package so coverage (which counts the package path) sees it
+// import via the package name so coverage counts the package path
 import {problemDetails, problemName} from
   '@bedrock/vc-verifier/lib/problemDetails.js';
 
