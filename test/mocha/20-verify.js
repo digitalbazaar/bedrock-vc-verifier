@@ -1002,7 +1002,7 @@ describe('verify APIs', () => {
       return credential;
     };
 
-    it('uses the vc-api response by default', async () => {
+    it('uses the vcalm-v0 response by default', async () => {
       const {data} = await verifyWith({
         options: {checks: ['proof']},
         verifiableCredential: mockCredentials[0]
@@ -1014,7 +1014,7 @@ describe('verify APIs', () => {
 
     it('returns the VCALM response for a valid credential', async () => {
       const {data} = await verifyWith({
-        options: {checks: ['proof'], responseFormat: 'vcalm-v0'},
+        options: {checks: ['proof'], responseFormat: 'vcalm-v1'},
         verifiableCredential: mockCredentials[0]
       });
       data.verified.should.equal(true);
@@ -1032,7 +1032,7 @@ describe('verify APIs', () => {
       let error;
       try {
         await verifyWith({
-          options: {checks: ['proof'], responseFormat: 'vcalm-v0'},
+          options: {checks: ['proof'], responseFormat: 'vcalm-v1'},
           verifiableCredential: badCredential()
         });
       } catch(e) {
@@ -1064,14 +1064,14 @@ describe('verify APIs', () => {
       error.status.should.equal(400);
       error.data.verified.should.equal(false);
       error.data.error.message.should.equal(
-        '"options.responseFormat" must be "vc-api" or "vcalm-v0".');
+        '"options.responseFormat" must be "vcalm-v0" or "vcalm-v1".');
     });
 
-    it('rejects vcalm-v1, which is not yet supported', async () => {
+    it('rejects the retired "vc-api" format name', async () => {
       let error;
       try {
         await verifyWith({
-          options: {checks: ['proof'], responseFormat: 'vcalm-v1'},
+          options: {checks: ['proof'], responseFormat: 'vc-api'},
           verifiableCredential: mockCredentials[0]
         });
       } catch(e) {
@@ -1081,7 +1081,7 @@ describe('verify APIs', () => {
       error.status.should.equal(400);
       error.data.verified.should.equal(false);
       error.data.error.message.should.equal(
-        '"options.responseFormat" "vcalm-v1" is not yet supported.');
+        '"options.responseFormat" must be "vcalm-v0" or "vcalm-v1".');
     });
   });
 
@@ -1121,7 +1121,7 @@ describe('verify APIs', () => {
     it('returns the VCALM response for a valid presentation', async () => {
       const {challenge, presentation} = await signedPresentation();
       const {data} = await verifyPresentationWith({
-        options: {challenge, checks: ['proof'], responseFormat: 'vcalm-v0'},
+        options: {challenge, checks: ['proof'], responseFormat: 'vcalm-v1'},
         presentation
       });
       data.verified.should.equal(true);
@@ -1141,7 +1141,7 @@ describe('verify APIs', () => {
         options: {
           challenge,
           checks: ['proof'],
-          responseFormat: 'vcalm-v0',
+          responseFormat: 'vcalm-v1',
           returnPresentation: true
         },
         presentation
@@ -1157,7 +1157,7 @@ describe('verify APIs', () => {
         options: {
           challenge,
           checks: ['proof'],
-          responseFormat: 'vcalm-v0',
+          responseFormat: 'vcalm-v1',
           returnPresentation: false
         },
         presentation
@@ -1174,7 +1174,7 @@ describe('verify APIs', () => {
       let error;
       try {
         await verifyPresentationWith({
-          options: {challenge, checks: ['proof'], responseFormat: 'vcalm-v0'},
+          options: {challenge, checks: ['proof'], responseFormat: 'vcalm-v1'},
           presentation
         });
       } catch(e) {
@@ -1195,7 +1195,7 @@ describe('verify APIs', () => {
         try {
           await verifyPresentationWith({
             // no challenge, so the request fails before verification
-            options: {checks: ['proof'], responseFormat: 'vcalm-v0'},
+            options: {checks: ['proof'], responseFormat: 'vcalm-v1'},
             presentation
           });
         } catch(e) {
@@ -1219,7 +1219,7 @@ describe('verify APIs', () => {
           options: {
             challenge: 'zNotARealChallenge',
             checks: ['challenge', 'proof'],
-            responseFormat: 'vcalm-v0'
+            responseFormat: 'vcalm-v1'
           },
           presentation
         });
