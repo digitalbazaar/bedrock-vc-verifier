@@ -985,6 +985,257 @@ describe('verify APIs', () => {
     });
   });
 
+  describe('/credentials/verify responseFormat', () => {
+    const verifyWith = async ({options, verifiableCredential}) => {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      return zcapClient.write({
+        url: `${verifierId}/credentials/verify`,
+        capability: rootZcap,
+        json: {options, verifiableCredential}
+      });
+    };
+    const badCredential = () => {
+      const credential = structuredClone(mockCredentials[0]);
+      // change the degree name so the signature no longer matches
+      credential.credentialSubject.degree.name =
+        'Bachelor of Science in Nursing';
+      return credential;
+    };
+
+    it('uses the vcalm-v0 response by default', async () => {
+      const {data} = await verifyWith({
+        options: {checks: ['proof']},
+        verifiableCredential: mockCredentials[0]
+      });
+      data.verified.should.equal(true);
+      data.results.should.be.an('array');
+      data.checks.should.be.an('array');
+    });
+
+    it('returns the VCALM response for a valid credential', async () => {
+      const {data} = await verifyWith({
+        options: {checks: ['proof'], responseFormat: 'vcalm-v1'},
+        verifiableCredential: mockCredentials[0]
+      });
+      data.verified.should.equal(true);
+      data.credential.should.be.an('object');
+      data.results.should.be.an('object');
+      data.results.should.not.be.an('array');
+      data.results.proof.should.be.an('array');
+      data.results.proof.length.should.be.above(0);
+      data.results.proof[0].verified.should.equal(true);
+      data.should.not.have.property('checks');
+      data.should.not.have.property('problemDetails');
+    });
+
+    it('returns VCALM problemDetails for an invalid credential', async () => {
+      let error;
+      try {
+        await verifyWith({
+          options: {checks: ['proof'], responseFormat: 'vcalm-v1'},
+          verifiableCredential: badCredential()
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      error.data.verified.should.equal(false);
+      error.data.should.not.have.property('checks');
+      error.data.problemDetails.should.be.an('array');
+      error.data.problemDetails.length.should.equal(1);
+      const [problem] = error.data.problemDetails;
+      problem.type.should.equal(
+        'https://w3id.org/security#PROOF_VERIFICATION_ERROR');
+      problem.title.should.equal('Proof verification failed');
+      problem.detail.should.equal('Invalid signature.');
+    });
+
+    it('rejects an unknown responseFormat', async () => {
+      let error;
+      try {
+        await verifyWith({
+          options: {checks: ['proof'], responseFormat: 'bogus'},
+          verifiableCredential: mockCredentials[0]
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      error.status.should.equal(400);
+      error.data.verified.should.equal(false);
+      error.data.error.message.should.equal(
+        '"options.responseFormat" must be "vcalm-v0" or "vcalm-v1".');
+    });
+
+    it('rejects the retired "vc-api" format name', async () => {
+      let error;
+      try {
+        await verifyWith({
+          options: {checks: ['proof'], responseFormat: 'vc-api'},
+          verifiableCredential: mockCredentials[0]
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      error.status.should.equal(400);
+      error.data.verified.should.equal(false);
+      error.data.error.message.should.equal(
+        '"options.responseFormat" must be "vcalm-v0" or "vcalm-v1".');
+    });
+  });
+
+  describe('/presentations/verify responseFormat', () => {
+    // signs a presentation of mockCredentials[0] with a fresh challenge
+    const signedPresentation = async ({tamper = false} = {}) => {
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
+      const {methodFor} = await didKeyDriver.generate();
+      const signingKey = methodFor({purpose: 'assertionMethod'});
+      const suite = new Ed25519Signature2020({key: signingKey});
+      const verifiableCredential = structuredClone(mockCredentials[0]);
+      if(tamper) {
+        // change the degree name so the credential signature no longer matches
+        verifiableCredential.credentialSubject.degree.name =
+          'Bachelor of Science in Nursing';
+      }
+      const presentation = vc.createPresentation({
+        holder: 'did:test:foo',
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3137',
+        verifiableCredential
+      });
+      await vc.signPresentation({
+        presentation, suite, challenge, documentLoader: brDocLoader
+      });
+      return {challenge, presentation};
+    };
+    const verifyPresentationWith = async ({options, presentation}) => {
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      return zcapClient.write({
+        url: `${verifierId}/presentations/verify`,
+        capability: rootZcap,
+        json: {options, verifiablePresentation: presentation}
+      });
+    };
+
+    it('returns the VCALM response for a valid presentation', async () => {
+      const {challenge, presentation} = await signedPresentation();
+      const {data} = await verifyPresentationWith({
+        options: {challenge, checks: ['proof'], responseFormat: 'vcalm-v1'},
+        presentation
+      });
+      data.verified.should.equal(true);
+      data.results.presentation.proof.should.be.an('array');
+      data.results.presentation.proof[0].verified.should.equal(true);
+      data.results.credentials.length.should.equal(1);
+      data.results.credentials[0].verified.should.equal(true);
+      // the presentation is returned only when returnPresentation is set
+      data.should.not.have.property('verifiablePresentation');
+      data.should.not.have.property('checks');
+      data.should.not.have.property('problemDetails');
+    });
+
+    it('returns the presentation when returnPresentation is true', async () => {
+      const {challenge, presentation} = await signedPresentation();
+      const {data} = await verifyPresentationWith({
+        options: {
+          challenge,
+          checks: ['proof'],
+          responseFormat: 'vcalm-v1',
+          returnPresentation: true
+        },
+        presentation
+      });
+      data.verified.should.equal(true);
+      data.verifiablePresentation.should.be.an('object');
+      data.verifiablePresentation.proof.should.be.an('object');
+    });
+
+    it('omits the presentation when returnPresentation is false', async () => {
+      const {challenge, presentation} = await signedPresentation();
+      const {data} = await verifyPresentationWith({
+        options: {
+          challenge,
+          checks: ['proof'],
+          responseFormat: 'vcalm-v1',
+          returnPresentation: false
+        },
+        presentation
+      });
+      data.verified.should.equal(true);
+      data.should.not.have.property('verifiablePresentation');
+    });
+
+    it('returns VCALM problemDetails for a presentation with an invalid ' +
+      'credential', async () => {
+      const {challenge, presentation} = await signedPresentation({
+        tamper: true
+      });
+      let error;
+      try {
+        await verifyPresentationWith({
+          options: {challenge, checks: ['proof'], responseFormat: 'vcalm-v1'},
+          presentation
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      error.data.verified.should.equal(false);
+      error.data.results.credentials[0].verified.should.equal(false);
+      error.data.problemDetails.should.be.an('array');
+      error.data.problemDetails.length.should.equal(1);
+      error.data.should.not.have.property('checks');
+    });
+
+    it('returns a presentation-shaped VCALM error for a request error',
+      async () => {
+        const {presentation} = await signedPresentation();
+        let error;
+        try {
+          await verifyPresentationWith({
+            // no challenge, so the request fails before verification
+            options: {checks: ['proof'], responseFormat: 'vcalm-v1'},
+            presentation
+          });
+        } catch(e) {
+          error = e;
+        }
+        should.exist(error);
+        error.data.verified.should.equal(false);
+        error.data.should.not.have.property('results');
+        error.data.should.not.have.property('checks');
+        const [problem] = error.data.problemDetails;
+        problem.type.should.equal(
+          'https://www.w3.org/TR/vc-data-model#MALFORMED_VALUE_ERROR');
+        problem.title.should.equal('Malformed value');
+      });
+
+    it('tags an invalid challenge as INVALID_CHALLENGE_ERROR', async () => {
+      const {presentation} = await signedPresentation();
+      let error;
+      try {
+        await verifyPresentationWith({
+          options: {
+            challenge: 'zNotARealChallenge',
+            checks: ['challenge', 'proof'],
+            responseFormat: 'vcalm-v1'
+          },
+          presentation
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      error.data.verified.should.equal(false);
+      error.data.should.not.have.property('results');
+      const [problem] = error.data.problemDetails;
+      problem.type.should.equal(
+        'https://w3id.org/security#INVALID_CHALLENGE_ERROR');
+      problem.title.should.equal('Invalid challenge');
+    });
+  });
+
   describe('/presentations/verify', () => {
     for(const mockCredential of mockCredentials) {
       let description;
