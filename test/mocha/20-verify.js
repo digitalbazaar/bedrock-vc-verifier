@@ -1014,7 +1014,7 @@ describe('verify APIs', () => {
 
     it('returns the VCALM response for a valid credential', async () => {
       const {data} = await verifyWith({
-        options: {checks: ['proof'], responseFormat: 'vcalm'},
+        options: {checks: ['proof'], responseFormat: 'vcalm-v0'},
         verifiableCredential: mockCredentials[0]
       });
       data.verified.should.equal(true);
@@ -1032,7 +1032,7 @@ describe('verify APIs', () => {
       let error;
       try {
         await verifyWith({
-          options: {checks: ['proof'], responseFormat: 'vcalm'},
+          options: {checks: ['proof'], responseFormat: 'vcalm-v0'},
           verifiableCredential: badCredential()
         });
       } catch(e) {
@@ -1046,7 +1046,7 @@ describe('verify APIs', () => {
       const [problem] = error.data.problemDetails;
       problem.type.should.equal(
         'https://w3id.org/security#PROOF_VERIFICATION_ERROR');
-      problem.title.should.equal('PROOF_VERIFICATION_ERROR');
+      problem.title.should.equal('Proof verification failed');
       problem.detail.should.equal('Invalid signature.');
     });
 
@@ -1064,7 +1064,24 @@ describe('verify APIs', () => {
       error.status.should.equal(400);
       error.data.verified.should.equal(false);
       error.data.error.message.should.equal(
-        '"options.responseFormat" must be "vc-api" or "vcalm".');
+        '"options.responseFormat" must be "vc-api" or "vcalm-v0".');
+    });
+
+    it('rejects vcalm-v1, which is not yet supported', async () => {
+      let error;
+      try {
+        await verifyWith({
+          options: {checks: ['proof'], responseFormat: 'vcalm-v1'},
+          verifiableCredential: mockCredentials[0]
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      error.status.should.equal(400);
+      error.data.verified.should.equal(false);
+      error.data.error.message.should.equal(
+        '"options.responseFormat" "vcalm-v1" is not yet supported.');
     });
   });
 
@@ -1104,7 +1121,7 @@ describe('verify APIs', () => {
     it('returns the VCALM response for a valid presentation', async () => {
       const {challenge, presentation} = await signedPresentation();
       const {data} = await verifyPresentationWith({
-        options: {challenge, checks: ['proof'], responseFormat: 'vcalm'},
+        options: {challenge, checks: ['proof'], responseFormat: 'vcalm-v0'},
         presentation
       });
       data.verified.should.equal(true);
@@ -1124,7 +1141,7 @@ describe('verify APIs', () => {
         options: {
           challenge,
           checks: ['proof'],
-          responseFormat: 'vcalm',
+          responseFormat: 'vcalm-v0',
           returnPresentation: true
         },
         presentation
@@ -1140,7 +1157,7 @@ describe('verify APIs', () => {
         options: {
           challenge,
           checks: ['proof'],
-          responseFormat: 'vcalm',
+          responseFormat: 'vcalm-v0',
           returnPresentation: false
         },
         presentation
@@ -1157,7 +1174,7 @@ describe('verify APIs', () => {
       let error;
       try {
         await verifyPresentationWith({
-          options: {challenge, checks: ['proof'], responseFormat: 'vcalm'},
+          options: {challenge, checks: ['proof'], responseFormat: 'vcalm-v0'},
           presentation
         });
       } catch(e) {
@@ -1169,6 +1186,53 @@ describe('verify APIs', () => {
       error.data.problemDetails.should.be.an('array');
       error.data.problemDetails.length.should.equal(1);
       error.data.should.not.have.property('checks');
+    });
+
+    it('returns a presentation-shaped VCALM error for a request error',
+      async () => {
+        const {presentation} = await signedPresentation();
+        let error;
+        try {
+          await verifyPresentationWith({
+            // no challenge, so the request fails before verification
+            options: {checks: ['proof'], responseFormat: 'vcalm-v0'},
+            presentation
+          });
+        } catch(e) {
+          error = e;
+        }
+        should.exist(error);
+        error.data.verified.should.equal(false);
+        error.data.should.not.have.property('results');
+        error.data.should.not.have.property('checks');
+        const [problem] = error.data.problemDetails;
+        problem.type.should.equal(
+          'https://www.w3.org/TR/vc-data-model#MALFORMED_VALUE_ERROR');
+        problem.title.should.equal('Malformed value');
+      });
+
+    it('tags an invalid challenge as INVALID_CHALLENGE_ERROR', async () => {
+      const {presentation} = await signedPresentation();
+      let error;
+      try {
+        await verifyPresentationWith({
+          options: {
+            challenge: 'zNotARealChallenge',
+            checks: ['challenge', 'proof'],
+            responseFormat: 'vcalm-v0'
+          },
+          presentation
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      error.data.verified.should.equal(false);
+      error.data.should.not.have.property('results');
+      const [problem] = error.data.problemDetails;
+      problem.type.should.equal(
+        'https://w3id.org/security#INVALID_CHALLENGE_ERROR');
+      problem.title.should.equal('Invalid challenge');
     });
   });
 
