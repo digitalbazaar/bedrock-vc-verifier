@@ -1,5 +1,15 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.4.0 - 2026-11-dd
+
+### Added
+- Add an opt-in `holderBinding` presentation check. When `checks` includes
+  `"holderBinding"`, every credential in a verified presentation must name the
+  presentation's verified signer as a subject (`credentialSubject.id`, or the
+  `sub` claim of a VC-JWT). The signer comes from signature verification, not
+  from a self-asserted `holder`. A credential with no subject identifier fails
+  the check. mDL presentations are unaffected.
+
 ## 24.3.2 - 2026-10-27
 
 ### Fixed

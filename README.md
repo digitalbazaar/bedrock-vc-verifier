@@ -110,6 +110,20 @@ Example request:
 }
 ```
 
+Add `"holderBinding"` to `checks` to require that the presentation was
+signed by the party each credential was issued to. Every credential must
+name the presentation's verified signer as a `credentialSubject.id` (for a
+VC-JWT, the `sub` claim). The signer is taken from signature verification:
+the `iss` claim of a VC-JWT presentation, or the controller of the proof's
+verification method for a Data Integrity presentation. A self-asserted
+`holder` property is not used. DIDs are compared without fragments, and two
+`did:jwk` DIDs for the same key match even if their JSON member order
+differs. A credential with no subject identifier fails the check, including
+a selectively disclosed credential that does not disclose
+`/credentialSubject/id`. Request `"proof"` as well: without a verified
+presentation signer, the check fails. mDL presentations are not affected,
+because mdoc device authentication already binds the holder.
+
 ## Contribute
 
 See [the contribute file](https://github.com/digitalbazaar/bedrock/blob/master/CONTRIBUTING.md)!
