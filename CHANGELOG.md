@@ -1,6 +1,6 @@
 # bedrock-vc-verifier ChangeLog
 
-## 24.4.0 - TBD
+## 24.4.0 - 2026-11-18
 
 ### Added
 - Add `options.responseFormat` to `POST /credentials/verify` and
