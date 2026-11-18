@@ -1151,6 +1151,49 @@ describe('verify APIs', () => {
       data.verifiablePresentation.proof.should.be.an('object');
     });
 
+    it('returns the decoded VC-JWT presentation when returnPresentation ' +
+      'is true', async () => {
+      let verifiableCredential = structuredClone(mockCredentials[0]);
+      delete verifiableCredential.proof;
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await helpers.envelopeCredential({
+        verifiableCredential, signer
+      });
+      const presentation = vc.createPresentation({
+        holder: capabilityAgent.id,
+        id: 'urn:uuid:3e793029-d699-4096-8e74-5ebd956c3138'
+      });
+      presentation['@context'] = [VC_CONTEXT_1];
+      presentation.verifiableCredential = [
+        verifiableCredential.id.slice('data:application/jwt,'.length)
+      ];
+      const {data: {challenge}} = await helpers.createChallenge(
+        {capabilityAgent, verifierId});
+      const domain = 'rp.example';
+      const envelopedPresentation = await helpers.envelopePresentation({
+        verifiablePresentation: presentation, challenge, domain, signer
+      });
+      const zcapClient = helpers.createZcapClient({capabilityAgent});
+      const {data} = await zcapClient.write({
+        url: `${verifierId}/presentations/verify`,
+        capability: rootZcap,
+        json: {
+          options: {
+            challenge, domain, checks: ['proof'],
+            responseFormat: 'vcalm-v1', returnPresentation: true
+          },
+          verifiablePresentation: envelopedPresentation
+        }
+      });
+      data.verified.should.equal(true);
+      // the decoded presentation, not the request envelope
+      data.verifiablePresentation.type.should.be.an('array');
+      data.verifiablePresentation.holder.should.equal(capabilityAgent.id);
+      data.verifiablePresentation.verifiableCredential.should.be.an('array');
+    });
+
     it('omits the presentation when returnPresentation is false', async () => {
       const {challenge, presentation} = await signedPresentation();
       const {data} = await verifyPresentationWith({
