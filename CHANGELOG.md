@@ -1,5 +1,18 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.4.0 - TBD
+
+### Added
+- Add `options.responseFormat` to `POST /credentials/verify` and
+  `POST /presentations/verify`. `vcalm-v0` (the default) returns the existing
+  response. `vcalm-v1` returns the VCALM `VerifyCredentialResponse` or
+  `VerifyPresentationResponse`, with `results` keyed by credential property
+  and errors in `problemDetails` (RFC 9457 `type`, `title` and `detail`).
+  Other values return a 400 error.
+- Add `options.returnPresentation` for presentation verification in
+  `vcalm-v1`. When `true`, the response includes `verifiablePresentation`.
+  For a JWT envelope, this is the decoded presentation, including `holder`.
+
 ## 24.3.2 - 2026-10-27
 
 ### Fixed
