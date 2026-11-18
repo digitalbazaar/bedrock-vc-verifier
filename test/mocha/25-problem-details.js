@@ -13,7 +13,18 @@ describe('problem details', () => {
       const error = new Error('x');
       const tagged = tagProblemType(error, 'NOT_FOUND');
       deepStrictEqual(tagged, error);
-      deepStrictEqual(error.problemType, 'NOT_FOUND');
+      deepStrictEqual(error.details.problemType, 'NOT_FOUND');
+    });
+
+    it('keeps existing details when tagging', () => {
+      const error = new Error('x');
+      error.details = {httpStatusCode: 400, public: true};
+      tagProblemType(error, 'INVALID_DOMAIN_ERROR');
+      deepStrictEqual(error.details, {
+        httpStatusCode: 400,
+        public: true,
+        problemType: 'INVALID_DOMAIN_ERROR'
+      });
     });
 
     it('throws for an unknown problem type', () => {
