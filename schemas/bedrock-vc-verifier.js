@@ -242,7 +242,9 @@ export const verifyOptions = {
     // deprecated, use `mdoc` instead
     mdl: mdocVerificationOptions,
     returnHint: {
-      type: 'string'
+      type: 'string',
+      minLength: 1,
+      maxLength: 256
     }
   }
 };
@@ -266,7 +268,9 @@ export function verifyCredentialBody() {
         type: 'object',
         properties: {
           returnHint: {
-            type: 'string'
+            type: 'string',
+            minLength: 1,
+            maxLength: 256
           }
         }
       },
@@ -291,7 +295,9 @@ export function verifyPresentationBody() {
         type: 'object',
         properties: {
           returnHint: {
-            type: 'string'
+            type: 'string',
+            minLength: 1,
+            maxLength: 256
           }
         }
       },
