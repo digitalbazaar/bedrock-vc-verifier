@@ -4,8 +4,9 @@
 
 ### Added
 - Add `options.returnCredential` to `POST /credentials/verify` in `vcalm-v1`.
-  When `true`, the response includes `credential`. For a JWT envelope, this is
-  the decoded credential.
+  When `true`, the response includes `credential` in the form it was verified
+  in: for an envelope that verifies, such as a VC-JWT or VCB, the decoded
+  credential; otherwise the credential as sent.
 - Add `options.returnHint` to `POST /credentials/verify` and
   `POST /presentations/verify`, and `verifyOptions.returnHint` as a verifier
   instance default. In `vcalm-v1`, when `returnCredential` or
