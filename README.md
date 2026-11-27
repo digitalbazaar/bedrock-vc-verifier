@@ -116,9 +116,9 @@ A verify request with `"responseFormat": "vcalm-v1"` and `returnCredential`
 or `returnPresentation` set to `true` can name a return hint in
 `options.returnHint`. A verifier instance can set a default in
 `verifyOptions.returnHint`; the request option overrides it. The hint names a
-mapping that is applied to the returned credential or presentation. If the
-hint is unknown or the mapping fails, the payload is returned unchanged and
-`problemDetails` says why.
+mapping that is applied to the returned credential or presentation, only
+when verification passed. If the hint is unknown or the mapping fails, the
+payload is returned unchanged and `problemDetails` says why.
 
 #### `mdl2vdl`
 
@@ -131,8 +131,9 @@ proof of its own.
 
 - `@context`: VCDM 2.0, `https://w3id.org/vdl/v1` and
   `https://w3id.org/vdl/aamva/v1`.
-- `issuer.id` is a `did:jwk` for the issuer certificate's public key, and
-  `issuer.name` is the certificate's common name (or `issuing_authority`).
+- `issuer.id` is a `did:jwk` for the public key of the document-signer
+  certificate, and `issuer.name` is that certificate's common name (or
+  `issuing_authority`).
 - `validFrom` and `validUntil` come from the mdoc's validity information.
 - `credentialSubject.driversLicense` holds the `org.iso.18013.5.1` data
   elements under their own names. Elements the vDL context does not define,
@@ -149,9 +150,14 @@ proof of its own.
   `1990-01-01T00:00:00Z`; the time and zone are not part of the mdoc data.
   Dates inside `driving_privileges` and
   `aamva_domestic_driving_privileges`, which are JSON values, keep the
-  `YYYY-MM-DD` form.
+  `YYYY-MM-DD` form. Date-times are given in UTC without milliseconds.
 - `portrait` and `signature_usual_mark` are `data:` URLs, with the media type
-  taken from the image data (`image/jpeg` or `image/jp2`).
+  taken from the image data (`image/jpeg`, `image/jp2` for a JPEG 2000 file,
+  `image/j2c` for a JPEG 2000 codestream, otherwise
+  `application/octet-stream`). A value that is not image bytes is left out.
+- Inside JSON values, bytes become base64 strings, integers too large for a
+  JSON number become decimal strings, and values with no JSON form, such as
+  unknown CBOR tags, are left out.
 
 ## Contribute
 

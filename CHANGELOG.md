@@ -22,7 +22,8 @@
 - Add the `mdl2vdl` return hint. It maps a verified mdoc mDL to an unsigned
   vDL, or a presentation holding one. Dates the mdoc holds without a time are
   given as midnight UTC (`YYYY-MM-DDT00:00:00Z`), as the vDL context types
-  them as `xsd:dateTime`. See the README for the full mapping.
+  them as `xsd:dateTime`. Values with no JSON form are converted or left out.
+  See the README for the full mapping.
 
 ### Changed
 - In `vcalm-v1`, `POST /credentials/verify` no longer includes `credential`

@@ -7,6 +7,7 @@ import {Document, MDoc} from '@auth0/mdl';
 import {agent} from '@bedrock/https-agent';
 import {applyReturnHint} from '@bedrock/vc-verifier/lib/returnHints.js';
 import {CapabilityAgent} from '@digitalbazaar/webkms-client';
+import {createRequire} from 'node:module';
 import {generateCertificateChain} from './certUtils.js';
 import {httpClient} from '@digitalbazaar/http-client';
 import {mdl2vdl} from '@bedrock/vc-verifier/lib/returnHints/mdl2vdl.js';
@@ -14,6 +15,9 @@ import {oid4vp} from '@digitalbazaar/oid4-client';
 import {randomUUID} from 'node:crypto';
 
 import {mockData} from './mock.data.js';
+
+// use the same `cbor-x` copy as `@auth0/mdl`, so its `Tag` encodes as a tag
+const {Tag} = createRequire(import.meta.url)('cbor-x');
 
 const {baseUrl} = mockData;
 const serviceType = 'vc-verifier';
@@ -39,7 +43,7 @@ const DEVICE_PUBLIC_JWK = {
 // credential holding the CBOR-encoded mdoc
 async function _envelopedMdoc({
   certChain, docType = MDOC_TYPE_MDL, encoding = 'base64',
-  isoElements = {}, aamvaElements = {}
+  isoElements = {}, aamvaElements = {}, documentCount = 1
 }) {
   const document = await new Document(docType)
     .addIssuerNameSpace(MDL_NAMESPACE, {
@@ -78,7 +82,8 @@ async function _envelopedMdoc({
       kid: certChain.leaf.subject.jwk.kid,
       alg: 'ES256'
     });
-  const encoded = Buffer.from(new MDoc([document]).encode());
+  const documents = new Array(documentCount).fill(document);
+  const encoded = Buffer.from(new MDoc(documents).encode());
   const id = encoding === 'base64' ?
     `data:application/mdoc;base64,${encoded.toString('base64')}` :
     `data:application/mdl-vp-token,${encoded.toString('base64url')}`;
@@ -147,7 +152,11 @@ describe('mdl2vdl return hint', () => {
           vdl.issuer.id.slice('did:jwk:'.length), 'base64url').toString());
         const {crv, kty, x, y} = certChain.leaf.subject.jwk;
         jwk.should.eql({crv, kty, x, y});
-        vdl.issuer.name.should.be.a('string');
+        // members in lexicographic order, so the DID is deterministic
+        vdl.issuer.id.should.equal('did:jwk:' + Buffer.from(
+          JSON.stringify({crv, kty, x, y})).toString('base64url'));
+        // the document-signer certificate's CN
+        vdl.issuer.name.should.equal('Leaf');
       });
 
     it('maps a base64url-encoded mdoc envelope', async () => {
@@ -171,6 +180,58 @@ describe('mdl2vdl return hint', () => {
       driversLicense.signature_usual_mark.should.equal(
         'data:application/octet-stream;base64,' +
         Buffer.from(unknown).toString('base64'));
+    });
+
+    it('maps a JPEG 2000 codestream to image/j2c', async () => {
+      const j2c = new Uint8Array([0xff, 0x4f, 0xff, 0x51, 1]);
+      const payload = await _envelopedMdoc({
+        certChain, isoElements: {portrait: j2c}
+      });
+      const vdl = await mdl2vdl({payload, kind: 'credential'});
+      vdl.credentialSubject.driversLicense.portrait.should.equal(
+        `data:image/j2c;base64,${Buffer.from(j2c).toString('base64')}`);
+    });
+
+    it('leaves out image values that are not bytes', async () => {
+      const payload = await _envelopedMdoc({
+        certChain,
+        isoElements: {
+          portrait: 'javascript:alert(1)',
+          signature_usual_mark: {not: 'bytes'}
+        }
+      });
+      const vdl = await mdl2vdl({payload, kind: 'credential'});
+      const {driversLicense} = vdl.credentialSubject;
+      driversLicense.should.not.have.property('portrait');
+      driversLicense.should.not.have.property('signature_usual_mark');
+    });
+
+    it('converts CBOR values that JSON cannot hold', async () => {
+      const big = 2n ** 60n;
+      const payload = await _envelopedMdoc({
+        certChain,
+        isoElements: {
+          height: big,
+          driving_privileges: [{
+            set: new Set(['x', 'y']),
+            codes: new Uint16Array([1, 2]),
+            negative: -big,
+            // no JSON form; left out
+            unknown: new Tag(1, 999),
+            nan: NaN
+          }]
+        }
+      });
+      const vdl = await mdl2vdl({payload, kind: 'credential'});
+      const {driversLicense} = vdl.credentialSubject;
+      driversLicense.height.should.equal(big.toString());
+      driversLicense.driving_privileges.should.eql([{
+        set: ['x', 'y'],
+        codes: Buffer.from(new Uint16Array([1, 2]).buffer).toString('base64'),
+        negative: (-big).toString()
+      }]);
+      // the whole vDL serializes as JSON
+      JSON.parse(JSON.stringify(vdl)).should.eql(vdl);
     });
 
     it('converts date-times and bytes inside JSON values', async () => {
@@ -254,6 +315,19 @@ describe('mdl2vdl return hint', () => {
           'mapped to a vDL.');
       });
 
+    it('returns the payload with problemDetails for several documents',
+      async () => {
+        const payload = await _envelopedMdoc({certChain, documentCount: 2});
+        const result = await applyReturnHint({
+          hint: 'mdl2vdl', payload, kind: 'credential',
+          mediaType: 'application/mdoc'
+        });
+        result.payload.should.equal(payload);
+        result.problemDetails.detail.should.equal(
+          `"mdl2vdl": Only a single "${MDOC_TYPE_MDL}" document can be ` +
+          'mapped to a vDL.');
+      });
+
     it('does not apply to a payload that is not an mdoc', async () => {
       const payload = {
         '@context': [VC_CONTEXT_2],
@@ -330,11 +404,12 @@ describe('mdl2vdl return hint', () => {
       });
     });
 
-    it('returns a vDL for a verified mdoc presentation', async () => {
+    // issue an mdoc with `issuerChain` and verify a presentation of it
+    const verifyMdocPresentation = async ({issuerChain}) => {
       const deviceKeyPair = await mdlUtils.generateDeviceKeyPair();
       const mdoc = await mdlUtils.issue({
-        issuerPrivateJwk: certChain.leaf.subject.jwk,
-        issuerCertificate: certChain.leaf.pemCertificate,
+        issuerPrivateJwk: issuerChain.leaf.subject.jwk,
+        issuerCertificate: issuerChain.leaf.pemCertificate,
         devicePublicJwk: deviceKeyPair.publicJwk
       });
       const {data: {challenge}} = await helpers.createChallenge(
@@ -365,30 +440,43 @@ describe('mdl2vdl return hint', () => {
       });
 
       const zcapClient = helpers.createZcapClient({capabilityAgent});
-      const {data} = await zcapClient.write({
-        url: `${verifierId}/presentations/verify`,
-        capability: rootZcap,
-        json: {
-          options: {
-            challenge,
-            checks: ['challenge'],
-            responseFormat: 'vcalm-v1',
-            returnPresentation: true,
-            mdoc: {
-              sessionTranscript: Buffer
-                .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
-                .toString('base64url')
-            }
-          },
-          verifiablePresentation: envelopedPresentation
-        }
-      });
+      const json = {
+        options: {
+          challenge,
+          checks: ['challenge'],
+          responseFormat: 'vcalm-v1',
+          returnPresentation: true,
+          mdoc: {
+            sessionTranscript: Buffer
+              .from(await oid4vp.mdoc.encodeSessionTranscript({handover}))
+              .toString('base64url')
+          }
+        },
+        verifiablePresentation: envelopedPresentation
+      };
+      try {
+        const {data} = await zcapClient.write({
+          url: `${verifierId}/presentations/verify`,
+          capability: rootZcap,
+          json
+        });
+        return {data, envelopedPresentation};
+      } catch(e) {
+        return {data: e.data, envelopedPresentation};
+      }
+    };
+
+    it('returns a vDL for a verified mdoc presentation', async () => {
+      const {data} = await verifyMdocPresentation({issuerChain: certChain});
       data.verified.should.equal(true);
       data.should.not.have.property('problemDetails');
       const {verifiablePresentation: vp} = data;
       vp.type.should.eql(['VerifiablePresentation']);
       const [vdl] = vp.verifiableCredential;
       vdl.type.should.include('Iso18013DriversLicenseCredential');
+      vdl.issuer.name.should.equal('Leaf');
+      vdl.issuer.id.should.match(/^did:jwk:/);
+      vdl.validFrom.should.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
       vdl.credentialSubject.driversLicense.should.eql({
         type: 'Iso18013DriversLicense',
         family_name: 'FamilyName',
@@ -396,5 +484,17 @@ describe('mdl2vdl return hint', () => {
         age_over_21: true
       });
     });
+
+    it('returns no vDL for an mdoc presentation that fails verification',
+      async () => {
+        // issued under a chain the verifier's CA store does not trust
+        const issuerChain = await generateCertificateChain();
+        const {data, envelopedPresentation} = await verifyMdocPresentation({
+          issuerChain
+        });
+        data.verified.should.equal(false);
+        // the presentation as sent, not mapped
+        data.verifiablePresentation.should.eql(envelopedPresentation);
+      });
   });
 });
