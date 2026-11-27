@@ -210,6 +210,8 @@ export const verifyOptions = {
   }, {
     // deprecated; use `mdoc` instead
     required: ['mdl']
+  }, {
+    required: ['returnHint']
   }],
   additionalProperties: false,
   properties: {
@@ -238,7 +240,12 @@ export const verifyOptions = {
     },
     mdoc: mdocVerificationOptions,
     // deprecated, use `mdoc` instead
-    mdl: mdocVerificationOptions
+    mdl: mdocVerificationOptions,
+    returnHint: {
+      type: 'string',
+      minLength: 1,
+      maxLength: 256
+    }
   }
 };
 
@@ -258,7 +265,14 @@ export function verifyCredentialBody() {
     additionalProperties: false,
     properties: {
       options: {
-        type: 'object'
+        type: 'object',
+        properties: {
+          returnHint: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 256
+          }
+        }
       },
       verifiableCredential: {
         anyOf: [
@@ -278,7 +292,14 @@ export function verifyPresentationBody() {
     additionalProperties: false,
     properties: {
       options: {
-        type: 'object'
+        type: 'object',
+        properties: {
+          returnHint: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 256
+          }
+        }
       },
       verifiablePresentation: {
         anyOf: [
