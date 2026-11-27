@@ -38,7 +38,8 @@ const DEVICE_PUBLIC_JWK = {
 // issue an mdoc with ISO and AAMVA elements, and return it as an enveloped
 // credential holding the CBOR-encoded mdoc
 async function _envelopedMdoc({
-  certChain, docType = MDOC_TYPE_MDL, encoding = 'base64'
+  certChain, docType = MDOC_TYPE_MDL, encoding = 'base64',
+  isoElements = {}, aamvaElements = {}
 }) {
   const document = await new Document(docType)
     .addIssuerNameSpace(MDL_NAMESPACE, {
@@ -56,7 +57,8 @@ async function _envelopedMdoc({
         issue_date: '2024-02-03'
       }],
       // not defined by the vDL context
-      biometric_template_face: new Uint8Array([1, 2, 3])
+      biometric_template_face: new Uint8Array([1, 2, 3]),
+      ...isoElements
     })
     .addIssuerNameSpace(AAMVA_NAMESPACE, {
       DHS_compliance: 'F',
@@ -64,7 +66,8 @@ async function _envelopedMdoc({
       'aka_family_name.v2': 'Smith',
       hazmat_endorsement_expiration_date: '2030-05-06',
       // not defined by the vDL AAMVA context
-      not_an_aamva_element: 'x'
+      not_an_aamva_element: 'x',
+      ...aamvaElements
     })
     .useDigestAlgorithm('SHA-256')
     .addValidityInfo({signed: new Date()})
@@ -152,6 +155,77 @@ describe('mdl2vdl return hint', () => {
       const vdl = await mdl2vdl({payload, kind: 'credential'});
       vdl.credentialSubject.driversLicense.family_name.should.equal('Doe');
     });
+
+    it('maps image media types from the image bytes', async () => {
+      // JPEG 2000 file signature box, then bytes of an unknown image type
+      const jp2 = new Uint8Array([0, 0, 0, 0x0c, 0x6a, 0x50, 0x20, 0x20, 1]);
+      const unknown = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+      const payload = await _envelopedMdoc({
+        certChain,
+        isoElements: {portrait: jp2, signature_usual_mark: unknown}
+      });
+      const vdl = await mdl2vdl({payload, kind: 'credential'});
+      const {driversLicense} = vdl.credentialSubject;
+      driversLicense.portrait.should.equal(
+        `data:image/jp2;base64,${Buffer.from(jp2).toString('base64')}`);
+      driversLicense.signature_usual_mark.should.equal(
+        'data:application/octet-stream;base64,' +
+        Buffer.from(unknown).toString('base64'));
+    });
+
+    it('converts date-times and bytes inside JSON values', async () => {
+      const payload = await _envelopedMdoc({
+        certChain,
+        isoElements: {
+          driving_privileges: [{
+            vehicle_category_code: 'C',
+            issue_date: new Date('2024-02-03T10:20:30.456Z'),
+            codes: new Uint8Array([1, 2])
+          }]
+        }
+      });
+      const vdl = await mdl2vdl({payload, kind: 'credential'});
+      vdl.credentialSubject.driversLicense.driving_privileges.should.eql([{
+        vehicle_category_code: 'C',
+        issue_date: '2024-02-03T10:20:30Z',
+        codes: Buffer.from([1, 2]).toString('base64')
+      }]);
+    });
+
+    it('keeps a date term value that is not a date', async () => {
+      const payload = await _envelopedMdoc({
+        certChain,
+        aamvaElements: {hazmat_endorsement_expiration_date: 'none'}
+      });
+      const vdl = await mdl2vdl({payload, kind: 'credential'});
+      vdl.credentialSubject.driversLicense
+        .aamva_hazmat_endorsement_expiration_date.should.equal('none');
+    });
+
+    for(const [title, id, message] of [
+      ['a payload without an id', undefined,
+        'The payload is not an mdoc envelope.'],
+      ['a payload that is not a data URL', 'urn:test:not-a-data-url',
+        'The payload is not an mdoc envelope.'],
+      ['a base64 mdl-vp-token envelope',
+        'data:application/mdl-vp-token;base64,AAAA',
+        'Unknown mdoc envelope format "application/mdl-vp-token".'],
+      ['an envelope that is not an mdoc', 'data:application/mdoc;base64,AAAA',
+        'The mdoc device response could not be parsed.']
+    ]) {
+      it(`rejects ${title}`, async () => {
+        let error;
+        try {
+          await mdl2vdl({payload: {id}, kind: 'credential'});
+        } catch(e) {
+          error = e;
+        }
+        should.exist(error);
+        error.name.should.equal('NotSupportedError');
+        error.message.should.equal(message);
+        error.details.public.should.equal(true);
+      });
+    }
 
     it('returns a presentation holding the vDL', async () => {
       const payload = await _envelopedMdoc({certChain});
