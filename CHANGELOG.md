@@ -1,5 +1,17 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.5.0 - 2026-mm-dd
+
+### Added
+- Add `options.returnCredential` to `POST /credentials/verify` in `vcalm-v1`.
+  When `true`, the response includes `credential` in the form it was verified
+  in: for an envelope that verifies, such as a VC-JWT or VCB, the decoded
+  credential; otherwise the credential as sent.
+
+### Changed
+- In `vcalm-v1`, `POST /credentials/verify` no longer includes `credential`
+  unless `options.returnCredential` is `true`, as VCALM describes.
+
 ## 24.4.0 - 2026-11-18
 
 ### Added
