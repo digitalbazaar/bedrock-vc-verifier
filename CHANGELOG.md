@@ -10,13 +10,15 @@
 - Add `options.returnHint` to `POST /credentials/verify` and
   `POST /presentations/verify`, and `verifyOptions.returnHint` as a verifier
   instance default. In `vcalm-v1`, when `returnCredential` or
-  `returnPresentation` is `true`, the named mapping is applied to the returned
-  payload. An unknown hint or a failed mapping returns the payload unchanged
-  with a `problemDetails` entry; a mapping error's message is included only
-  if the error is marked public. Mappings are registered with the exported
-  `registerReturnHint`; matchers see `application/vc` or `application/vp` for
-  a payload that is not enveloped. An instance `verifyOptions.returnHint` must
-  name a registered hint.
+  `returnPresentation` is `true` and verification passed, the named mapping
+  is applied to the returned payload. An unknown hint or a failed mapping
+  returns the payload unchanged with a `problemDetails` entry; a mapping
+  error's message is included only if the error is marked public. Mappings
+  are registered with the exported `registerReturnHint`; matchers see
+  `application/vc` or `application/vp` for a payload that is not enveloped.
+  An instance `verifyOptions.returnHint` must name a registered hint, so an
+  instance whose hint is no longer registered can't be updated until the hint
+  is changed or removed.
 
 ### Changed
 - In `vcalm-v1`, `POST /credentials/verify` no longer includes `credential`

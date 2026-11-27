@@ -88,6 +88,13 @@ registerReturnHint({
   async map() {}
 });
 registerReturnHint({
+  hint: 'test-returns-string',
+  appliesTo: [{}],
+  async map() {
+    return 'not a credential';
+  }
+});
+registerReturnHint({
   hint: 'test-applies-to-throws',
   appliesTo() {
     throw new Error('Matcher failed.');
@@ -252,6 +259,17 @@ describe('return hints', () => {
         });
       });
 
+    it('returns problem details when the mapping returns a non-object',
+      async () => {
+        const payload = {id: 'urn:test:1'};
+        const result = await applyReturnHint({
+          hint: 'test-returns-string', payload, kind: 'credential'
+        });
+        result.payload.should.equal(payload);
+        result.problemDetails.detail.should.equal(
+          '"test-returns-string": mapping returned no payload.');
+      });
+
     it('returns problem details when appliesTo throws', async () => {
       const payload = {id: 'urn:test:1'};
       const result = await applyReturnHint({
@@ -374,11 +392,13 @@ describe('return hints', () => {
       });
       return {challenge, presentation};
     };
-    const verifyPresentationWith = async ({options, presentation}) => {
+    const verifyPresentationWith = async ({
+      options, presentation, id = verifierId, capability = rootZcap
+    }) => {
       const zcapClient = helpers.createZcapClient({capabilityAgent});
       return zcapClient.write({
-        url: `${verifierId}/presentations/verify`,
-        capability: rootZcap,
+        url: `${id}/presentations/verify`,
+        capability,
         json: {options, verifiablePresentation: presentation}
       });
     };
@@ -621,25 +641,120 @@ describe('return hints', () => {
       }]);
     });
 
-    it('applies the return hint when verification fails', async () => {
-      const credential = structuredClone(mockCredentials[0]);
-      credential.credentialSubject.degree.name = 'Tampered Degree';
+    it('does not apply the return hint when verification fails',
+      async () => {
+        const credential = structuredClone(mockCredentials[0]);
+        credential.credentialSubject.degree.name = 'Tampered Degree';
+        let error;
+        try {
+          await verifyWith({
+            options: v1Options({returnHint: 'test-marker'}),
+            verifiableCredential: credential
+          });
+        } catch(e) {
+          error = e;
+        }
+        should.exist(error);
+        error.status.should.equal(400);
+        error.data.verified.should.equal(false);
+        // returned unmapped, and the hint is not reported as failed
+        error.data.credential.should.eql(credential);
+        error.data.problemDetails.map(({type}) => type).should.not.include(
+          RETURN_HINT_NOT_APPLIED);
+      });
+
+    it('does not apply the return hint to a presentation that fails ' +
+      'verification', async () => {
+      const {challenge, presentation} = await signedPresentation();
+      presentation.holder = 'did:test:tampered';
       let error;
       try {
-        await verifyWith({
-          options: v1Options({returnHint: 'test-marker'}),
-          verifiableCredential: credential
+        await verifyPresentationWith({
+          options: {
+            challenge,
+            checks: ['proof'],
+            responseFormat: 'vcalm-v1',
+            returnPresentation: true,
+            returnHint: 'test-marker'
+          },
+          presentation
         });
       } catch(e) {
         error = e;
       }
       should.exist(error);
-      error.status.should.equal(400);
       error.data.verified.should.equal(false);
-      error.data.credential.should.eql({
-        ...credential, returnHintMarker: 'test-marker'
-      });
+      error.data.verifiablePresentation.should.eql(presentation);
     });
+
+    it('applies the instance default return hint to a presentation',
+      async () => {
+        const {challenge, presentation} = await signedPresentation();
+        const {data} = await verifyPresentationWith({
+          id: hintVerifierId,
+          capability: hintRootZcap,
+          options: {
+            challenge,
+            checks: ['proof'],
+            responseFormat: 'vcalm-v1',
+            returnPresentation: true
+          },
+          presentation
+        });
+        data.verified.should.equal(true);
+        data.verifiablePresentation.should.eql({
+          ...presentation, returnHintMarker: 'test-marker'
+        });
+      });
+
+    for(const [title, returnHint, detail] of [
+      ['an unknown hint', 'test-unknown',
+        'Unknown return hint "test-unknown".'],
+      ['a failing mapping', 'test-throws',
+        'Return hint "test-throws" could not be applied.']
+    ]) {
+      it(`returns the presentation with problemDetails for ${title}`,
+        async () => {
+          const {challenge, presentation} = await signedPresentation();
+          const {data, status} = await verifyPresentationWith({
+            options: {
+              challenge,
+              checks: ['proof'],
+              responseFormat: 'vcalm-v1',
+              returnPresentation: true,
+              returnHint
+            },
+            presentation
+          });
+          status.should.equal(200);
+          data.verified.should.equal(true);
+          data.verifiablePresentation.should.eql(presentation);
+          data.problemDetails.should.eql([{
+            type: RETURN_HINT_NOT_APPLIED,
+            title: 'Return hint not applied',
+            detail
+          }]);
+        });
+    }
+
+    for(const [title, returnHint] of [
+      ['an empty', ''], ['a too long', 'x'.repeat(257)]
+    ]) {
+      it(`rejects ${title} return hint`, async () => {
+        let error;
+        try {
+          await verifyWith({
+            options: v1Options({returnHint}),
+            verifiableCredential: mockCredentials[0]
+          });
+        } catch(e) {
+          error = e;
+        }
+        should.exist(error);
+        error.status.should.equal(400);
+        error.data.name.should.equal('ValidationError');
+      });
+    }
 
     it('ignores the return hint in the vcalm-v0 response', async () => {
       const {data: expected} = await verifyWith({
