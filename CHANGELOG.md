@@ -7,6 +7,10 @@
   When `true`, the response includes `credential`. For a JWT envelope, this is
   the decoded credential.
 
+### Changed
+- In `vcalm-v1`, `POST /credentials/verify` no longer includes `credential`
+  unless `options.returnCredential` is `true`, as VCALM describes.
+
 ## 24.4.0 - 2026-11-18
 
 ### Added

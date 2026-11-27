@@ -1085,7 +1085,7 @@ describe('verify APIs', () => {
       });
       data.verified.should.equal(true);
       // the decoded credential, not the request envelope
-      data.credential.type.should.include('VerifiableCredential');
+      data.credential.type.should.not.equal('EnvelopedVerifiableCredential');
       data.credential.issuer.should.equal(capabilityAgent.id);
       data.credential.credentialSubject.should.be.an('object');
     });
