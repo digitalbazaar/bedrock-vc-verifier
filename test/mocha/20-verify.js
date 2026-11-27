@@ -1018,7 +1018,8 @@ describe('verify APIs', () => {
         verifiableCredential: mockCredentials[0]
       });
       data.verified.should.equal(true);
-      data.credential.should.be.an('object');
+      // the credential is returned only when returnCredential is set
+      data.should.not.have.property('credential');
       data.results.should.be.an('object');
       data.results.should.not.be.an('array');
       data.results.proof.should.be.an('array');
@@ -1048,6 +1049,92 @@ describe('verify APIs', () => {
         'https://w3id.org/security#PROOF_VERIFICATION_ERROR');
       problem.title.should.equal('Proof verification failed');
       problem.detail.should.equal('Invalid signature.');
+    });
+
+    it('returns the credential when returnCredential is true', async () => {
+      const {data} = await verifyWith({
+        options: {
+          checks: ['proof'],
+          responseFormat: 'vcalm-v1',
+          returnCredential: true
+        },
+        verifiableCredential: mockCredentials[0]
+      });
+      data.verified.should.equal(true);
+      // the credential as sent in the request
+      data.credential.should.eql(mockCredentials[0]);
+    });
+
+    it('returns the decoded VC-JWT credential when returnCredential ' +
+      'is true', async () => {
+      let verifiableCredential = structuredClone(mockCredentials[0]);
+      delete verifiableCredential.proof;
+      const signer = capabilityAgent.getSigner();
+      signer.algorithm = 'Ed25519';
+      verifiableCredential.issuer = capabilityAgent.id;
+      verifiableCredential = await helpers.envelopeCredential({
+        verifiableCredential, signer
+      });
+      const {data} = await verifyWith({
+        options: {
+          checks: ['proof'],
+          responseFormat: 'vcalm-v1',
+          returnCredential: true
+        },
+        verifiableCredential
+      });
+      data.verified.should.equal(true);
+      // the decoded credential, not the request envelope
+      data.credential.type.should.include('VerifiableCredential');
+      data.credential.issuer.should.equal(capabilityAgent.id);
+      data.credential.credentialSubject.should.be.an('object');
+    });
+
+    it('returns the credential with problemDetails when returnCredential ' +
+      'is true and verification fails', async () => {
+      const credential = badCredential();
+      let error;
+      try {
+        await verifyWith({
+          options: {
+            checks: ['proof'],
+            responseFormat: 'vcalm-v1',
+            returnCredential: true
+          },
+          verifiableCredential: credential
+        });
+      } catch(e) {
+        error = e;
+      }
+      should.exist(error);
+      error.data.verified.should.equal(false);
+      error.data.credential.should.eql(credential);
+      error.data.problemDetails.should.be.an('array');
+    });
+
+    it('omits the credential when returnCredential is false', async () => {
+      const {data} = await verifyWith({
+        options: {
+          checks: ['proof'],
+          responseFormat: 'vcalm-v1',
+          returnCredential: false
+        },
+        verifiableCredential: mockCredentials[0]
+      });
+      data.verified.should.equal(true);
+      data.should.not.have.property('credential');
+    });
+
+    it('ignores returnCredential in the vcalm-v0 response', async () => {
+      const {data: expected} = await verifyWith({
+        options: {checks: ['proof']},
+        verifiableCredential: mockCredentials[0]
+      });
+      const {data} = await verifyWith({
+        options: {checks: ['proof'], returnCredential: true},
+        verifiableCredential: mockCredentials[0]
+      });
+      data.should.eql(expected);
     });
 
     it('rejects an unknown responseFormat', async () => {

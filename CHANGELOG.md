@@ -1,5 +1,12 @@
 # bedrock-vc-verifier ChangeLog
 
+## 24.5.0 - 2026-mm-dd
+
+### Added
+- Add `options.returnCredential` to `POST /credentials/verify` in `vcalm-v1`.
+  When `true`, the response includes `credential`. For a JWT envelope, this is
+  the decoded credential.
+
 ## 24.4.0 - 2026-11-18
 
 ### Added
