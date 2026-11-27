@@ -27,6 +27,11 @@ describe('problem details', () => {
       });
     });
 
+    it('tags an error with a type this service defines', () => {
+      const error = tagProblemType(new Error('x'), 'RETURN_HINT_NOT_APPLIED');
+      deepStrictEqual(error.details.problemType, 'RETURN_HINT_NOT_APPLIED');
+    });
+
     it('throws for an unknown problem type', () => {
       throws(() => tagProblemType(new Error('x'), 'BOGUS'), /Unknown/);
     });
@@ -77,7 +82,20 @@ describe('problem details', () => {
       deepStrictEqual(
         Object.keys(PROBLEM_TYPES).sort(),
         [...cases.map(({problemType}) => problemType),
-          'CRYPTOGRAPHIC_SECURITY_ERROR', 'RANGE_ERROR'].sort());
+          'CRYPTOGRAPHIC_SECURITY_ERROR', 'RANGE_ERROR',
+          'RETURN_HINT_NOT_APPLIED'].sort());
+    });
+
+    it('uses the full type of a type this service defines', () => {
+      deepStrictEqual(
+        problemDetails({
+          problemType: 'RETURN_HINT_NOT_APPLIED', detail: 'some detail'
+        }), {
+          type: 'tag:digitalbazaar.com,2026:vc-verifier:' +
+            'return-hint-not-applied',
+          title: 'Return hint not applied',
+          detail: 'some detail'
+        });
     });
 
     it('defaults an untagged error to the proof verification error', () => {
